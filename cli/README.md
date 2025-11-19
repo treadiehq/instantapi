@@ -73,15 +73,18 @@ Options:
 
 ## Example
 
+### Without API Key (1 hour limit)
+
 ```bash
 # Terminal 1: Start your local server
 npm run dev  # Your NestJS/Express/FastAPI app on http://localhost:3000
 
-# Terminal 2: Expose an endpoint
+# Terminal 2: Expose an endpoint (no API key = 1hr temporary tunnel)
 instant-api expose http://localhost:3000/api/users/create --backend http://localhost:3001
 
 # Output:
 # 🚀 Instant API - Framework Mode
+# ⚠️  No API key found. Tunnel will be temporary (1 hour limit).
 # ✓ Tunnel registered successfully!
 # 
 # Public URL: http://localhost:3001/t/clx1234567890
@@ -96,6 +99,24 @@ instant-api expose http://localhost:3000/api/users/create --backend http://local
 curl -X POST http://localhost:3001/t/clx1234567890 \
   -H "Content-Type: application/json" \
   -d '{"name": "John Doe", "email": "john@example.com"}'
+```
+
+### With API Key (persistent tunnel)
+
+```bash
+# Set your API key first
+export INSTANT_API_KEY=ik_your_key_here
+
+# Now expose with no time limit
+instant-api expose http://localhost:3000/api/users/create
+
+# Output:
+# 🚀 Instant API - Framework Mode
+# ✓ Tunnel registered successfully!
+# 
+# Public URL: http://localhost:3001/t/clx1234567890
+# Target URL: http://localhost:3000/api/users/create
+# Tunnel ID: clx1234567890
 ```
 
 ## How it works

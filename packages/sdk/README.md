@@ -138,17 +138,22 @@ console.log('Functions exposed. Press Ctrl+C to exit.');
 ```
 
 ```bash
-# Run your functions
+# Terminal 1: Run your functions
 node functions.ts
 
-# In another terminal, expose to internet
+# Terminal 2: Set API key (REQUIRED for function mode)
+export INSTANT_API_KEY=ik_your_key_here
+
+# Then expose to internet
 npx instant-api expose http://localhost:7777/fn/processData
 
-# Test it
+# Terminal 3: Test it
 curl -X POST http://localhost:3001/t/abc123 \
   -H "Content-Type: application/json" \
   -d '{"data": [1, 2, 3, 4, 5], "operation": "sum"}'
 ```
+
+> ⚠️ **Important**: Function mode always requires an API key for security. Get yours at http://localhost:3000 after signing up.
 
 ## Metadata File
 
