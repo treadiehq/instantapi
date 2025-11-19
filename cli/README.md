@@ -27,6 +27,39 @@ This will:
 3. Forward all requests to your local endpoint
 4. Keep running until you press Ctrl+C
 
+### Authentication
+
+**Optional for Framework mode** (1 hour temporary tunnels):
+```bash
+# Works without authentication (1hr limit)
+instant-api expose http://localhost:3000/api/users
+```
+
+**Required for Function mode** (always requires API key):
+```bash
+# Set API key first
+export INSTANT_API_KEY=ik_your_key_here
+
+# Then expose functions
+instant-api expose myFunction
+```
+
+**For persistent tunnels** (24hr+ without limits):
+1. Sign up at `http://localhost:3000`
+2. Generate an API key in your dashboard
+3. Configure the CLI:
+
+```bash
+# Method 1: Environment variable
+export INSTANT_API_KEY=ik_your_key_here
+
+# Method 2: Config command
+instant-api config --api-key ik_your_key_here
+
+# Now expose with full access
+instant-api expose http://localhost:3000/api
+```
+
 ### Options
 
 ```bash

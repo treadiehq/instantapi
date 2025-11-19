@@ -53,7 +53,7 @@
         
         <div v-if="!generatedKey" class="space-y-4">
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-2">
+            <label class="block text-sm font-medium text-white mb-2">
               Key Name
             </label>
             <input

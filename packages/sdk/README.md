@@ -33,16 +33,30 @@ expose('fetchUser', async (input) => {
 
 ### Expose to Internet
 
+**⚠️ Function mode requires API key authentication**
+
 ```bash
-# Terminal 1: Run your app with exposed functions
+# Step 1: Get your API key
+# Visit http://localhost:3000 and sign up
+# Generate an API key from your dashboard
+
+# Step 2: Set your API key
+export INSTANT_API_KEY=ik_your_key_here
+
+# Step 3: Run your app with exposed functions
 node app.js
 
-# Terminal 2: Expose a specific function
+# Step 4: Expose a specific function
 npx instant-api expose http://localhost:7777/fn/hello
 
 # Or let CLI auto-detect (if SDK metadata file exists)
 npx instant-api expose hello
 ```
+
+**Why API key is required:**
+- Function mode always requires authentication
+- This prevents unauthorized access to your local functions
+- Framework mode (regular HTTP endpoints) has optional auth with 1hr limit
 
 ## How It Works
 

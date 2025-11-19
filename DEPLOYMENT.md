@@ -69,11 +69,31 @@ Options for NestJS backend:
 On your chosen platform, set:
 
 ```bash
+# Database
 DATABASE_URL=postgresql://user:password@host:5432/dbname?schema=public
+
+# Cloudflare Sandbox
 CLOUDFLARE_SANDBOX_URL=https://instant-api-sandbox.YOUR_SUBDOMAIN.workers.dev
+
+# Server
 PORT=3001
 NODE_ENV=production
+BACKEND_URL=https://your-backend-url.railway.app
+
+# Authentication
+JWT_SECRET=your-secure-random-string-here  # Generate with: openssl rand -base64 32
+FRONTEND_URL=https://your-frontend-domain.vercel.app
+
+# Email (for magic links)
+RESEND_API_KEY=re_your_resend_api_key  # Get from https://resend.com
+EMAIL_FROM=noreply@yourdomain.com
 ```
+
+**Important:**
+- Generate a strong `JWT_SECRET` (32+ characters)
+- Sign up for [Resend](https://resend.com) to send magic link emails
+- Update `FRONTEND_URL` with your actual frontend domain
+- Set `EMAIL_FROM` to a verified domain in Resend
 
 ### 3.3 Run Migrations
 
@@ -156,12 +176,58 @@ app.enableCors({
 
 Redeploy the backend after this change.
 
-## Step 6: Test Production
+## Step 6: Configure Email Service (Resend)
+
+For production magic link authentication:
+
+### 6.1 Sign up for Resend
+
+1. Visit https://resend.com and create an account
+2. Verify your sending domain (or use their test domain)
+3. Generate an API key
+4. Add to backend environment: `RESEND_API_KEY=re_xxx`
+
+### 6.2 Configure DNS (for custom domain emails)
+
+If using your own domain:
+
+1. Add DNS records provided by Resend
+2. Wait for verification (usually < 5 minutes)
+3. Update `EMAIL_FROM` environment variable
+
+**Note:** For testing, you can use Resend's test domain initially.
+
+## Step 7: Test Production
+
+### 7.1 Test Authentication Flow
 
 1. Visit your frontend URL
-2. Create a test endpoint
-3. Verify it executes correctly
-4. Test with both JavaScript and Python
+2. Click "Sign Up"
+3. Enter email and organization name
+4. Check email for magic link
+5. Click link to verify account
+6. Generate an API key from dashboard
+
+### 7.2 Test API Creation
+
+1. Create a test endpoint (snippet mode)
+2. Verify it executes correctly
+3. Test with both JavaScript and Python
+4. Try different TTL options
+
+### 7.3 Test CLI/Framework Mode
+
+1. Install CLI: `npm install -g @instantapi/cli`
+2. Set API key: `export INSTANT_API_KEY=ik_xxx`
+3. Expose local endpoint: `instant-api expose http://localhost:3000/api`
+4. Test public URL
+
+### 7.4 Test Dashboard
+
+1. Create multiple endpoints
+2. Verify they appear in dashboard
+3. Test copy URL functionality
+4. Check auto-refresh works
 
 ## Cost Breakdown
 
@@ -192,15 +258,20 @@ Redeploy the backend after this change.
 Before going live:
 
 - [ ] Enable HTTPS on all services
+- [ ] Set strong `JWT_SECRET` (32+ characters)
+- [ ] Configure Resend API key for magic link emails
+- [ ] Verify email sender domain in Resend
+- [ ] Update `FRONTEND_URL` to production domain
 - [ ] Add rate limiting (use Cloudflare or backend middleware)
 - [ ] Set up monitoring (Sentry, LogRocket, etc.)
-- [ ] Add authentication if needed
 - [ ] Review and update CORS settings
 - [ ] Set appropriate resource limits
 - [ ] Enable database backups
 - [ ] Set up error tracking
 - [ ] Add uptime monitoring
 - [ ] Review Cloudflare Sandbox limits
+- [ ] Test magic link authentication flow
+- [ ] Verify API key generation and validation
 
 ## Monitoring
 

@@ -73,6 +73,13 @@ expose('calculate', (input) => {
 - ✅ Auto-detected by CLI
 - ✅ TypeScript support
 
+### Authentication & Dashboard
+- ✅ Organization-based multi-tenancy
+- ✅ Passwordless magic link authentication
+- ✅ API key management for CLI/SDK
+- ✅ Dashboard to view all your APIs
+- ✅ Optional authentication (1hr limit without login)
+
 ## Quick Start
 
 ### Prerequisites
@@ -229,6 +236,10 @@ curl -X POST http://localhost:3001/t/xyz789 \
 DATABASE_URL="postgresql://user:pass@localhost:5432/instantapi"
 CLOUDFLARE_SANDBOX_URL="http://localhost:8787"
 BACKEND_URL="http://localhost:3001"
+JWT_SECRET="your-secret-key-here"
+FRONTEND_URL="http://localhost:3000"
+RESEND_API_KEY=""  # Optional: for production email (leave empty for local dev)
+EMAIL_FROM="noreply@instantapi.com"
 ```
 
 **Frontend (.env):**
@@ -236,46 +247,96 @@ BACKEND_URL="http://localhost:3001"
 VITE_API_BASE="http://localhost:3001"
 ```
 
+> **Note:** For local development, magic links are printed to the console. For production, set `RESEND_API_KEY` to send emails via [Resend](https://resend.com).
+
 ### Modes & Options
 
-| Mode | Description | Use Case |
-|------|-------------|----------|
-| **Snippet** | Run code in sandbox | Quick APIs, prototypes |
-| **File Upload** | Upload .js/.ts/.py | Larger code files |
-| **Webhook** | Access headers | Stripe, Twilio webhooks |
-| **Framework** | Proxy local server | Share local dev server |
-| **Streaming** | SSE/WebSocket | Real-time dashboards |
-| **Functions** | SDK-based | Serverless-style dev |
+| Mode | Description | Authentication | Use Case |
+|------|-------------|----------------|----------|
+| **Snippet** | Run code in sandbox | Optional (1hr limit) | Quick APIs, prototypes |
+| **File Upload** | Upload .js/.ts/.py | Required | Larger code files |
+| **Webhook** | Access headers | Optional (1hr limit) | Stripe, Twilio webhooks |
+| **Framework** | Proxy local server | Optional (1hr limit) | Share local dev server |
+| **Streaming** | SSE/WebSocket | Optional (1hr limit) | Real-time dashboards |
+| **Functions** | SDK-based | Required (API key) | Serverless-style dev |
 
 ### TTL (Time-to-Live)
-- **1 hour** - Quick tests
-- **24 hours** - Default (recommended)
-- **7 days** - Longer projects
+- **1 hour** - Quick tests (no auth required)
+- **24 hours** - Default (requires auth)
+- **7 days** - Longer projects (requires auth)
 
 ## Security & Limitations
 
 ### Security
 ⚠️ **For development and testing only**
 
-- No authentication by default
-- Endpoints are public
-- Code runs in isolated sandbox (Cloudflare Workers)
-- Auto-expires to prevent abuse
-- 64KB code size limit
+- **Authentication:** Optional for most features (1hr limit without auth)
+- **Organizations:** Multi-tenant with data isolation
+- **Magic Links:** Passwordless authentication via email
+- **API Keys:** For CLI and SDK access
+- **Endpoints:** Public URLs (consider adding custom auth in your code)
+- **Sandbox:** Code runs in isolated Cloudflare Workers
+- **Auto-expires:** All APIs have TTL to prevent abuse
+- **Size limit:** 64KB code max
 
 ### Production Considerations
-Add these before going live:
-- Rate limiting
-- API authentication
-- Input validation
-- Execution quotas
-- Monitoring & logging
+Recommended additions for production:
+- Rate limiting per organization
+- Endpoint access controls
+- Input validation and sanitization
+- Execution quotas and monitoring
+- Custom domain with SSL
+- Database backups
+- Logging and alerting
 
 ### Current Limitations
 - Code snippets: 64KB max
 - Streaming: 5-minute timeout
 - Functions: JSON input/output only
 - No bidirectional WebSocket (use SSE)
+
+## Authentication
+
+### Sign Up / Login
+
+**Web UI:**
+1. Visit `http://localhost:3000`
+2. Click "Sign Up" or "Sign In"
+3. Enter email and organization name (for signup)
+4. Check console for magic link (local dev)
+5. Click link to authenticate
+
+**Magic Link Flow:**
+- **Local dev:** Link printed to backend console
+- **Production:** Email sent via Resend
+
+### API Keys
+
+**Generate an API key:**
+1. Log in to the web UI
+2. Click your avatar → "Generate API Key"
+3. Name your key and save it securely
+4. Use for CLI and SDK
+
+**Using API keys:**
+```bash
+# Set environment variable
+export INSTANT_API_KEY=ik_your_key_here
+
+# Or configure CLI
+npx instant-api config --api-key ik_your_key_here
+
+# Now you can use CLI with full access
+npx instant-api expose http://localhost:3000/api
+```
+
+### Dashboard
+
+View all your APIs in one place:
+- **Endpoints:** Snippets, file uploads, webhooks
+- **Tunnels:** Framework and function mode tunnels
+- **Actions:** Copy URLs, view status, check activity
+- **Auto-refresh:** Updates every 30 seconds
 
 ## Troubleshooting
 
