@@ -15,7 +15,7 @@
           <!-- Navigation -->
           <nav class="hidden md:flex items-center space-x-4">
             <a 
-              href="https://github.com/yourusername/instant-api" 
+              href="https://github.com/treadiehq/instantapi" 
               target="_blank" 
               rel="noopener noreferrer"
               class="text-gray-400 hover:text-white transition-colors"
@@ -34,26 +34,26 @@
     </header>
 
     <!-- Main Content -->
-    <div class="py-12 px-4 sm:px-6 lg:px-0">
+    <div class="py-12 px-4 sm:px-6 lg:px-0 jetmono antialiased">
       <div class="max-w-5xl mx-auto">
       <!-- Hero Section -->
       <div class="mt-6 md:mt-12 max-w-3xl">
-        <h1 class="text-4xl md:text-5xl font-medium mb-6 leading-tight text-white">
+        <h1 class="mb-6 text-2xl font-bold sm:mb-8 sm:text-3xl leading-tight text-white">
           <!-- Turn your <span class="text-blue-300">javascript</span> or <span class="text-blue-300">python</span> code into a <span class="text-amber-300">live API</span> instantly -->
-          Turn your <span class="text-blue-300">code</span> into a <span class="text-amber-300">API</span> instantly
+          Turn your <span class="bg-blue-300 px-1 text-black">code</span> into a <span class="bg-amber-300 px-1 text-black">API</span> instantly
         </h1>
-        <p class="text-lg text-gray-400 leading-relaxed mb-4">
-          Paste your code or upload a file, and get a 
-          secure endpoint you can call from anywhere. 
+        <p class="text-gray-400 mb-6 text-sm leading-[1.6] sm:mb-8 sm:text-base">
+          <span class="bg-blue-300 px-1 text-black">Paste your code</span> or upload a file, and get a 
+          <span class="bg-green-300 px-1 text-black">secure endpoint</span> you can call from anywhere. 
           No servers, no deployment, no configuration.
         </p>
-        <p class="text-sm text-gray-500">
+        <!-- <p class="text-sm text-gray-500">
           Configurable TTL • Webhook support • Outbound HTTP
-        </p>
+        </p> -->
       </div>
 
       <!-- Main Card -->
-      <div class="card mt-14 md:mt-24">
+      <div class="card mt-14 md:mt-16">
         <!-- Mode Tabs -->
         <div class="border-b border-gray-500/10">
           <div class="flex">
@@ -78,6 +78,28 @@
               ]"
             >
               File Upload
+            </button>
+            <button
+              @click="switchToFrameworkMode"
+              :class="[
+                'px-6 py-3 text-sm font-medium transition-colors',
+                mode === 'framework'
+                  ? 'text-white border-b-2 border-blue-300'
+                  : 'text-gray-400 hover:text-white'
+              ]"
+            >
+              Framework
+            </button>
+            <button
+              @click="switchToFunctionMode"
+              :class="[
+                'px-6 py-3 text-sm font-medium transition-colors',
+                mode === 'function'
+                  ? 'text-white border-b-2 border-blue-300'
+                  : 'text-gray-400 hover:text-white'
+              ]"
+            >
+              Function
             </button>
           </div>
         </div>
@@ -137,7 +159,8 @@
           />
         </div>
 
-        <div v-else class="p-8 bg-black">
+        <!-- File Upload Mode -->
+        <div v-else-if="mode === 'file'" class="p-8 bg-black">
           <div class="max-w-xl mx-auto">
             <label class="block">
               <div 
@@ -184,12 +207,125 @@
           </div>
         </div>
 
+        <!-- Framework Mode -->
+        <div v-else-if="mode === 'framework'" class="p-8 bg-black">
+          <div class="max-w-2xl mx-auto">
+            <div class="flex items-start space-x-3 mb-6">
+              <svg class="w-8 h-8 text-purple-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01" />
+              </svg>
+              <div>
+                <h3 class="text-lg font-semibold text-white mb-2">Framework Mode</h3>
+                <p class="text-gray-400 text-sm leading-relaxed mb-4">
+                  Already have a backend running? (NestJS, Express, FastAPI, etc.) Expose any local route to the internet instantly with our CLI.
+                </p>
+              </div>
+            </div>
+            
+            <div class="bg-gray-500/5 border border-gray-500/10 rounded-lg p-6">
+              <div class="mb-4">
+                <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Terminal</p>
+                <div class="flex items-center justify-between bg-black rounded-lg p-3 font-mono text-sm">
+                  <code class="text-green-400">npx @instantapi/cli expose http://localhost:3000/api/users/create</code>
+                  <button 
+                    @click="copyFrameworkCommand"
+                    class="ml-3 text-gray-400 hover:text-white transition-colors"
+                    title="Copy command"
+                  >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+              
+              <div class="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4">
+                <p class="text-sm text-blue-300">
+                  <span class="font-semibold">Note:</span> Your local backend must be running and reachable. The CLI forwards requests from the public URL to your localhost.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Function Mode -->
+        <div v-else-if="mode === 'function'" class="p-8 bg-black">
+          <div class="max-w-2xl mx-auto">
+            <div class="flex items-start space-x-3 mb-6">
+              <svg class="w-8 h-8 text-amber-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+              </svg>
+              <div>
+                <h3 class="text-lg font-semibold text-white mb-2">Function Mode SDK</h3>
+                <p class="text-gray-400 text-sm leading-relaxed mb-4">
+                  Expose single functions without setting up a full server. Perfect for serverless-style development!
+                </p>
+              </div>
+            </div>
+            
+            <div class="space-y-4">
+              <!-- Install SDK -->
+              <div class="bg-gray-500/5 border border-gray-500/10 rounded-lg p-6">
+                <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Install SDK</p>
+                <div class="flex items-center justify-between bg-black rounded-lg p-3 font-mono text-sm">
+                  <code class="text-green-400">npm install @instantapi/sdk</code>
+                  <button 
+                    @click="copyInstallCommand"
+                    class="ml-3 text-gray-400 hover:text-white transition-colors"
+                    title="Copy command"
+                  >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+              
+              <!-- Create functions -->
+              <div class="bg-gray-500/5 border border-gray-500/10 rounded-lg p-6">
+                <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">functions.ts</p>
+                <pre class="bg-black rounded-lg p-4 text-sm overflow-x-auto"><code class="text-gray-300"><span class="text-purple-400">import</span> { <span class="text-blue-400">expose</span> } <span class="text-purple-400">from</span> <span class="text-green-400">'@instantapi/sdk'</span>;
+
+<span class="text-blue-400">expose</span>(<span class="text-green-400">'hello'</span>, (<span class="text-orange-400">input</span>) => {
+  <span class="text-purple-400">return</span> { 
+    message: <span class="text-green-400">`Hello \${<span class="text-orange-400">input</span>.name}!`</span>
+  };
+});</code></pre>
+              </div>
+              
+              <!-- Expose by function name -->
+              <div class="bg-gray-500/5 border border-gray-500/10 rounded-lg p-6">
+                <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Expose by function name</p>
+                <div class="flex items-center justify-between bg-black rounded-lg p-3 font-mono text-sm">
+                  <code class="text-green-400">npx instant-api expose hello</code>
+                  <button 
+                    @click="copyExposeCommand"
+                    class="ml-3 text-gray-400 hover:text-white transition-colors"
+                    title="Copy command"
+                  >
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+              
+              <div class="bg-amber-500/10 border border-amber-500/20 rounded-lg p-4">
+                <p class="text-sm text-amber-300">
+                  <span class="font-semibold">Perfect for serverless-style development!</span>
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Error Display -->
         <div v-if="error.create" class="mx-4 mt-4 p-3 bg-red-500/10 border border-red-500/20 rounded text-red-400 text-sm">
           {{ error.create }}
         </div>
 
-        <div class="flex justify-between items-end p-4 border-t border-gray-500/10">
+        <!-- Configuration and Create Button (hidden for Framework and Function modes) -->
+        <div v-if="mode !== 'framework' && mode !== 'function'" class="flex justify-between items-end p-4 border-t border-gray-500/10">
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <!-- Language Select -->
             <div class="relative">
@@ -291,7 +427,6 @@
             <div class="flex-1">
               <h2 class="text-2xl font-medium mb-3 text-white">
                 Framework Mode
-                <span class="ml-3 text-sm px-3 py-1 bg-purple-500/20 text-purple-300 rounded-full">ngrok-style</span>
               </h2>
               <p class="text-gray-400 mb-6 leading-relaxed">
                 Already have a backend running? (NestJS, Express, FastAPI, etc.) Expose any local route to the internet instantly with our CLI.
@@ -308,47 +443,7 @@
                     Copy
                   </button>
                 </div>
-                <pre class="text-sm text-green-400 font-mono">npx @instantapi/cli expose http://localhost:3000/api/users/create</pre>
-              </div>
-
-              <!-- Features List -->
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-6">
-                <div class="flex items-start gap-2">
-                  <svg class="w-5 h-5 text-green-400 shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd" />
-                  </svg>
-                  <div>
-                    <p class="text-sm font-medium text-white">No code changes</p>
-                    <p class="text-xs text-gray-500">Works with your existing project</p>
-                  </div>
-                </div>
-                <div class="flex items-start gap-2">
-                  <svg class="w-5 h-5 text-green-400 shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd" />
-                  </svg>
-                  <div>
-                    <p class="text-sm font-medium text-white">Instant public URL</p>
-                    <p class="text-xs text-gray-500">Share with anyone immediately</p>
-                  </div>
-                </div>
-                <div class="flex items-start gap-2">
-                  <svg class="w-5 h-5 text-green-400 shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd" />
-                  </svg>
-                  <div>
-                    <p class="text-sm font-medium text-white">Local development</p>
-                    <p class="text-xs text-gray-500">Keep coding on localhost</p>
-                  </div>
-                </div>
-                <div class="flex items-start gap-2">
-                  <svg class="w-5 h-5 text-green-400 shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd" />
-                  </svg>
-                  <div>
-                    <p class="text-sm font-medium text-white">Real-time forwarding</p>
-                    <p class="text-xs text-gray-500">All requests reach your server</p>
-                  </div>
-                </div>
+                <pre class="text-sm text-blue-300 font-mono">npx @instantapi/cli expose http://localhost:3000/api/users/create</pre>
               </div>
 
               <!-- Active Tunnels -->
@@ -370,7 +465,7 @@
                     </div>
                     <div class="shrink-0 ml-4">
                       <span class="inline-flex items-center gap-1 text-xs text-green-400">
-                        <span class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
+                        <span class="w-2 h-2 bg-green-300 rounded-full animate-pulse"></span>
                         Active
                       </span>
                     </div>
@@ -379,7 +474,7 @@
               </div>
 
               <!-- Info Note -->
-              <div class="mt-4 p-3 bg-blue-500/10 border border-blue-500/20 rounded text-sm text-blue-300">
+              <div class="mt-4 p-3 bg-blue-300/10 border border-blue-300/10 rounded-lg text-sm text-blue-300">
                 <span class="font-semibold">Note:</span> Your local backend must be running and reachable. The CLI forwards requests from the public URL to your localhost.
               </div>
 
@@ -387,28 +482,6 @@
               <div class="mt-6 pt-6 border-t border-gray-500/10">
                 <h3 class="text-sm font-semibold text-gray-300 mb-3">Advanced Features</h3>
                 <div class="space-y-3">
-                  <!-- SSE Support -->
-                  <details class="group">
-                    <summary class="cursor-pointer text-sm text-gray-400 hover:text-white flex items-center gap-2">
-                      <svg class="w-4 h-4 transition-transform group-open:rotate-90" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clip-rule="evenodd" />
-                      </svg>
-                      Server-Sent Events (SSE) Support
-                    </summary>
-                    <div class="mt-2 ml-6 text-xs text-gray-500 space-y-2">
-                      <p>Framework Mode automatically detects and proxies SSE streams from your local server.</p>
-                      <div class="bg-black/50 rounded p-2 font-mono">
-                        <div class="text-green-400">// Your local server (Express)</div>
-                        <div class="text-white">app.get('/stream', (req, res) => {</div>
-                        <div class="text-white">  res.setHeader('Content-Type',</div>
-                        <div class="text-white">    'text/event-stream');</div>
-                        <div class="text-white">  // Send events...</div>
-                        <div class="text-white">});</div>
-                      </div>
-                      <p class="text-blue-300">The tunnel will automatically stream events to clients in real-time.</p>
-                    </div>
-                  </details>
-
                   <!-- Function Mode -->
                   <details class="group">
                     <summary class="cursor-pointer text-sm text-gray-400 hover:text-white flex items-center gap-2">
@@ -761,7 +834,7 @@ function showToast(message: string, type: 'success' | 'error' | 'info' = 'info',
 }
 
 // Form state
-const mode = ref<'snippet' | 'file'>('snippet')
+const mode = ref<'snippet' | 'file' | 'framework' | 'function'>('snippet')
 const language = ref<'javascript' | 'python'>('javascript')
 const code = ref('')
 const ttlHours = ref(24)
@@ -1130,6 +1203,42 @@ function switchToSnippetMode() {
 function switchToFileMode() {
   mode.value = 'file'
   code.value = ''
+}
+
+// Switch to framework mode
+function switchToFrameworkMode() {
+  mode.value = 'framework'
+  code.value = ''
+  selectedFile.value = null
+  if (fileInput.value) {
+    fileInput.value.value = ''
+  }
+}
+
+// Switch to function mode
+function switchToFunctionMode() {
+  mode.value = 'function'
+  code.value = ''
+  selectedFile.value = null
+  if (fileInput.value) {
+    fileInput.value.value = ''
+  }
+}
+
+// Copy command helpers for Framework and Function modes
+async function copyFrameworkCommand() {
+  const cmd = 'npx @instantapi/cli expose http://localhost:3000/api/users/create'
+  await copyToClipboard(cmd)
+}
+
+async function copyInstallCommand() {
+  const cmd = 'npm install @instantapi/sdk'
+  await copyToClipboard(cmd)
+}
+
+async function copyExposeCommand() {
+  const cmd = 'npx instant-api expose hello'
+  await copyToClipboard(cmd)
 }
 
 // Load example code

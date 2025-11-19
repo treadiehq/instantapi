@@ -77,6 +77,12 @@
     font-feature-settings: "calt", "dlig", "liga", "kern", "ss01", "ss02", "ss03", "ss04", "ss07", "ss08", "tnum", "cv02", "cv03", "cv04", "cv11";
     font-synthesis: none;
     scroll-behavior: smooth;
+    line-height: 1.5;
+    /* -webkit-font-smoothing: antialiased; */
+  }
+
+  .jetmono {
+    font-family: "JetBrains Mono", "SFMono-Regular", "Menlo", "Consolas", "ui-monospace", "Monaco", "Courier New", monospace;
   }
   
   body, html {
