@@ -51,33 +51,18 @@ curl -X POST https://your-url/t/xyz -d '{"name": "World"}'
 
 ### `expose(name, handler)`
 
-Expose a function via Instant API.
-
-**Parameters:**
-- `name` (string) - Function name (used in URL path)
-- `handler` (function) - Function that takes input and returns result
-
-**Returns:** `Promise<void>`
-
-**Example:**
 ```typescript
-expose('calculateTax', (input) => {
-  const tax = input.amount * 0.15;
-  return { tax, total: input.amount + tax };
+expose('functionName', (input) => {
+  // Your logic
+  return { result: 'whatever' };
 });
 ```
 
 ### `stop()`
 
-Stop the SDK server and clean up resources.
-
-**Returns:** `Promise<void>`
-
-**Example:**
 ```typescript
 import { stop } from '@instantapi/sdk';
 
-// Graceful shutdown
 process.on('SIGINT', async () => {
   await stop();
   process.exit(0);
@@ -161,56 +146,32 @@ npx instant-api expose myFunction
 # CLI automatically constructs: http://localhost:7777/fn/myFunction
 ```
 
-## TypeScript Support
-
-Full TypeScript support with type definitions included.
+## TypeScript
 
 ```typescript
-import { expose } from '@instantapi/sdk';
+interface Input { a: number; b: number; }
+interface Output { result: number; }
 
-interface CalculateInput {
-  a: number;
-  b: number;
-}
-
-interface CalculateOutput {
-  result: number;
-}
-
-expose('calculate', (input: CalculateInput): CalculateOutput => {
+expose('add', (input: Input): Output => {
   return { result: input.a + input.b };
 });
 ```
 
 ## Error Handling
 
-Errors are automatically caught and returned with 500 status:
-
 ```typescript
-expose('riskyOperation', async (input) => {
-  if (!input.required) {
-    throw new Error('Missing required field');
-  }
-  
-  // Process...
-  return { success: true };
+expose('validate', (input) => {
+  if (!input.email) throw new Error('Email required');
+  return { valid: true };
 });
 
-// Error response:
-// {
-//   "error": "Missing required field",
-//   "stack": "Error: Missing required field\n    at ..."
-// }
+// Errors auto-return as JSON with 500 status
 ```
 
 ## Health Check
 
-The SDK provides a health check endpoint:
-
 ```bash
 curl http://localhost:7777/health
-
-# Response:
 # {
 #   "status": "ok",
 #   "functions": ["hello", "calculate"],
@@ -218,20 +179,20 @@ curl http://localhost:7777/health
 # }
 ```
 
-## Limitations
+## What Works
 
-- Functions must accept JSON input
-- Functions must return JSON-serializable output
-- Synchronous and async functions both supported
-- No WebSocket support (use SSE instead)
+- ✅ JSON input/output
+- ✅ Async functions
+- ✅ Error handling
+- ✅ TypeScript
 
-## Use Cases
+## Great For
 
-- **Quick API prototyping** - Expose functions without Express/NestJS setup
-- **Serverless-style development** - Write functions, not servers
-- **Webhook handlers** - Process webhooks locally during development
-- **Microservices testing** - Test individual functions in isolation
-- **AI/ML inference** - Expose model prediction functions
+- Quick prototypes
+- Webhook testing
+- AI/ML inference
+- Serverless-style dev
+- Microservice testing
 
 ## Examples
 
