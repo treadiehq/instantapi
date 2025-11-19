@@ -111,6 +111,8 @@ Open **http://localhost:3000**
 
 ### Example 1: Code Snippet
 
+💡 **No authentication required** (1 hour limit - sign in for 24hr/7day options)
+
 **In the UI:**
 1. Paste your code
 2. Click "Create an API"
@@ -137,6 +139,8 @@ curl -X POST http://localhost:3001/run/abc123 \
 
 ### Example 2: Expose Local API
 
+💡 **No authentication required** (1 hour temporary tunnel - add API key for persistent tunnels)
+
 **Start your backend:**
 ```bash
 # Your Express/NestJS/FastAPI app running on :3000
@@ -150,6 +154,7 @@ npm run build
 node dist/index.js expose http://localhost:3000/api/users
 
 # Output:
+# ⚠️  No API key found. Tunnel will be temporary (1 hour limit).
 # ✓ Tunnel registered!
 # Public URL: http://localhost:3001/t/xyz789
 # Target URL: http://localhost:3000/api/users
@@ -165,6 +170,8 @@ curl -X POST http://localhost:3001/t/xyz789 \
 ```
 
 ### Example 3: Real-Time Streaming
+
+💡 **No authentication required** (1 hour temporary tunnel)
 
 **Your SSE endpoint:**
 ```javascript
@@ -190,6 +197,8 @@ curl -N http://localhost:3001/t/xyz789
 
 ### Example 4: Function Mode
 
+⚠️ **Requires API Key** - Sign up and generate one in the dashboard
+
 **Install SDK:**
 ```bash
 npm install @instantapi/sdk
@@ -209,16 +218,24 @@ expose('calculate', async (input) => {
 });
 ```
 
+**Set up authentication:**
+```bash
+# 1. Sign up at http://localhost:3000 and generate an API key
+# 2. Set your API key
+export INSTANT_API_KEY=ik_your_key_here
+```
+
 **Run & expose:**
 ```bash
-# Terminal 1
+# Terminal 1: Run your functions
 node functions.js
 
-# Terminal 2
+# Terminal 2: Expose with CLI (API key required)
 npx instant-api expose greet  # Auto-detected!
 
-# Terminal 3
+# Terminal 3: Test it
 curl -X POST http://localhost:3001/t/xyz789 \
+  -H "Content-Type: application/json" \
   -d '{"name": "World"}'
 ```
 
