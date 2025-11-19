@@ -3,6 +3,8 @@ import {
   Post,
   Body,
   Get,
+  Delete,
+  Param,
   Query,
   UseGuards,
   Req,
@@ -52,6 +54,19 @@ export class AuthController {
   @UseGuards(AuthGuard)
   async createApiKey(@Req() req: any, @Body('name') name: string) {
     return this.authService.createApiKey(req.user.organizationId, name);
+  }
+
+  @Get('api-keys')
+  @UseGuards(AuthGuard)
+  async listApiKeys(@Req() req: any) {
+    return this.authService.listApiKeys(req.user.organizationId);
+  }
+
+  @Delete('api-key/:id')
+  @UseGuards(AuthGuard)
+  async deleteApiKey(@Req() req: any, @Param('id') id: string) {
+    await this.authService.deleteApiKey(req.user.organizationId, id);
+    return { success: true };
   }
 }
 

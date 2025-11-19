@@ -1,63 +1,49 @@
 # Instant API CLI
 
-Expose your local HTTP endpoints to the internet instantly - no deployment, no configuration.
+Share your local server with the world. Like ngrok, but simpler.
 
 ## Installation
 
 ```bash
-# From the CLI directory
-npm install
-npm run build
-
-# Or use directly with npx (once published)
-npx @instantapi/cli expose http://localhost:3000/api/users
+npx instant-api expose http://localhost:3000/api/users
 ```
+
+That's it! No sign up needed for quick tests (1hr limit).
 
 ## Usage
 
-### Expose a local endpoint
-
 ```bash
 instant-api expose http://localhost:3000/api/users
 ```
 
-This will:
-1. Register a tunnel with the Instant API backend
-2. Print a public URL (e.g., `http://localhost:3001/t/abc123`)
-3. Forward all requests to your local endpoint
-4. Keep running until you press Ctrl+C
+You get:
+- ✅ Public URL instantly
+- ✅ Requests forwarded to your local server
+- ✅ Works with any framework (Express, NestJS, FastAPI, etc.)
+- ✅ Press Ctrl+C to stop
 
 ### Authentication
 
-**Optional for Framework mode** (1 hour temporary tunnels):
+**Quick test (no auth):**
 ```bash
-# Works without authentication (1hr limit)
-instant-api expose http://localhost:3000/api/users
-```
-
-**Required for Function mode** (always requires API key):
-```bash
-# Set API key first
-export INSTANT_API_KEY=ik_your_key_here
-
-# Then expose functions
-instant-api expose myFunction
-```
-
-**For persistent tunnels** (24hr+ without limits):
-1. Sign up at `http://localhost:3000`
-2. Generate an API key in your dashboard
-3. Configure the CLI:
-
-```bash
-# Method 1: Environment variable
-export INSTANT_API_KEY=ik_your_key_here
-
-# Method 2: Config command
-instant-api config --api-key ik_your_key_here
-
-# Now expose with full access
 instant-api expose http://localhost:3000/api
+# → 1 hour limit, perfect for testing
+```
+
+**For longer tunnels:**
+1. Sign up at http://localhost:3000
+2. Generate API key
+3. Set it:
+```bash
+export INSTANT_API_KEY=ik_your_key_here
+instant-api expose http://localhost:3000/api
+# → No time limit
+```
+
+**Function mode always needs API key:**
+```bash
+export INSTANT_API_KEY=ik_your_key_here
+instant-api expose myFunction
 ```
 
 ### Options

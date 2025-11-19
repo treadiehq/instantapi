@@ -26,10 +26,10 @@
             class="absolute right-0 top-full mt-2 w-48 bg-black border border-gray-500/20 rounded-lg shadow-lg p-2 z-50"
           >
             <button
-              @click="showApiKeyModal = true; showMenu = false"
+              @click="openApiKeyModal(); showMenu = false"
               class="w-full text-left px-2 py-2 text-xs text-white hover:bg-gray-500/20 rounded-lg transition-colors"
             >
-              Generate API Key
+              Manage API Keys
             </button>
             <button
               @click="handleLogout"
@@ -48,10 +48,78 @@
       class="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
       @click.self="showApiKeyModal = false"
     >
-      <div class="bg-black border border-gray-500/20 rounded-lg p-6 max-w-md w-full">
-        <h3 class="text-lg font-semibold mb-4">Generate API Key</h3>
-        
-        <div v-if="!generatedKey" class="space-y-4">
+      <div class="bg-black border border-gray-500/20 rounded-lg p-6 max-w-md w-full max-h-[80vh] overflow-y-auto">
+        <!-- List View -->
+        <div v-if="modalView === 'list'" class="space-y-4">
+          <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-semibold">API Keys</h3>
+            <button
+              @click="modalView = 'generate'"
+              class="btn-primary py-2 px-4 text-xs"
+            >
+              + New Key
+            </button>
+          </div>
+
+          <div v-if="loadingKeys" class="text-center py-8 text-gray-400">
+            Loading...
+          </div>
+
+          <div v-else-if="apiKeys.length === 0" class="text-center py-8 text-gray-400">
+            <p class="mb-4">No API keys yet</p>
+            <button
+              @click="modalView = 'generate'"
+              class="btn-secondary py-2 px-4 text-xs"
+            >
+              Create your first key
+            </button>
+          </div>
+
+          <div v-else class="space-y-2">
+            <div
+              v-for="key in apiKeys"
+              :key="key.id"
+              class="border border-gray-500/20 rounded-lg p-4 flex items-start justify-between"
+            >
+              <div class="flex-1 min-w-0">
+                <p class="text-sm font-medium text-white truncate">{{ key.name }}</p>
+                <p class="text-xs text-gray-500 mt-1">
+                  Created {{ formatDate(key.createdAt) }}
+                </p>
+                <p v-if="key.lastUsedAt" class="text-xs text-gray-500">
+                  Last used {{ formatDate(key.lastUsedAt) }}
+                </p>
+              </div>
+              <button
+                @click="deleteApiKey(key.id)"
+                :disabled="deletingKeyId === key.id"
+                class="ml-3 text-red-400 hover:text-red-300 text-xs disabled:opacity-50"
+              >
+                {{ deletingKeyId === key.id ? 'Deleting...' : 'Delete' }}
+              </button>
+            </div>
+          </div>
+
+          <button
+            @click="closeApiKeyModal"
+            class="w-full btn-secondary py-3 mt-4"
+          >
+            Close
+          </button>
+        </div>
+
+        <!-- Generate View -->
+        <div v-else-if="modalView === 'generate'" class="space-y-4">
+          <div class="flex items-center mb-4">
+            <button
+              @click="backToList"
+              class="text-gray-400 hover:text-white mr-3"
+            >
+              ← Back
+            </button>
+            <h3 class="text-lg font-semibold">Generate API Key</h3>
+          </div>
+
           <div>
             <label class="block text-sm font-medium text-white mb-2">
               Key Name
@@ -61,7 +129,11 @@
               type="text"
               placeholder="My CLI Key"
               class="w-full px-3 py-2 input-field focus:border-transparent"
+              @keydown.enter="generateApiKey"
             />
+            <p class="text-xs text-gray-500 mt-1">
+              Choose a unique name to identify this key
+            </p>
           </div>
           
           <div v-if="apiKeyError" class="bg-red-400/10 border border-red-400/10 rounded-lg p-4">
@@ -77,7 +149,7 @@
               {{ generatingKey ? 'Generating...' : 'Generate' }}
             </button>
             <button
-              @click="showApiKeyModal = false"
+              @click="backToList"
               class="btn-secondary py-3"
             >
               Cancel
@@ -85,20 +157,23 @@
           </div>
         </div>
 
-        <div v-else class="space-y-4">
+        <!-- Success View -->
+        <div v-else-if="modalView === 'success'" class="space-y-4">
+          <h3 class="text-lg font-semibold mb-4">API Key Generated!</h3>
+
           <div class="bg-green-300/10 border border-green-300/10 rounded-lg p-4">
-            <p class="text-sm text-green-300 font-medium">API Key Generated!</p>
+            <p class="text-sm text-green-300 font-medium">✓ Key created successfully</p>
           </div>
           
           <div>
             <label class="block text-sm font-medium text-white mb-2">
-              Your API Key (save it now!)
+              Your API Key
             </label>
             <div class="flex space-x-2">
               <input
                 :value="generatedKey"
                 readonly
-                class="flex-1 px-3 py-2 input-field focus:border-transparent"
+                class="flex-1 px-3 py-2 input-field focus:border-transparent font-mono text-xs"
               />
               <button
                 @click="copyApiKey"
@@ -107,13 +182,15 @@
                 {{ copied ? '✓' : 'Copy' }}
               </button>
             </div>
-            <p class="text-xs text-gray-500 mt-2">
-              Store this securely. You won't be able to see it again.
-            </p>
+            <div class="bg-amber-400/10 border border-amber-400/10 rounded-lg p-3 mt-3">
+              <p class="text-xs text-amber-300">
+                ⚠️ Store this securely. You won't be able to see it again.
+              </p>
+            </div>
           </div>
           
           <button
-            @click="closeApiKeyModal"
+            @click="backToList"
             class="w-full btn-primary py-3"
           >
             Done
@@ -130,11 +207,15 @@ const { apiCall } = useApi();
 
 const showMenu = ref(false);
 const showApiKeyModal = ref(false);
+const modalView = ref<'list' | 'generate' | 'success'>('list');
 const keyName = ref('');
 const generatedKey = ref('');
 const generatingKey = ref(false);
 const apiKeyError = ref('');
 const copied = ref(false);
+const apiKeys = ref<any[]>([]);
+const loadingKeys = ref(false);
+const deletingKeyId = ref<string | null>(null);
 
 const userInitials = computed(() => {
   if (!user.value?.email) return '?';
@@ -150,6 +231,24 @@ const handleLogout = () => {
   logout();
 };
 
+const openApiKeyModal = async () => {
+  showApiKeyModal.value = true;
+  modalView.value = 'list';
+  await loadApiKeys();
+};
+
+const loadApiKeys = async () => {
+  loadingKeys.value = true;
+  try {
+    const response: any = await apiCall('/api/auth/api-keys');
+    apiKeys.value = response || [];
+  } catch (e) {
+    console.error('Failed to load API keys:', e);
+  } finally {
+    loadingKeys.value = false;
+  }
+};
+
 const generateApiKey = async () => {
   apiKeyError.value = '';
   generatingKey.value = true;
@@ -161,10 +260,32 @@ const generateApiKey = async () => {
     });
     
     generatedKey.value = response.key;
+    modalView.value = 'success';
+    keyName.value = '';
   } catch (e: any) {
     apiKeyError.value = e.message || 'Failed to generate API key';
   } finally {
     generatingKey.value = false;
+  }
+};
+
+const deleteApiKey = async (id: string) => {
+  if (!confirm('Are you sure you want to delete this API key? This action cannot be undone.')) {
+    return;
+  }
+
+  deletingKeyId.value = id;
+  try {
+    await apiCall(`/api/auth/api-key/${id}`, {
+      method: 'DELETE',
+    });
+    
+    // Reload the list
+    await loadApiKeys();
+  } catch (e: any) {
+    alert(e.message || 'Failed to delete API key');
+  } finally {
+    deletingKeyId.value = null;
   }
 };
 
@@ -176,12 +297,41 @@ const copyApiKey = () => {
   }, 2000);
 };
 
-const closeApiKeyModal = () => {
-  showApiKeyModal.value = false;
+const backToList = async () => {
+  modalView.value = 'list';
   keyName.value = '';
   generatedKey.value = '';
   apiKeyError.value = '';
   copied.value = false;
+  await loadApiKeys();
+};
+
+const closeApiKeyModal = () => {
+  showApiKeyModal.value = false;
+  modalView.value = 'list';
+  keyName.value = '';
+  generatedKey.value = '';
+  apiKeyError.value = '';
+  copied.value = false;
+};
+
+const formatDate = (dateString: string) => {
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffMins = Math.floor(diffMs / 60000);
+  const diffHours = Math.floor(diffMs / 3600000);
+  const diffDays = Math.floor(diffMs / 86400000);
+  
+  if (diffMins < 60) {
+    return diffMins <= 1 ? 'just now' : `${diffMins}m ago`;
+  } else if (diffHours < 24) {
+    return `${diffHours}h ago`;
+  } else if (diffDays < 30) {
+    return `${diffDays}d ago`;
+  } else {
+    return date.toLocaleDateString();
+  }
 };
 
 // Close menu when clicking outside

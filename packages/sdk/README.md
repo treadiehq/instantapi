@@ -1,70 +1,51 @@
 # @instantapi/sdk
 
-Function Mode SDK for Instant API - Expose single functions without restructuring your app.
+Write functions. Get APIs. That's it.
 
-## Installation
+No Express. No servers. No boilerplate.
+
+## Install
 
 ```bash
 npm install @instantapi/sdk
 ```
 
-## Usage
-
-### Basic Example
+## Quick Start
 
 ```typescript
 import { expose } from '@instantapi/sdk';
 
-// Expose a simple function
-expose('hello', (input) => {
+expose('greet', (input) => {
   return { message: `Hello, ${input.name}!` };
 });
 
-// Expose an async function
-expose('fetchUser', async (input) => {
-  const response = await fetch(`https://api.example.com/users/${input.userId}`);
-  const user = await response.json();
-  return { user };
-});
-
-// The SDK automatically starts a local server
-// Functions are available at: http://localhost:7777/fn/<name>
+// That's your API! ✨
 ```
 
-### Expose to Internet
+## Make It Public
 
-**⚠️ Function mode requires API key authentication**
+**⚠️ You need an API key** (for security - prevents unauthorized code execution)
 
 ```bash
-# Step 1: Get your API key
-# Visit http://localhost:3000 and sign up
-# Generate an API key from your dashboard
-
-# Step 2: Set your API key
+# 1. Get API key: http://localhost:3000 → Sign up → Generate key
 export INSTANT_API_KEY=ik_your_key_here
 
-# Step 3: Run your app with exposed functions
+# 2. Run your code
 node app.js
 
-# Step 4: Expose a specific function
-npx instant-api expose http://localhost:7777/fn/hello
+# 3. Expose function
+npx instant-api expose greet  # Auto-detected!
 
-# Or let CLI auto-detect (if SDK metadata file exists)
-npx instant-api expose hello
+# Done! Use your function:
+curl -X POST https://your-url/t/xyz -d '{"name": "World"}'
 ```
-
-**Why API key is required:**
-- Function mode always requires authentication
-- This prevents unauthorized access to your local functions
-- Framework mode (regular HTTP endpoints) has optional auth with 1hr limit
 
 ## How It Works
 
-1. **SDK starts a local server** on an available port (default: 7777-7781)
-2. **Functions are registered** at `/fn/<name>` endpoints
-3. **Metadata file** (`.instant-api-sdk.json`) is created with port and function names
-4. **CLI detects** the metadata and can expose functions by name
-5. **Requests** are forwarded through the tunnel to your local functions
+1. SDK starts a tiny local server (port 7777)
+2. Your functions → `http://localhost:7777/fn/<name>`
+3. CLI creates a public tunnel
+4. Internet → Tunnel → Your function ✨
 
 ## API
 

@@ -62,6 +62,7 @@ model ApiKey {
   createdAt      DateTime     @default(now())
   organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
+  @@unique([organizationId, name])
   @@index([key])
   @@index([organizationId])
 }

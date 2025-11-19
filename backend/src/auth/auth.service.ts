@@ -3,6 +3,7 @@ import {
   UnauthorizedException,
   ConflictException,
   BadRequestException,
+  NotFoundException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from '../prisma.service';
@@ -189,6 +190,18 @@ export class AuthService {
     organizationId: string,
     name: string,
   ): Promise<{ key: string; name: string }> {
+    // Check if API key with this name already exists for this organization
+    const existing = await this.prisma.apiKey.findFirst({
+      where: {
+        organizationId,
+        name,
+      },
+    });
+
+    if (existing) {
+      throw new BadRequestException('An API key with this name already exists');
+    }
+
     const key = `ik_${randomBytes(32).toString('hex')}`;
 
     await this.prisma.apiKey.create({
@@ -200,6 +213,39 @@ export class AuthService {
     });
 
     return { key, name };
+  }
+
+  async listApiKeys(organizationId: string): Promise<any[]> {
+    const apiKeys = await this.prisma.apiKey.findMany({
+      where: { organizationId },
+      select: {
+        id: true,
+        name: true,
+        createdAt: true,
+        lastUsedAt: true,
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    return apiKeys;
+  }
+
+  async deleteApiKey(organizationId: string, apiKeyId: string): Promise<void> {
+    // Verify the API key belongs to this organization
+    const apiKey = await this.prisma.apiKey.findFirst({
+      where: {
+        id: apiKeyId,
+        organizationId,
+      },
+    });
+
+    if (!apiKey) {
+      throw new NotFoundException('API key not found');
+    }
+
+    await this.prisma.apiKey.delete({
+      where: { id: apiKeyId },
+    });
   }
 
   async validateApiKey(key: string): Promise<any> {

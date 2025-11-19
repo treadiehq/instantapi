@@ -1,72 +1,47 @@
-# Production Deployment Guide
+# Deploy to Production
 
-This guide covers deploying Instant API to production.
+Get Instant API running live in ~30 minutes.
 
-## Prerequisites
+## What You Need
 
-- Cloudflare account with **Workers Paid plan** ($5/month minimum)
-- PostgreSQL database (hosted)
-- Domain name (optional)
+- Cloudflare account with Workers Paid plan ($5/month)
+- PostgreSQL database (Neon, Supabase, or Railway)
+- Email service for magic links (Resend - free tier works)
 
 ## Step 1: Deploy Sandbox Worker
 
-The Cloudflare Sandbox SDK requires a Workers Paid plan.
-
-### 1.1 Setup Wrangler
-
 ```bash
-# Install Wrangler globally
+# Install and login to Cloudflare
 npm install -g wrangler
-
-# Login to Cloudflare
 wrangler login
-```
 
-### 1.2 Deploy the Worker
-
-```bash
+# Deploy
 cd sandbox-worker
-
-# Deploy to production
 npm run deploy
 ```
 
-This will deploy your worker and give you a URL like:
-`https://instant-api-sandbox.YOUR_SUBDOMAIN.workers.dev`
+You'll get a URL like: `https://instant-api-sandbox.YOUR_SUBDOMAIN.workers.dev`
 
-### 1.3 Note the Worker URL
+**Save this URL** - you need it for backend config.
 
-Save this URL - you'll need it for the backend configuration.
+## Step 2: Set Up Database
 
-## Step 2: Set Up Production Database
+Pick a PostgreSQL provider (all have free tiers):
 
-You need a PostgreSQL database. Options:
-
-- **Neon** - https://neon.tech (free tier available)
-- **Supabase** - https://supabase.com (free tier available)
+- **Neon** - https://neon.tech ✅ Recommended
+- **Supabase** - https://supabase.com
 - **Railway** - https://railway.app
-- **AWS RDS** - https://aws.amazon.com/rds/
-- **Digital Ocean** - https://www.digitalocean.com/products/managed-databases
 
-Get your connection string in the format:
+Create a database and save the connection string:
 ```
 postgresql://user:password@host:5432/dbname?schema=public
 ```
 
 ## Step 3: Deploy Backend
 
-### 3.1 Choose a Platform
+**Recommended:** Railway (https://railway.app) - easiest setup.
 
-Options for NestJS backend:
-- **Railway** - https://railway.app (recommended, easy)
-- **Heroku** - https://heroku.com
-- **Render** - https://render.com
-- **Fly.io** - https://fly.io
-- **AWS/GCP/Azure** - Traditional cloud
-
-### 3.2 Set Environment Variables
-
-On your chosen platform, set:
+**Set these environment variables:**
 
 ```bash
 # Database
@@ -89,47 +64,30 @@ RESEND_API_KEY=re_your_resend_api_key  # Get from https://resend.com
 EMAIL_FROM=noreply@yourdomain.com
 ```
 
-**Important:**
-- Generate a strong `JWT_SECRET` (32+ characters)
-- Sign up for [Resend](https://resend.com) to send magic link emails
-- Update `FRONTEND_URL` with your actual frontend domain
-- Set `EMAIL_FROM` to a verified domain in Resend
+**Generate JWT_SECRET:**
+```bash
+openssl rand -base64 32
+```
 
-### 3.3 Run Migrations
-
-Before starting the backend, run:
-
+**Run migrations:**
 ```bash
 cd backend
 npx prisma migrate deploy
 ```
 
-### 3.4 Deploy
-
-Follow your platform's deployment instructions. For Railway:
-
+**Deploy on Railway:**
 ```bash
-# Install Railway CLI
 npm install -g railway
-
-# Login
 railway login
-
-# Initialize project
 railway init
-
-# Deploy
 railway up
 ```
 
-Note your backend URL (e.g., `https://your-app.railway.app`)
+Save your backend URL (e.g., `https://your-app.railway.app`)
 
 ## Step 4: Deploy Frontend
 
-### 4.1 Update API Base URL
-
-Edit `frontend/nuxt.config.ts`:
-
+**Update `frontend/nuxt.config.ts`:**
 ```typescript
 runtimeConfig: {
   public: {
@@ -138,234 +96,95 @@ runtimeConfig: {
 }
 ```
 
-### 4.2 Choose a Platform
-
-Options for Nuxt 3:
-- **Vercel** - https://vercel.com (recommended)
-- **Netlify** - https://netlify.com
-- **Cloudflare Pages** - https://pages.cloudflare.com
-- **Railway** - https://railway.app
-
-### 4.3 Deploy to Vercel
-
+**Deploy to Vercel:**
 ```bash
-# Install Vercel CLI
 npm install -g vercel
-
-# Login
 vercel login
-
-# Deploy from frontend directory
 cd frontend
 vercel
 ```
 
-Follow the prompts to deploy.
-
 ## Step 5: Configure CORS
 
-Update `backend/src/main.ts` to allow your frontend domain:
-
+Update `backend/src/main.ts`:
 ```typescript
 app.enableCors({
-  origin: ['https://your-frontend-domain.vercel.app'],
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  origin: ['https://your-frontend.vercel.app'],
   credentials: true,
 });
 ```
 
-Redeploy the backend after this change.
+Redeploy backend.
 
-## Step 6: Configure Email Service (Resend)
+## Step 6: Set Up Email (Resend)
 
-For production magic link authentication:
+1. Sign up at https://resend.com (free tier works)
+2. Generate an API key
+3. Add to backend: `RESEND_API_KEY=re_xxx`
+4. For custom domain: Add DNS records from Resend dashboard
 
-### 6.1 Sign up for Resend
+That's it! Magic links will now send via email.
 
-1. Visit https://resend.com and create an account
-2. Verify your sending domain (or use their test domain)
-3. Generate an API key
-4. Add to backend environment: `RESEND_API_KEY=re_xxx`
+## Step 7: Test Everything
 
-### 6.2 Configure DNS (for custom domain emails)
+1. **Sign up** → Check email → Click magic link ✅
+2. **Create API** → Copy URL → Test with curl ✅
+3. **Generate API key** → Use with CLI ✅
+4. **Check dashboard** → See all your APIs ✅
 
-If using your own domain:
+Done! 🎉
 
-1. Add DNS records provided by Resend
-2. Wait for verification (usually < 5 minutes)
-3. Update `EMAIL_FROM` environment variable
+## Monthly Costs
 
-**Note:** For testing, you can use Resend's test domain initially.
+- **Cloudflare Workers**: $5/month (required)
+- **Database**: $0 (Neon/Supabase free tier)
+- **Backend**: $0-5 (Railway/Render free or paid)
+- **Frontend**: $0 (Vercel/Netlify free tier)
+- **Email**: $0 (Resend free tier: 3,000/month)
 
-## Step 7: Test Production
-
-### 7.1 Test Authentication Flow
-
-1. Visit your frontend URL
-2. Click "Sign Up"
-3. Enter email and organization name
-4. Check email for magic link
-5. Click link to verify account
-6. Generate an API key from dashboard
-
-### 7.2 Test API Creation
-
-1. Create a test endpoint (snippet mode)
-2. Verify it executes correctly
-3. Test with both JavaScript and Python
-4. Try different TTL options
-
-### 7.3 Test CLI/Framework Mode
-
-1. Install CLI: `npm install -g @instantapi/cli`
-2. Set API key: `export INSTANT_API_KEY=ik_xxx`
-3. Expose local endpoint: `instant-api expose http://localhost:3000/api`
-4. Test public URL
-
-### 7.4 Test Dashboard
-
-1. Create multiple endpoints
-2. Verify they appear in dashboard
-3. Test copy URL functionality
-4. Check auto-refresh works
-
-## Cost Breakdown
-
-### Minimum Monthly Cost: ~$5
-
-- **Cloudflare Workers Paid**: $5/month
-  - Includes Sandbox SDK access
-  - 10 million requests included
-  
-- **Database**: $0-10/month
-  - Neon/Supabase free tier works for MVP
-  - Railway: $5/month
-  
-- **Backend Hosting**: $0-5/month
-  - Railway: $5/month
-  - Heroku free tier (limited)
-  - Render: $0/month (free tier)
-  
-- **Frontend Hosting**: $0
-  - Vercel free tier
-  - Netlify free tier
-  - Cloudflare Pages free tier
-
-**Total**: $5-20/month depending on traffic and hosting choices
+**Total: $5-10/month** 🎯
 
 ## Security Checklist
 
-Before going live:
+Before launching:
 
-- [ ] Enable HTTPS on all services
-- [ ] Set strong `JWT_SECRET` (32+ characters)
-- [ ] Configure Resend API key for magic link emails
-- [ ] Verify email sender domain in Resend
-- [ ] Update `FRONTEND_URL` to production domain
-- [ ] Add rate limiting (use Cloudflare or backend middleware)
-- [ ] Set up monitoring (Sentry, LogRocket, etc.)
-- [ ] Review and update CORS settings
-- [ ] Set appropriate resource limits
-- [ ] Enable database backups
-- [ ] Set up error tracking
-- [ ] Add uptime monitoring
-- [ ] Review Cloudflare Sandbox limits
-- [ ] Test magic link authentication flow
-- [ ] Verify API key generation and validation
+- [ ] Strong `JWT_SECRET` (32+ chars)
+- [ ] HTTPS enabled everywhere
+- [ ] Resend API key configured
+- [ ] CORS set to your frontend domain
+- [ ] Database backups enabled
+- [ ] Test magic link flow
+- [ ] Test API key generation
 
-## Monitoring
+## Optional: Monitoring
 
-### Recommended Tools
-
+Add these if you need them:
 - **Sentry** - Error tracking
-- **LogRocket** - Session replay
-- **Cloudflare Analytics** - Worker metrics
 - **UptimeRobot** - Uptime monitoring
+- **Cloudflare Analytics** - Built-in metrics
 
-### Key Metrics to Track
+## Common Issues
 
-- Endpoint creation rate
-- Execution success/failure rate
-- Average execution time
-- API error rates
-- Database connection pool usage
+**"Sandbox binding not found"**
+→ Check you're on Workers Paid plan, redeploy worker
 
-## Scaling Considerations
+**CORS errors**
+→ Update frontend domain in `backend/src/main.ts`
 
-### When to scale:
+**Magic links not sending**
+→ Check `RESEND_API_KEY` is set correctly
 
-- **Database**: If you hit connection limits, consider:
-  - Connection pooling (PgBouncer)
-  - Read replicas
-  - Upgrading to higher tier
-  
-- **Backend**: If response times increase:
-  - Add more instances
-  - Enable horizontal scaling
-  - Add caching layer (Redis)
-  
-- **Sandbox Worker**: Cloudflare handles scaling automatically
-  - Monitor usage vs. plan limits
-  - Upgrade to higher Workers tier if needed
-
-## Troubleshooting
-
-### Sandbox Worker Issues
-
-**Error: "Sandbox binding not found"**
-- Ensure you're on Workers Paid plan
-- Verify `wrangler.toml` has correct binding
-- Redeploy with `npm run deploy`
-
-**Error: "Rate limit exceeded"**
-- Check Cloudflare dashboard for usage
-- Consider upgrading plan
-- Add request caching
-
-### Database Connection Issues
-
-**Error: "Too many connections"**
-- Implement connection pooling
-- Reduce `connection_limit` in Prisma
-- Use PgBouncer
-
-### CORS Errors
-
-- Verify frontend domain in backend CORS config
-- Check Cloudflare Worker CORS headers
-- Ensure `https://` (not `http://`) in production
+**Database connection errors**
+→ Verify `DATABASE_URL` and run migrations
 
 ## Maintenance
 
-### Regular Tasks
-
-- **Weekly**: Check error logs
-- **Monthly**: Review usage and costs
-- **Quarterly**: Update dependencies
-- **As needed**: Run cleanup for expired endpoints
-
-### Cleanup Cron Job
-
-Set up a cron job to clean expired endpoints:
-
-```bash
-# Hit cleanup endpoint every hour
-0 * * * * curl -X POST https://your-backend/api/cleanup
-```
-
-Or use a service like:
-- Cloudflare Workers Cron Triggers
-- GitHub Actions scheduled workflows
-- Railway Cron Jobs
-
-## Support
-
-- **Cloudflare Sandbox**: https://discord.cloudflare.com
-- **Prisma**: https://www.prisma.io/docs/support
-- **NestJS**: https://docs.nestjs.com
-- **Nuxt**: https://nuxt.com/docs
+Instant API is mostly self-managing. Optional tasks:
+- Set up a cron to clean expired endpoints (`/api/cleanup`)
+- Check error logs occasionally
+- Update dependencies quarterly
 
 ---
 
-**Ready for production?** Follow the steps above and you'll have a scalable, production-ready Instant API deployment! 🚀
+That's it! You're live. 🚀
 
