@@ -6,7 +6,7 @@ import { CreateEndpointDto, CreateFileEndpointDto, CreateEndpointResponseDto } f
 export class EndpointsService {
   constructor(private prisma: PrismaService) {}
 
-  async createEndpoint(dto: CreateEndpointDto): Promise<CreateEndpointResponseDto> {
+  async createEndpoint(dto: CreateEndpointDto, organizationId: string | null): Promise<CreateEndpointResponseDto> {
     const now = new Date();
     const ttlHours = dto.ttlHours ?? 24;
     const expiresAt = new Date(now.getTime() + ttlHours * 60 * 60 * 1000);
@@ -14,6 +14,7 @@ export class EndpointsService {
 
     const endpoint = await this.prisma.endpoint.create({
       data: {
+        organizationId,
         language: dto.language,
         code: dto.code,
         kind,
@@ -38,7 +39,7 @@ export class EndpointsService {
     };
   }
 
-  async createFileEndpoint(code: string, dto: CreateFileEndpointDto): Promise<CreateEndpointResponseDto> {
+  async createFileEndpoint(code: string, dto: CreateFileEndpointDto, organizationId: string): Promise<CreateEndpointResponseDto> {
     const now = new Date();
     const ttlHours = dto.ttlHours ?? 24;
     const expiresAt = new Date(now.getTime() + ttlHours * 60 * 60 * 1000);
@@ -46,6 +47,7 @@ export class EndpointsService {
 
     const endpoint = await this.prisma.endpoint.create({
       data: {
+        organizationId,
         language: dto.language,
         code,
         kind,
@@ -87,6 +89,36 @@ export class EndpointsService {
     }
 
     return endpoint;
+  }
+
+  // List all endpoints for an organization
+  async listEndpoints(organizationId: string) {
+    const endpoints = await this.prisma.endpoint.findMany({
+      where: {
+        organizationId,
+        expiresAt: {
+          gt: new Date(), // Only non-expired
+        },
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        language: true,
+        kind: true,
+        ttlHours: true,
+        createdAt: true,
+        expiresAt: true,
+      },
+    });
+
+    return endpoints.map(endpoint => ({
+      ...endpoint,
+      url: `http://localhost:3001/run/${endpoint.id}`,
+    }));
   }
 
   // Cleanup expired endpoints (can be called periodically)

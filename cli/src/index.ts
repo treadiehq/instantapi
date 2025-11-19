@@ -6,6 +6,7 @@ import { hideBin } from 'yargs/helpers';
 import chalk from 'chalk';
 import * as fs from 'fs';
 import * as path from 'path';
+import * as os from 'os';
 
 interface RegisterResponse {
   id: string;
@@ -29,7 +30,60 @@ interface SDKMetadata {
   pid: number;
 }
 
+interface Config {
+  apiKey?: string;
+}
+
 let isShuttingDown = false;
+
+// Get API key from environment or config file
+function getApiKey(): string | undefined {
+  // First check environment variable
+  const envKey = process.env.INSTANT_API_KEY;
+  if (envKey) {
+    return envKey;
+  }
+
+  // Check config file in home directory
+  const configPath = path.join(os.homedir(), '.instant-api-config.json');
+  if (fs.existsSync(configPath)) {
+    try {
+      const config: Config = JSON.parse(fs.readFileSync(configPath, 'utf-8'));
+      return config.apiKey;
+    } catch (error) {
+      console.warn(chalk.yellow('Warning: Failed to read config file'));
+    }
+  }
+
+  return undefined;
+}
+
+// Save API key to config file
+function saveApiKey(apiKey: string): void {
+  const configPath = path.join(os.homedir(), '.instant-api-config.json');
+  const config: Config = { apiKey };
+  fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
+  console.log(chalk.green(`✓ API key saved to ${configPath}`));
+}
+
+// Get auth headers (optional - can work without API key with 1hr restrictions)
+function getAuthHeaders(warnIfMissing: boolean = false): Record<string, string> {
+  const apiKey = getApiKey();
+  if (apiKey) {
+    return {
+      'x-api-key': apiKey,
+    };
+  }
+  // Warn user about 1hr limitation
+  if (warnIfMissing) {
+    console.log(chalk.yellow('\n⚠️  Running without authentication - tunnel will have temporary restrictions'));
+    console.log(chalk.gray('   To use for longer than 1 hour, create an account and set your API key:'));
+    console.log(chalk.gray('   1. Sign up at your-instance.com'));
+    console.log(chalk.gray('   2. Generate an API key'));
+    console.log(chalk.gray('   3. Run: npx instant-api config --api-key ik_...\n'));
+  }
+  return {};
+}
 
 function detectSDKMetadata(): SDKMetadata | null {
   const metadataPath = path.join(process.cwd(), '.instant-api-sdk.json');
@@ -71,12 +125,29 @@ function resolveTargetUrl(input: string): string {
 async function exposeRoute(targetUrl: string, backendUrl: string) {
   console.log(chalk.blue('🚀 Instant API - Framework Mode\n'));
 
+  // Check if this is SDK/Function mode (requires API key)
+  const isFunctionMode = targetUrl.includes('/fn/');
+  const apiKey = getApiKey();
+  
+  if (isFunctionMode && !apiKey) {
+    console.error(chalk.red('✗ Function mode requires an API key'));
+    console.log(chalk.yellow('\nTo use function mode:'));
+    console.log(chalk.gray('  1. Sign up at your-instance.com'));
+    console.log(chalk.gray('  2. Generate an API key'));
+    console.log(chalk.gray('  3. Run: npx instant-api config --api-key ik_...'));
+    console.log(chalk.gray('\n  Or set environment variable: export INSTANT_API_KEY=ik_...\n'));
+    process.exit(1);
+  }
+
+  const authHeaders = getAuthHeaders(!isFunctionMode);
+
   try {
     // Register tunnel with backend
     console.log(chalk.gray(`Registering tunnel for ${targetUrl}...`));
     const registerResponse = await axios.post<RegisterResponse>(
       `${backendUrl}/api/tunnels/register`,
       { targetUrl },
+      { headers: authHeaders },
     );
 
     const { id, publicUrl } = registerResponse.data;
@@ -95,7 +166,7 @@ async function exposeRoute(targetUrl: string, backendUrl: string) {
       console.log(chalk.yellow('\n\n🛑 Shutting down tunnel...'));
 
       try {
-        await axios.delete(`${backendUrl}/api/tunnels/${id}`);
+        await axios.delete(`${backendUrl}/api/tunnels/${id}`, { headers: authHeaders });
         console.log(chalk.green('✓ Tunnel deactivated'));
       } catch (error) {
         console.log(chalk.gray('(Tunnel cleanup skipped)'));
@@ -114,7 +185,7 @@ async function exposeRoute(targetUrl: string, backendUrl: string) {
         const pollResponse = await axios.post<PollResponse>(
           `${backendUrl}/api/tunnels/${id}/poll`,
           { maxWaitMs: 25000 },
-          { timeout: 30000 },
+          { timeout: 30000, headers: authHeaders },
         );
 
         const { requestId, method, path, headers, body, isStreaming } = pollResponse.data;
@@ -154,7 +225,7 @@ async function exposeRoute(targetUrl: string, backendUrl: string) {
                   requestId,
                   sequence: sequence++,
                   chunk: chunk.toString(),
-                });
+                }, { headers: authHeaders });
               } catch (streamError) {
                 console.log(chalk.gray(`  └─`), chalk.red('Stream error'), chalk.red(streamError));
               }
@@ -165,7 +236,7 @@ async function exposeRoute(targetUrl: string, backendUrl: string) {
               await axios.post(`${backendUrl}/api/tunnels/${id}/stream`, {
                 requestId,
                 eof: true,
-              });
+              }, { headers: authHeaders });
               console.log(chalk.gray(`  └─`), chalk.green('Stream completed'));
             });
 
@@ -175,7 +246,7 @@ async function exposeRoute(targetUrl: string, backendUrl: string) {
               await axios.post(`${backendUrl}/api/tunnels/${id}/stream`, {
                 requestId,
                 eof: true,
-              });
+              }, { headers: authHeaders });
             });
           } catch (localError: any) {
             const errorMessage =
@@ -209,7 +280,7 @@ async function exposeRoute(targetUrl: string, backendUrl: string) {
               statusCode: localResponse.status,
               headers: localResponse.headers,
               body: localResponse.data,
-            });
+            }, { headers: authHeaders });
 
             const statusColor =
               localResponse.status >= 200 && localResponse.status < 300
@@ -241,7 +312,7 @@ async function exposeRoute(targetUrl: string, backendUrl: string) {
                 error: 'Bad Gateway',
                 message: errorMessage,
               },
-            });
+            }, { headers: authHeaders });
           }
         }
       } catch (pollError: any) {
@@ -326,6 +397,38 @@ yargs(hideBin(process.argv))
       }
 
       exposeRoute(targetUrl, backendUrl);
+    },
+  )
+  .command(
+    'config',
+    'Configure Instant API CLI',
+    (yargs) => {
+      return yargs.option('api-key', {
+        describe: 'Set your Instant API key',
+        type: 'string',
+      });
+    },
+    (argv) => {
+      const apiKey = argv['api-key'] as string | undefined;
+      
+      if (apiKey) {
+        if (!apiKey.startsWith('ik_')) {
+          console.error(chalk.red('✗ Invalid API key format. Should start with "ik_"'));
+          process.exit(1);
+        }
+        saveApiKey(apiKey);
+        console.log(chalk.green('\n✓ Configuration saved!'));
+        console.log(chalk.gray('\nYou can now use: npx instant-api expose <url>'));
+      } else {
+        // Show current config
+        const currentKey = getApiKey();
+        if (currentKey) {
+          console.log(chalk.green('API Key:'), chalk.gray(currentKey.substring(0, 10) + '...'));
+        } else {
+          console.log(chalk.yellow('No API key configured'));
+          console.log(chalk.gray('\nSet one with: npx instant-api config --api-key ik_...'));
+        }
+      }
     },
   )
   .demandCommand(1, 'You need to specify a command')

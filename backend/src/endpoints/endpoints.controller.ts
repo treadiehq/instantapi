@@ -9,11 +9,14 @@ import {
   UseInterceptors,
   UploadedFile,
   BadRequestException,
+  UseGuards,
+  Req,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { EndpointsService } from './endpoints.service';
 import { ExecutionService } from './execution.service';
 import { CreateEndpointDto, CreateFileEndpointDto } from './dto/create-endpoint.dto';
+import { AuthGuard } from '../auth/guards/auth.guard';
 
 @Controller()
 export class EndpointsController {
@@ -38,10 +41,14 @@ export class EndpointsController {
    * Create a new API endpoint from snippet
    * POST /api/endpoints
    * Body: { language: "javascript" | "python", code: string, name?: string, description?: string, ttlHours?: number, kind?: "snippet" | "webhook" }
+   * Auth is optional - non-authenticated users can create with restrictions
    */
   @Post('api/endpoints')
   @HttpCode(HttpStatus.CREATED)
-  async createEndpoint(@Body() createEndpointDto: CreateEndpointDto) {
+  async createEndpoint(
+    @Body() createEndpointDto: CreateEndpointDto,
+    @Req() req: any,
+  ) {
     // Basic validation
     if (!createEndpointDto.code || !createEndpointDto.language) {
       return {
@@ -55,7 +62,12 @@ export class EndpointsController {
       };
     }
 
-    return this.endpointsService.createEndpoint(createEndpointDto);
+    const organizationId = req.user?.organizationId || null;
+
+    return this.endpointsService.createEndpoint(
+      createEndpointDto,
+      organizationId,
+    );
   }
 
   /**
@@ -64,11 +76,13 @@ export class EndpointsController {
    * Form data: file (required), language, name, description, ttlHours, kind
    */
   @Post('api/endpoints/file')
+  @UseGuards(AuthGuard)
   @HttpCode(HttpStatus.CREATED)
   @UseInterceptors(FileInterceptor('file'))
   async createFileEndpoint(
     @UploadedFile() file: Express.Multer.File,
     @Body() body: any,
+    @Req() req: any,
   ) {
     // Validate file
     if (!file) {
@@ -115,7 +129,7 @@ export class EndpointsController {
       kind: body.kind || 'file',
     };
 
-    return this.endpointsService.createFileEndpoint(code, dto);
+    return this.endpointsService.createFileEndpoint(code, dto, req.user.organizationId);
   }
 
   /**
@@ -155,6 +169,16 @@ export class EndpointsController {
         error: error.message || 'Endpoint not found or expired',
       };
     }
+  }
+
+  /**
+   * List all endpoints for the authenticated user's organization
+   * GET /api/endpoints
+   */
+  @Get('api/endpoints')
+  @UseGuards(AuthGuard)
+  async listEndpoints(@Req() req: any) {
+    return this.endpointsService.listEndpoints(req.user.organizationId);
   }
 
   /**

@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
+import { PrismaService } from '../prisma.service';
 import {
   RegisterTunnelDto,
   RegisterTunnelResponseDto,
@@ -12,9 +12,10 @@ import {
 export class TunnelsService {
   constructor(private prisma: PrismaService) {}
 
-  async register(dto: RegisterTunnelDto): Promise<RegisterTunnelResponseDto> {
+  async register(dto: RegisterTunnelDto, organizationId: string | null): Promise<RegisterTunnelResponseDto> {
     const tunnel = await this.prisma.tunnel.create({
       data: {
+        organizationId,
         targetUrl: dto.targetUrl,
         isActive: true,
       },
@@ -35,13 +36,14 @@ export class TunnelsService {
   async poll(
     tunnelId: string,
     maxWaitMs: number = 25000,
+    organizationId: string | null,
   ): Promise<PollTunnelResponseDto> {
-    // Validate tunnel exists and is active
+    // Validate tunnel exists, is active, and belongs to org
     const tunnel = await this.prisma.tunnel.findUnique({
       where: { id: tunnelId },
     });
 
-    if (!tunnel) {
+    if (!tunnel || tunnel.organizationId !== organizationId) {
       throw new NotFoundException('Tunnel not found');
     }
 
@@ -97,7 +99,16 @@ export class TunnelsService {
     };
   }
 
-  async respond(tunnelId: string, dto: RespondTunnelDto): Promise<void> {
+  async respond(tunnelId: string, dto: RespondTunnelDto, organizationId: string | null): Promise<void> {
+    // Validate tunnel belongs to org
+    const tunnel = await this.prisma.tunnel.findUnique({
+      where: { id: tunnelId },
+    });
+
+    if (!tunnel || tunnel.organizationId !== organizationId) {
+      throw new NotFoundException('Tunnel not found');
+    }
+
     const request = await this.prisma.tunnelRequest.findUnique({
       where: { id: dto.requestId },
     });
@@ -160,7 +171,18 @@ export class TunnelsService {
     requestId: string,
     sequence: number,
     chunk: string,
+    organizationId: string | null,
   ): Promise<void> {
+    // Validate request belongs to org's tunnel
+    const request = await this.prisma.tunnelRequest.findUnique({
+      where: { id: requestId },
+      include: { Tunnel: true },
+    });
+
+    if (!request || request.Tunnel.organizationId !== organizationId) {
+      throw new NotFoundException('Request not found');
+    }
+
     await this.prisma.tunnelStreamEvent.create({
       data: {
         requestId,
@@ -184,7 +206,17 @@ export class TunnelsService {
     });
   }
 
-  async markStreamComplete(requestId: string): Promise<void> {
+  async markStreamComplete(requestId: string, organizationId: string | null): Promise<void> {
+    // Validate request belongs to org's tunnel
+    const request = await this.prisma.tunnelRequest.findUnique({
+      where: { id: requestId },
+      include: { Tunnel: true },
+    });
+
+    if (!request || request.Tunnel.organizationId !== organizationId) {
+      throw new NotFoundException('Request not found');
+    }
+
     await this.prisma.tunnelRequest.update({
       where: { id: requestId },
       data: { status: 'completed' },
@@ -260,9 +292,12 @@ export class TunnelsService {
     return request;
   }
 
-  async listActiveTunnels(): Promise<TunnelListItemDto[]> {
+  async listActiveTunnels(organizationId: string): Promise<TunnelListItemDto[]> {
     const tunnels = await this.prisma.tunnel.findMany({
-      where: { isActive: true },
+      where: {
+        organizationId,
+        isActive: true,
+      },
       orderBy: { createdAt: 'desc' },
       take: 20,
     });
@@ -276,7 +311,16 @@ export class TunnelsService {
     }));
   }
 
-  async deactivateTunnel(tunnelId: string): Promise<void> {
+  async deactivateTunnel(tunnelId: string, organizationId: string): Promise<void> {
+    // Validate tunnel belongs to org
+    const tunnel = await this.prisma.tunnel.findUnique({
+      where: { id: tunnelId },
+    });
+
+    if (!tunnel || tunnel.organizationId !== organizationId) {
+      throw new NotFoundException('Tunnel not found');
+    }
+
     await this.prisma.tunnel.update({
       where: { id: tunnelId },
       data: { isActive: false },

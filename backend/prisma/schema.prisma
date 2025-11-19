@@ -9,19 +9,79 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Organization {
+  id        String     @id @default(cuid())
+  name      String     @unique
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  users     User[]
+  endpoints Endpoint[]
+  tunnels   Tunnel[]
+  apiKeys   ApiKey[]
+
+  @@index([createdAt])
+}
+
+model User {
+  id             String       @id @default(cuid())
+  email          String       @unique
+  organizationId String
+  createdAt      DateTime     @default(now())
+  lastLoginAt    DateTime?
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  magicLinks     MagicLink[]
+
+  @@index([email])
+  @@index([organizationId])
+}
+
+model MagicLink {
+  id               String    @id @default(cuid())
+  userId           String?
+  email            String
+  type             String    @default("login") // "signup" | "login"
+  organizationName String?   // Only for signup links
+  token            String    @unique
+  expiresAt        DateTime
+  usedAt           DateTime?
+  createdAt        DateTime  @default(now())
+  user             User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([token])
+  @@index([userId])
+  @@index([expiresAt])
+  @@index([email])
+}
+
+model ApiKey {
+  id             String       @id @default(cuid())
+  organizationId String
+  name           String
+  key            String       @unique
+  lastUsedAt     DateTime?
+  createdAt      DateTime     @default(now())
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+
+  @@index([key])
+  @@index([organizationId])
+}
+
 model Endpoint {
-  id            String         @id @default(cuid())
-  language      String         // "javascript" or "python"
-  code          String         @db.Text
-  kind          String         @default("snippet") // "snippet" | "file" | "webhook"
-  name          String?        // optional friendly label
-  description   String?        // optional description
-  ttlHours      Int            @default(24) // time-to-live in hours
-  createdAt     DateTime       @default(now())
-  expiresAt     DateTime
-  ExecutionLog  ExecutionLog[]
+  id             String         @id @default(cuid())
+  organizationId String?
+  language       String         // "javascript" or "python"
+  code           String         @db.Text
+  kind           String         @default("snippet") // "snippet" | "file" | "webhook"
+  name           String?        // optional friendly label
+  description    String?        // optional description
+  ttlHours       Int            @default(24) // time-to-live in hours
+  createdAt      DateTime       @default(now())
+  expiresAt      DateTime
+  organization   Organization?  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  ExecutionLog   ExecutionLog[]
 
   @@index([expiresAt])
+  @@index([organizationId])
 }
 
 model ExecutionLog {
@@ -40,15 +100,18 @@ model ExecutionLog {
 }
 
 model Tunnel {
-  id            String          @id @default(cuid())
-  targetUrl     String          // e.g. "http://localhost:3000/users/create"
-  createdAt     DateTime        @default(now())
-  lastSeenAt    DateTime        @default(now())
-  isActive      Boolean         @default(true)
-  requests      TunnelRequest[]
+  id             String          @id @default(cuid())
+  organizationId String?
+  targetUrl      String          // e.g. "http://localhost:3000/users/create"
+  createdAt      DateTime        @default(now())
+  lastSeenAt     DateTime        @default(now())
+  isActive       Boolean         @default(true)
+  organization   Organization?   @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  requests       TunnelRequest[]
 
   @@index([isActive])
   @@index([lastSeenAt])
+  @@index([organizationId])
 }
 
 model TunnelRequest {

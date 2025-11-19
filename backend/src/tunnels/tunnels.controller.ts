@@ -10,6 +10,7 @@ import {
   HttpStatus,
   HttpException,
   All,
+  UseGuards,
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { TunnelsService } from './tunnels.service';
@@ -19,42 +20,50 @@ import {
   RespondTunnelDto,
   StreamChunkDto,
 } from './dto/tunnel.dto';
+import { AuthGuard } from '../auth/guards/auth.guard';
 
 @Controller()
 export class TunnelsController {
   constructor(private readonly tunnelsService: TunnelsService) {}
 
   @Post('api/tunnels/register')
-  async register(@Body() dto: RegisterTunnelDto) {
-    return this.tunnelsService.register(dto);
+  async register(@Body() dto: RegisterTunnelDto, @Req() req: any) {
+    const organizationId = req.user?.organizationId || null;
+    return this.tunnelsService.register(dto, organizationId);
   }
 
   @Post('api/tunnels/:id/poll')
   async poll(
     @Param('id') tunnelId: string,
     @Body() dto: PollTunnelDto,
+    @Req() req: any,
   ) {
     const maxWaitMs = dto.maxWaitMs || 25000;
-    return this.tunnelsService.poll(tunnelId, maxWaitMs);
+    const organizationId = req.user?.organizationId || null;
+    return this.tunnelsService.poll(tunnelId, maxWaitMs, organizationId);
   }
 
   @Post('api/tunnels/:id/respond')
   async respond(
     @Param('id') tunnelId: string,
     @Body() dto: RespondTunnelDto,
+    @Req() req: any,
   ) {
-    await this.tunnelsService.respond(tunnelId, dto);
+    const organizationId = req.user?.organizationId || null;
+    await this.tunnelsService.respond(tunnelId, dto, organizationId);
     return { success: true };
   }
 
   @Get('api/tunnels')
-  async list() {
-    return this.tunnelsService.listActiveTunnels();
+  @UseGuards(AuthGuard)
+  async list(@Req() req: any) {
+    return this.tunnelsService.listActiveTunnels(req.user.organizationId);
   }
 
   @Delete('api/tunnels/:id')
-  async deactivate(@Param('id') tunnelId: string) {
-    await this.tunnelsService.deactivateTunnel(tunnelId);
+  @UseGuards(AuthGuard)
+  async deactivate(@Param('id') tunnelId: string, @Req() req: any) {
+    await this.tunnelsService.deactivateTunnel(tunnelId, req.user.organizationId);
     return { success: true };
   }
 
@@ -62,16 +71,19 @@ export class TunnelsController {
   async stream(
     @Param('id') tunnelId: string,
     @Body() dto: StreamChunkDto,
+    @Req() req: any,
   ) {
+    const organizationId = req.user?.organizationId || null;
     if (dto.eof) {
       // Mark stream as complete
-      await this.tunnelsService.markStreamComplete(dto.requestId);
+      await this.tunnelsService.markStreamComplete(dto.requestId, organizationId);
     } else if (dto.chunk !== undefined && dto.sequence !== undefined) {
       // Add stream chunk
       await this.tunnelsService.addStreamChunk(
         dto.requestId,
         dto.sequence,
         dto.chunk,
+        organizationId,
       );
     }
     return { success: true };
