@@ -104,8 +104,8 @@
           </div>
         </div>
 
-        <!-- Configuration Panel -->
-        <div class="p-4 border-b border-gray-500/10">
+        <!-- Configuration Panel (hidden for Framework and Function modes) -->
+        <div v-if="mode !== 'framework' && mode !== 'function'" class="p-4 border-b border-gray-500/10">
           <!-- Optional Fields -->
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
@@ -493,16 +493,16 @@
                     <div class="mt-2 ml-6 text-xs text-gray-500 space-y-2">
                       <p>Expose single functions without setting up a full server:</p>
                       <div class="bg-black/50 rounded p-2 font-mono">
-                        <div class="text-green-400">// Install SDK</div>
+                        <div class="text-green-300">// Install SDK</div>
                         <div class="text-gray-400">npm install @instantapi/sdk</div>
-                        <div class="text-green-400 mt-2">// functions.ts</div>
-                        <div class="text-purple-400">import</div> <div class="text-white">{ expose } <div class="text-purple-400">from</div> '@instantapi/sdk';</div>
+                        <div class="text-green-300 mt-2">// functions.ts</div>
+                        <div class="text-purple-300">import</div> <div class="text-white">{ expose } <div class="text-purple-300">from</div> '@instantapi/sdk';</div>
                         <div class="text-white mt-1">expose('hello', (input) => {</div>
-                        <div class="text-white">  <div class="text-purple-400">return</div> { message: <div class="text-yellow-300">`Hello ${input.name}!`</div> };</div>
+                        <div class="text-white">  <div class="text-purple-300">return</div> { message: <div class="text-yellow-300">`Hello ${input.name}!`</div> };</div>
                         <div class="text-white">});</div>
                       </div>
-                      <div class="bg-black/50 rounded p-2 font-mono mt-2">
-                        <div class="text-green-400"># Expose by function name</div>
+                      <div class="bg-black/50 rounded-lg p-2 font-mono mt-2">
+                        <div class="text-green-300"># Expose by function name</div>
                         <div class="text-white">npx instant-api expose hello</div>
                       </div>
                       <p class="text-blue-300">Perfect for serverless-style development!</p>
