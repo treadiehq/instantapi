@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import { CreateEndpointDto, CreateFileEndpointDto, CreateEndpointResponseDto } from './dto/create-endpoint.dto';
 
@@ -119,6 +119,29 @@ export class EndpointsService {
       ...endpoint,
       url: `http://localhost:3001/run/${endpoint.id}`,
     }));
+  }
+
+  // Delete an endpoint
+  async deleteEndpoint(id: string, organizationId: string): Promise<void> {
+    // First, verify the endpoint exists and belongs to this organization
+    const endpoint = await this.prisma.endpoint.findUnique({
+      where: { id },
+    });
+
+    if (!endpoint) {
+      throw new NotFoundException('Endpoint not found');
+    }
+
+    if (endpoint.organizationId !== organizationId) {
+      throw new ForbiddenException('You do not have permission to delete this endpoint');
+    }
+
+    // Delete the endpoint
+    await this.prisma.endpoint.delete({
+      where: { id },
+    });
+
+    console.log(`🗑️  Deleted endpoint ${id}`);
   }
 
   // Cleanup expired endpoints (can be called periodically)

@@ -6,6 +6,7 @@ import {
   HttpCode,
   HttpStatus,
   Get,
+  Delete,
   UseInterceptors,
   UploadedFile,
   BadRequestException,
@@ -179,6 +180,21 @@ export class EndpointsController {
   @UseGuards(AuthGuard)
   async listEndpoints(@Req() req: any) {
     return this.endpointsService.listEndpoints(req.user.organizationId);
+  }
+
+  /**
+   * Delete an endpoint
+   * DELETE /api/endpoints/:id
+   */
+  @Delete('api/endpoints/:id')
+  @UseGuards(AuthGuard)
+  @HttpCode(HttpStatus.OK)
+  async deleteEndpoint(@Param('id') id: string, @Req() req: any) {
+    await this.endpointsService.deleteEndpoint(id, req.user.organizationId);
+    return {
+      success: true,
+      message: 'Endpoint deleted successfully',
+    };
   }
 
   /**

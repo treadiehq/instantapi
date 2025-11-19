@@ -5,7 +5,7 @@
 
     <!-- Main content after auth is initialized -->
     <div v-else>
-      <div class="radial-gradient absolute top-0 md:right-14 right-5"></div>
+      <div v-if="!isAuthenticated" class="radial-gradient absolute top-0 md:right-14 right-5"></div>
       
       <!-- User Header (only for authenticated users) -->
       <UserHeader v-if="isAuthenticated" />
@@ -767,9 +767,18 @@
                       <p v-if="endpoint.description" class="text-xs text-gray-400 line-clamp-2">{{ endpoint.description }}</p>
                       <div class="flex items-center justify-between">
                         <span class="text-xs text-gray-500">{{ formatDate(endpoint.createdAt) }}</span>
-                        <button @click="copyToClipboard(endpoint.url)" class="text-xs px-2 py-1 rounded bg-gray-500/10 text-gray-300 hover:bg-gray-500/20 transition-colors">
-                          Copy
-                        </button>
+                        <div class="flex gap-2">
+                          <button @click="copyToClipboard(endpoint.url)" class="text-xs px-2 py-1 rounded bg-gray-500/10 text-gray-300 hover:bg-gray-500/20 transition-colors">
+                            Copy
+                          </button>
+                          <button 
+                            @click="deleteEndpoint(endpoint.id)" 
+                            :disabled="deletingEndpointId === endpoint.id"
+                            class="text-xs px-2 py-1 rounded bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-colors disabled:opacity-50"
+                          >
+                            {{ deletingEndpointId === endpoint.id ? '...' : 'Delete' }}
+                          </button>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -851,6 +860,7 @@ const lastSaved = ref<Date | null>(null)
 const endpoints = ref<any[]>([])
 const tunnels = ref<any[]>([])
 const loading = ref({ create: false, test: false, health: false, dashboard: false })
+const deletingEndpointId = ref<string | null>(null)
 
 // Watch for language changes and clear code if it has content
 watch(language, (newLang, oldLang) => {
@@ -930,6 +940,37 @@ async function fetchTunnels() {
 async function fetchDashboard() {
   if (!isAuthenticated.value) return;
   await Promise.all([fetchEndpoints(), fetchTunnels()]);
+}
+
+// Delete endpoint
+async function deleteEndpoint(id: string) {
+  if (!confirm('Are you sure you want to delete this endpoint? This action cannot be undone.')) {
+    return;
+  }
+
+  deletingEndpointId.value = id;
+  try {
+    const { token } = useAuth();
+    const response = await fetch(`${API_BASE}/api/endpoints/${id}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${token.value}`,
+      },
+    });
+
+    if (response.ok) {
+      // Remove from local state
+      endpoints.value = endpoints.value.filter(e => e.id !== id);
+      showToast('Endpoint deleted successfully', 'success');
+    } else {
+      const error = await response.json();
+      showToast(error.message || 'Failed to delete endpoint', 'error');
+    }
+  } catch (error: any) {
+    showToast(error.message || 'Failed to delete endpoint', 'error');
+  } finally {
+    deletingEndpointId.value = null;
+  }
 }
 
 // Format date helper
