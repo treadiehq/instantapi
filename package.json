@@ -1,0 +1,34 @@
+{
+  "name": "instant-api",
+  "version": "0.1.0",
+  "description": "Instant API - Turn code into APIs instantly",
+  "private": true,
+  "workspaces": [
+    "backend",
+    "frontend",
+    "sandbox-worker",
+    "cli",
+    "packages/sdk"
+  ],
+  "scripts": {
+    "dev:backend": "cd backend && npm run start:dev",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev": "npm-run-all -p dev:backend dev:frontend",
+    "install:all": "npm install && npm run install:backend && npm run install:frontend && npm run install:sandbox && npm run install:cli && npm run install:sdk",
+    "install:backend": "cd backend && npm install",
+    "install:frontend": "cd frontend && npm install",
+    "install:sandbox": "cd sandbox-worker && npm install",
+    "install:cli": "cd cli && npm install",
+    "install:sdk": "cd packages/sdk && npm install",
+    "build:cli": "cd cli && npm run build",
+    "build:sdk": "cd packages/sdk && npm run build",
+    "docker:up": "docker compose up -d",
+    "docker:down": "docker compose down",
+    "prisma:migrate": "cd backend && npx prisma migrate dev",
+    "prisma:generate": "cd backend && npx prisma generate"
+  },
+  "devDependencies": {
+    "npm-run-all": "^4.1.5"
+  }
+}
+

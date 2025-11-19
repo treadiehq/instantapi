@@ -1,0 +1,12 @@
+name = "instant-api-sandbox"
+main = "src/index.ts"
+compatibility_date = "2024-01-01"
+
+# Sandbox binding (required for Cloudflare Sandbox SDK)
+[[sandbox]]
+binding = "SANDBOX"
+
+# Local development settings
+[env.development]
+workers_dev = true
+

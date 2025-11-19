@@ -1,0 +1,17 @@
+node_modules
+dist
+.env
+.env.local
+.DS_Store
+*.log
+.nuxt
+.output
+.wrangler
+
+# Logs directory but keep .gitkeep
+logs/*
+!logs/.gitkeep
+
+# PID files for process management
+.pids/
+

@@ -1,0 +1,86 @@
+// Prisma schema for Instant API
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Endpoint {
+  id            String         @id @default(cuid())
+  language      String         // "javascript" or "python"
+  code          String         @db.Text
+  kind          String         @default("snippet") // "snippet" | "file" | "webhook"
+  name          String?        // optional friendly label
+  description   String?        // optional description
+  ttlHours      Int            @default(24) // time-to-live in hours
+  createdAt     DateTime       @default(now())
+  expiresAt     DateTime
+  ExecutionLog  ExecutionLog[]
+
+  @@index([expiresAt])
+}
+
+model ExecutionLog {
+  id           String   @id @default(cuid())
+  endpointId   String
+  createdAt    DateTime @default(now())
+  durationMs   Int
+  success      Boolean
+  error        String?  // short error summary
+  requestBody  Json?
+  responseBody Json?
+  Endpoint     Endpoint @relation(fields: [endpointId], references: [id], onDelete: Cascade)
+
+  @@index([endpointId])
+  @@index([createdAt])
+}
+
+model Tunnel {
+  id            String          @id @default(cuid())
+  targetUrl     String          // e.g. "http://localhost:3000/users/create"
+  createdAt     DateTime        @default(now())
+  lastSeenAt    DateTime        @default(now())
+  isActive      Boolean         @default(true)
+  requests      TunnelRequest[]
+
+  @@index([isActive])
+  @@index([lastSeenAt])
+}
+
+model TunnelRequest {
+  id              String              @id @default(cuid())
+  tunnelId        String
+  createdAt       DateTime            @default(now())
+  method          String
+  path            String              // optional extension
+  headers         Json
+  body            Json?
+  status          String              @default("pending") // "pending" | "in-flight" | "completed" | "failed"
+  isStreaming     Boolean             @default(false)
+  responseStatus  Int?
+  responseHeaders Json?
+  responseBody    Json?
+  streamEvents    TunnelStreamEvent[]
+  Tunnel          Tunnel              @relation(fields: [tunnelId], references: [id], onDelete: Cascade)
+
+  @@index([tunnelId])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model TunnelStreamEvent {
+  id        String        @id @default(cuid())
+  requestId String
+  sequence  Int
+  chunk     String        @db.Text
+  createdAt DateTime      @default(now())
+  Request   TunnelRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+
+  @@index([requestId, sequence])
+  @@index([createdAt])
+}
+

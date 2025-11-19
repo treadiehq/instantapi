@@ -1,0 +1,19 @@
+{
+  "name": "instant-api-sandbox-worker",
+  "version": "0.1.0",
+  "description": "Cloudflare Sandbox Worker for code execution",
+  "private": true,
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy"
+  },
+  "dependencies": {
+    "@cloudflare/sandbox": "^0.1.0",
+    "@cloudflare/workers-types": "^4.20240725.0"
+  },
+  "devDependencies": {
+    "wrangler": "^3.60.0",
+    "typescript": "^5.3.3"
+  }
+}
+

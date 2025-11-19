@@ -1,0 +1,162 @@
+/* Tailwind CSS v4 with PostCSS plugin */
+@import "tailwindcss/theme" layer(theme);
+@import "tailwindcss/preflight" layer(base);
+@import "tailwindcss/utilities" layer(utilities);
+
+/* Custom highlight styles inspired by heatmap.dev */
+.highlight {
+  /* background-color: #fde047; */
+  @apply bg-blue-300/10;
+  /* color: #000; */
+  @apply text-blue-300;
+  @apply px-1;
+  /* padding: 0.125rem 0.375rem; */
+  font-weight: 500;
+  /* border-radius: 2px; */
+}
+
+.highlight-subtle {
+  /* background-color: #fde047; */
+  @apply bg-yellow-300/10;
+  @apply text-yellow-300;
+  /* color: #000; */
+  padding: 0.125rem 0.375rem;
+  font-weight: 500;
+  border-radius: 2px;
+}
+
+.highlight-orange {
+  /* background-color: #fb923c; */
+  @apply bg-orange-300/10;
+  @apply text-orange-300;
+  padding: 0.125rem 0.375rem;
+  font-weight: 500;
+  border-radius: 2px;
+}
+
+.highlight-red {
+  /* background-color: #fca5a5; */
+  @apply bg-red-300/10;
+  @apply text-red-300;
+  /* color: #000; */
+  padding: 0.125rem 0.375rem;
+  font-weight: 500;
+  border-radius: 2px;
+}
+
+.code-inline {
+  /* background-color: #fde047; */
+  @apply bg-yellow-300/10;
+  @apply text-yellow-300;
+  /* color: #000; */
+  padding: 0.125rem 0.375rem;
+  border-radius: 2px;
+  font-family: 'JetBrains Mono', 'Menlo', 'Monaco', 'Courier New', monospace;
+  font-size: 0.9em;
+  font-weight: 500;
+}
+
+/* Custom theme configuration */
+@theme {
+  /* --font-mono: 'JetBrains Mono', 'Menlo', 'Monaco', 'Courier New', monospace; */
+  
+  /* Custom colors for dark theme */
+  /* --color-primary: #3b82f6;
+  --color-primary-hover: #2563eb; */
+}
+
+/* Base styles */
+@layer base {
+  body {
+    @apply bg-black text-white;
+  }
+
+  html {
+    font-family: -apple-system, BlinkMacSystemFont, Inter, Segoe UI, Roboto, Noto Sans, Ubuntu, sans-serif;
+    /* font-family: "JetBrains Mono", "SFMono-Regular", "Menlo", "Consolas", "ui-monospace", "Monaco", "Courier New", monospace; */
+    font-feature-settings: "calt", "dlig", "liga", "kern", "ss01", "ss02", "ss03", "ss04", "ss07", "ss08", "tnum", "cv02", "cv03", "cv04", "cv11";
+    font-synthesis: none;
+    scroll-behavior: smooth;
+  }
+  
+  body, html {
+    @apply bg-black w-full h-full;
+    overscroll-behavior: none;
+  }
+
+  /* Prevent body scroll when modal is open */
+  body:has(.fixed.z-50) {
+    overflow: hidden;
+  }
+  
+  ::selection {
+    @apply text-blue-300;
+    background-color: rgb(147 197 253 / 0.15);
+  }
+
+  /* .ͼo .cm-gutters {
+    background-color: #6a7282;
+  } */
+  
+  /* Smooth scrolling */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+  }
+  
+  *::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  
+  *::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  *::-webkit-scrollbar-thumb {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+  }
+  
+  *::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(255, 255, 255, 0.15);
+  }
+  
+  /* Focus styles */
+  *:focus-visible {
+    outline: 2px solid rgba(255, 255, 255, 0.2);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+  
+  @media screen and (-webkit-min-device-pixel-ratio: 0) and (max-device-width: 1024px) {
+    select,
+    textarea,
+    input {
+      font-size: 16px;
+    }
+  }
+}
+
+/* Component utilities */
+@layer components {
+  .btn-primary {
+    @apply bg-blue-300 hover:bg-blue-400 text-black font-medium py-2 px-6 rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-secondary {
+    @apply bg-gray-500/10 border border-gray-500/10 hover:bg-gray-500/15 text-white font-medium py-2 px-6 rounded-lg transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .card {
+    @apply bg-gray-500/10 border border-gray-500/10 rounded-lg;
+  }
+
+  .input-field {
+    @apply w-full px-3 py-2 bg-gray-500/10 border border-gray-500/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-gray-500/10 focus:border-transparent;
+  }
+
+  .code-block {
+    @apply bg-black rounded-lg p-3 py-2.5 border border-gray-500/10 font-mono text-sm overflow-auto;
+  }
+}

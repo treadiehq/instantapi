@@ -1,0 +1,33 @@
+{
+  "name": "@instantapi/cli",
+  "version": "1.0.0",
+  "description": "CLI for Instant API - expose local routes to the internet",
+  "main": "dist/index.js",
+  "bin": {
+    "instant-api": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "start": "node dist/index.js"
+  },
+  "keywords": [
+    "api",
+    "tunnel",
+    "ngrok",
+    "proxy"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.6.2",
+    "chalk": "^4.1.2",
+    "yargs": "^17.7.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.5",
+    "@types/yargs": "^17.0.32",
+    "typescript": "^5.3.3"
+  }
+}
+
