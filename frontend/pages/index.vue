@@ -54,7 +54,7 @@
       </div>
 
       <!-- Main Card -->
-      <div class="border bg-gray-500/5 border-gray-500/15 mt-14 md:mt-16 relative inner-container mb-[-1px] ml-[-1px]">
+      <div class="border bg-gray-500/5 border-gray-500/15 mt-14 md:mt-16 relative inner-container -mb-px -ml-px">
         <div class="border border-t-0 border-l-0 border-r-0 border-gray-500/10">
           <div>
             <!-- Mode Tabs -->
@@ -440,13 +440,13 @@
           class="main-section bottom-l absolute w-[1px] h-[1px] bottom-[-1px] left-[-1px]"
         ></span
         ><span
-          class="main-section bottom-l absolute w-[1px] h-[1px] bottom-[-1px] right-[-1px]"
+          class="main-section bottom-l absolute w-px h-px -bottom-px -right-px"
         ></span
         ><span
-          class="main-section bottom-l absolute w-[1px] h-[1px] top-[-1px] right-[-1px]"
+          class="main-section bottom-l absolute w-px h-px -top-px -right-px"
         ></span
         ><span
-          class="main-section bottom-l absolute w-[1px] h-[1px] top-[-1px] left-[-1px]"
+          class="main-section bottom-l absolute w-px h-px -top-px -left-px"
         ></span>
       </div>
 
