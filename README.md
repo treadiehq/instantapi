@@ -1,125 +1,39 @@
 # Instant API
 
-Turn code into APIs in seconds. No deployment, no servers, no hassle.
+Turn code into APIs instantly. No servers, no deploy, no config.
 
-## What can you do?
+## What is it?
 
-### 1. Run Code as an API
-Paste JavaScript or Python code, get a live API endpoint instantly.
+**4 ways to create APIs:**
 
-```javascript
-function handler(input) {
-  return { message: `Hello ${input.name}!` };
-}
-```
-→ `POST http://localhost:3001/run/abc123`
-
-### 2. Expose Local APIs to the Internet
-Already have a backend running? Share it instantly (like ngrok).
-
-```bash
-npx instant-api expose http://localhost:3000/api/users
-# → Public URL: http://localhost:3001/t/xyz789
-```
-
-### 3. Stream Real-Time Events
-Your local server streams? We'll proxy it live.
-
-```javascript
-// Your Express server with SSE
-app.get('/events', (req, res) => {
-  res.setHeader('Content-Type', 'text/event-stream');
-  // Stream events...
-});
-```
-
-### 4. Expose Single Functions
-No server setup needed. Just write functions.
-
-```javascript
-import { expose } from '@instantapi/sdk';
-
-expose('calculate', (input) => {
-  return { result: input.a + input.b };
-});
-```
-
-## Features
-
-### Code Snippets
-- ✅ JavaScript, TypeScript, Python
-- ✅ Paste code or upload files
-- ✅ 1 hour to 7 days lifespan
-- ✅ Console logs & errors
-- ✅ Call external APIs (`fetch`, `http_get`)
-- ✅ Webhook mode (access headers)
-
-### Framework Mode (ngrok-style)
-- ✅ Expose any local HTTP endpoint
-- ✅ Works with Express, NestJS, FastAPI, etc.
-- ✅ No code changes needed
-- ✅ Stable public URLs
-- ✅ Real-time request forwarding
-
-### Real-Time Streaming
-- ✅ Server-Sent Events (SSE) support
-- ✅ WebSocket fallback
-- ✅ Live data streaming
-- ✅ Perfect for AI responses, dashboards, chat
-
-### Function Mode
-- ✅ Serverless-style development
-- ✅ Zero boilerplate
-- ✅ Auto-detected by CLI
-- ✅ TypeScript support
-
-### Authentication & Dashboard
-- ✅ Organization-based multi-tenancy
-- ✅ Passwordless magic link authentication
-- ✅ API key management for CLI/SDK
-- ✅ Dashboard to view all your APIs
-- ✅ Optional authentication (1hr limit without login)
+1. **Code Snippet** - Paste JS/Python → Get API
+2. **Framework** - Expose your local server (like ngrok)
+3. **Streaming** - Real-time SSE/WebSocket support
+4. **Functions** - Serverless-style, zero boilerplate
 
 ## Quick Start
 
-### Prerequisites
-- Node.js 18+
-- Docker (for Postgres)
-
-### Installation
-
 ```bash
-# Clone and install
+# Clone and setup
 git clone <repo-url>
 cd instantapi
 npm install && npm run install:all
 
-# Start Postgres
+# Start services
 npm run docker:up
-
-# Setup database
 npm run prisma:generate
 npm run prisma:migrate
-
-# Start everything
 ./start.sh
 ```
 
-Open **http://localhost:3000**
+Open **http://localhost:3000** 🚀
 
-## Usage Examples
+## Examples
 
-### Example 1: Code Snippet
+### 1. Code Snippet (No signup needed)
 
-💡 **No authentication required** (1 hour limit - sign in for 24hr/7day options)
-
-**In the UI:**
-1. Paste your code
-2. Click "Create an API"
-3. Test it in the browser
-
-**Via API:**
 ```bash
+# Create API
 curl -X POST http://localhost:3001/api/endpoints \
   -H "Content-Type: application/json" \
   -d '{
@@ -127,135 +41,109 @@ curl -X POST http://localhost:3001/api/endpoints \
     "code": "function handler(input) { return { sum: input.a + input.b }; }"
   }'
 
-# Returns: { "id": "abc123", "url": "http://localhost:3001/run/abc123" }
-
-# Test it
+# Use it
 curl -X POST http://localhost:3001/run/abc123 \
-  -H "Content-Type: application/json" \
   -d '{"a": 5, "b": 3}'
-
-# Returns: { "result": { "sum": 8 } }
+# → { "result": { "sum": 8 } }
 ```
 
-### Example 2: Expose Local API
+### 2. Framework Mode (No signup needed for 1hr)
 
-💡 **No authentication required** (1 hour temporary tunnel - add API key for persistent tunnels)
-
-**Start your backend:**
 ```bash
-# Your Express/NestJS/FastAPI app running on :3000
-npm start
-```
+# Your local server
+npm start  # Running on :3000
 
-**Expose it:**
-```bash
-cd cli
-npm run build
+# Expose it
+cd cli && npm run build
 node dist/index.js expose http://localhost:3000/api/users
 
-# Output:
-# ⚠️  No API key found. Tunnel will be temporary (1 hour limit).
-# ✓ Tunnel registered!
-# Public URL: http://localhost:3001/t/xyz789
-# Target URL: http://localhost:3000/api/users
+# Use it
+curl http://localhost:3001/t/xyz789
 ```
 
-**Use it:**
-```bash
-curl -X POST http://localhost:3001/t/xyz789 \
-  -H "Content-Type: application/json" \
-  -d '{"name": "Alice"}'
+### 3. Streaming (SSE)
 
-# Request forwarded to your local server!
-```
-
-### Example 3: Real-Time Streaming
-
-💡 **No authentication required** (1 hour temporary tunnel)
-
-**Your SSE endpoint:**
 ```javascript
-app.get('/stream', (req, res) => {
+// Your Express app
+app.get('/events', (req, res) => {
   res.setHeader('Content-Type', 'text/event-stream');
-  
   setInterval(() => {
-    res.write(`data: ${JSON.stringify({ time: new Date() })}\n\n`);
+    res.write(`data: ${JSON.stringify({ time: Date.now() })}\n\n`);
   }, 1000);
 });
 ```
 
-**Expose it:**
 ```bash
-node cli/dist/index.js expose http://localhost:3000/stream
-```
+# Expose it
+node cli/dist/index.js expose http://localhost:3000/events
 
-**Connect:**
-```bash
+# Stream it
 curl -N http://localhost:3001/t/xyz789
-# Live stream of events! 🎉
 ```
 
-### Example 4: Function Mode
+### 4. Function Mode (Requires API key)
 
-⚠️ **Requires API Key** - Sign up and generate one in the dashboard
-
-**Install SDK:**
 ```bash
 npm install @instantapi/sdk
 ```
 
-**Create functions.js:**
 ```javascript
+// functions.js
 import { expose } from '@instantapi/sdk';
 
 expose('greet', (input) => {
   return { message: `Hello, ${input.name}!` };
 });
-
-expose('calculate', async (input) => {
-  // Your logic here
-  return { result: input.a + input.b };
-});
 ```
 
-**Set up authentication:**
 ```bash
-# 1. Sign up at http://localhost:3000 and generate an API key
-# 2. Set your API key
-export INSTANT_API_KEY=ik_your_key_here
+# Sign up at http://localhost:3000 → Generate API key
+export INSTANT_API_KEY=ik_your_key
+
+# Run and expose
+node functions.js  # Terminal 1
+npx instant-api expose greet  # Terminal 2
 ```
 
-**Run & expose:**
-```bash
-# Terminal 1: Run your functions
-node functions.js
+## Authentication
 
-# Terminal 2: Expose with CLI (API key required)
-npx instant-api expose greet  # Auto-detected!
+**Optional** (most features work without signup for 1hr)
 
-# Terminal 3: Test it
-curl -X POST http://localhost:3001/t/xyz789 \
-  -H "Content-Type: application/json" \
-  -d '{"name": "World"}'
-```
+**Required for:**
+- File uploads
+- 24hr+ TTL
+- Function mode (SDK)
+- Persistent tunnels
 
-## Documentation
+**How to:**
+1. Visit http://localhost:3000
+2. Sign up with email
+3. Check console for magic link
+4. Generate API key for CLI/SDK
 
-- **[packages/sdk/README.md](./packages/sdk/README.md)** - Function Mode SDK docs
-- **[DEPLOYMENT.md](./DEPLOYMENT.md)** - Production deployment
+## Features
+
+| Mode | Auth | TTL | Use Case |
+|------|------|-----|----------|
+| **Snippet** | Optional | 1hr-7d | Quick APIs |
+| **File Upload** | Required | 1hr-7d | Larger code |
+| **Framework** | Optional | 1hr+ | ngrok-style |
+| **Streaming** | Optional | 1hr+ | SSE/WebSocket |
+| **Functions** | Required | 1hr+ | Serverless |
+
+**Languages:** JavaScript, TypeScript, Python
+**Limits:** 64KB code, 5min streaming timeout
 
 ## Configuration
-
-### Environment Variables
 
 **Backend (.env):**
 ```env
 DATABASE_URL="postgresql://user:pass@localhost:5432/instantapi"
 CLOUDFLARE_SANDBOX_URL="http://localhost:8787"
 BACKEND_URL="http://localhost:3001"
-JWT_SECRET="your-secret-key-here"
+JWT_SECRET="your-secret-key"
 FRONTEND_URL="http://localhost:3000"
-RESEND_API_KEY=""  # Optional: for production email (leave empty for local dev)
+RESEND_API_KEY=""  # Optional: production email
 EMAIL_FROM="noreply@instantapi.com"
 ```
 
@@ -264,160 +152,42 @@ EMAIL_FROM="noreply@instantapi.com"
 VITE_API_BASE="http://localhost:3001"
 ```
 
-> **Note:** For local development, magic links are printed to the console. For production, set `RESEND_API_KEY` to send emails via [Resend](https://resend.com).
-
-### Modes & Options
-
-| Mode | Description | Authentication | Use Case |
-|------|-------------|----------------|----------|
-| **Snippet** | Run code in sandbox | Optional (1hr limit) | Quick APIs, prototypes |
-| **File Upload** | Upload .js/.ts/.py | Required | Larger code files |
-| **Webhook** | Access headers | Optional (1hr limit) | Stripe, Twilio webhooks |
-| **Framework** | Proxy local server | Optional (1hr limit) | Share local dev server |
-| **Streaming** | SSE/WebSocket | Optional (1hr limit) | Real-time dashboards |
-| **Functions** | SDK-based | Required (API key) | Serverless-style dev |
-
-### TTL (Time-to-Live)
-- **1 hour** - Quick tests (no auth required)
-- **24 hours** - Default (requires auth)
-- **7 days** - Longer projects (requires auth)
-
-## Security & Limitations
-
-### Security
-⚠️ **For development and testing only**
-
-- **Authentication:** Optional for most features (1hr limit without auth)
-- **Organizations:** Multi-tenant with data isolation
-- **Magic Links:** Passwordless authentication via email
-- **API Keys:** For CLI and SDK access
-- **Endpoints:** Public URLs (consider adding custom auth in your code)
-- **Sandbox:** Code runs in isolated Cloudflare Workers
-- **Auto-expires:** All APIs have TTL to prevent abuse
-- **Size limit:** 64KB code max
-
-### Production Considerations
-Recommended additions for production:
-- Rate limiting per organization
-- Endpoint access controls
-- Input validation and sanitization
-- Execution quotas and monitoring
-- Custom domain with SSL
-- Database backups
-- Logging and alerting
-
-### Current Limitations
-- Code snippets: 64KB max
-- Streaming: 5-minute timeout
-- Functions: JSON input/output only
-- No bidirectional WebSocket (use SSE)
-
-## Authentication
-
-### Sign Up / Login
-
-**Web UI:**
-1. Visit `http://localhost:3000`
-2. Click "Sign Up" or "Sign In"
-3. Enter email and organization name (for signup)
-4. Check console for magic link (local dev)
-5. Click link to authenticate
-
-**Magic Link Flow:**
-- **Local dev:** Link printed to backend console
-- **Production:** Email sent via Resend
-
-### API Keys
-
-**Generate an API key:**
-1. Log in to the web UI
-2. Click your avatar → "Generate API Key"
-3. Name your key and save it securely
-4. Use for CLI and SDK
-
-**Using API keys:**
-```bash
-# Set environment variable
-export INSTANT_API_KEY=ik_your_key_here
-
-# Or configure CLI
-npx instant-api config --api-key ik_your_key_here
-
-# Now you can use CLI with full access
-npx instant-api expose http://localhost:3000/api
-```
-
-### Dashboard
-
-View all your APIs in one place:
-- **Endpoints:** Snippets, file uploads, webhooks
-- **Tunnels:** Framework and function mode tunnels
-- **Actions:** Copy URLs, view status, check activity
-- **Auto-refresh:** Updates every 30 seconds
-
 ## Troubleshooting
 
-**Backend won't start?**
 ```bash
-cd backend
-npm run prisma:generate
-npm run prisma:migrate
-npm run build
-```
+# Backend won't start
+cd backend && npm run prisma:generate && npm run prisma:migrate
 
-**Postgres connection error?**
-```bash
-npm run docker:up
-docker ps  # Check postgres is running
-```
-
-**CLI can't connect?**
-```bash
-# Check backend is running
-curl http://localhost:3001/health
+# Check services
+curl http://localhost:3001/health  # Backend
+curl http://localhost:8787/health  # Sandbox
+docker ps  # Postgres
 
 # Rebuild CLI
 cd cli && npm run build
 ```
 
-**Frontend can't reach backend?**
-- Verify backend is on port 3001: `curl http://localhost:3001/health`
-- Check `VITE_API_BASE` in `frontend/.env`
-- Look for CORS errors in browser console
+## Production
 
-**Sandbox execution fails?**
-```bash
-# Start sandbox worker
-cd sandbox-worker
-npm run dev
+See **[DEPLOYMENT.md](./DEPLOYMENT.md)** for production setup (~30 minutes).
 
-# Should be on port 8787
-curl http://localhost:8787/health
-```
+**Cost:** $5-10/month (Cloudflare Workers + database)
+
+## Docs
+
+- **[packages/sdk/README.md](./packages/sdk/README.md)** - Function SDK
+- **[cli/README.md](./cli/README.md)** - CLI docs
+- **[DEPLOYMENT.md](./DEPLOYMENT.md)** - Deploy guide
 
 ## Use Cases
 
-### Development & Testing
-- 🧪 Test webhooks locally (Stripe, Twilio, GitHub)
-- 🔬 Quick API prototypes
-- 🎯 Share work-in-progress with teammates
-- 📊 Build real-time dashboards
-
-### Learning & Education
-- 📚 Learn API development
-- 🎓 Teach backend concepts
-- 💡 Experiment with code
-
-### Integration & Demos
-- 🎬 Product demos
-- 🔗 Quick integrations
-- ⚡ Hackathon projects
-
-
-## License
-
-FSL-1.1-MIT - See [LICENSE](LICENSE)
+- 🧪 Test webhooks locally (Stripe, Twilio)
+- ⚡ Quick prototypes & demos
+- 📊 Real-time dashboards
+- 🎓 Learning & teaching
+- 🚀 Hackathon projects
 
 ---
 
-**Made with ❤️ for developers who want to move fast**
+**Made for developers who move fast** ⚡
+
