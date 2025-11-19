@@ -1,9 +1,14 @@
 <template>
   <div class="min-h-screen relative">
-    <div class="radial-gradient absolute top-0 md:right-14 right-5"></div>
-    
-    <!-- User Header (only for authenticated users) -->
-    <UserHeader v-if="isAuthenticated" />
+    <!-- Skeleton loader while auth initializes -->
+    <SkeletonLoader v-if="!authInitialized" :show-dashboard="false" />
+
+    <!-- Main content after auth is initialized -->
+    <div v-else>
+      <div class="radial-gradient absolute top-0 md:right-14 right-5"></div>
+      
+      <!-- User Header (only for authenticated users) -->
+      <UserHeader v-if="isAuthenticated" />
     
     <!-- Public Header (for non-authenticated users) -->
     <header v-else class="border-b border-gray-500/20 bg-black/80 backdrop-blur-sm sticky top-0 z-50">
@@ -804,6 +809,7 @@
     
     <!-- Toast Notifications -->
     <Toast ref="toastComponent" />
+    </div>
   </div>
 </template>
 
@@ -1632,11 +1638,8 @@ useHead({
   title: 'Instant API - Turn code into APIs instantly',
 });
 
-// Initialize auth on mount and check auth state
-const { initAuth, isAuthenticated } = useAuth();
-onMounted(() => {
-  initAuth();
-});
+// Check auth state (auth is initialized by plugin)
+const { isAuthenticated, initialized: authInitialized } = useAuth();
 
 // Ensure non-authenticated users can only use 1 hour TTL and clear name/description
 watch(isAuthenticated, (authenticated) => {

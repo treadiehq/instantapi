@@ -5,10 +5,11 @@ export const useAuth = () => {
   const user = useState<any>('user', () => null);
   const token = useState<string | null>('token', () => null);
   const loading = useState<boolean>('auth-loading', () => false);
+  const initialized = useState<boolean>('auth-initialized', () => false);
 
   // Initialize auth state from localStorage
   const initAuth = () => {
-    if (process.client) {
+    if (process.client && !initialized.value) {
       const storedToken = localStorage.getItem('instant_api_token');
       const storedUser = localStorage.getItem('instant_api_user');
       
@@ -21,6 +22,7 @@ export const useAuth = () => {
           clearAuth();
         }
       }
+      initialized.value = true;
     }
   };
 
@@ -129,6 +131,7 @@ export const useAuth = () => {
     user,
     token,
     loading,
+    initialized,
     isAuthenticated,
     initAuth,
     signup,

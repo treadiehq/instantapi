@@ -1,5 +1,9 @@
 <template>
-  <div class="min-h-screen relative bg-black flex items-center justify-center p-4">
+  <!-- Show skeleton while checking auth -->
+  <AuthPageSkeleton v-if="!authInitialized" :show-second-field="true" />
+
+  <!-- Show signup form once auth is checked -->
+  <div v-else class="min-h-screen relative bg-black flex items-center justify-center p-4">
     <div class="radial-gradient absolute top-0 md:right-14 right-5"></div>
     <div class="max-w-md w-full relative z-10">
       <!-- Logo/Header -->
@@ -113,6 +117,22 @@ const handleSignup = async () => {
     loading.value = false;
   }
 };
+
+// Redirect if already authenticated
+const { isAuthenticated, initialized: authInitialized } = useAuth();
+const router = useRouter();
+
+onMounted(() => {
+  if (isAuthenticated.value) {
+    router.push('/');
+  }
+});
+
+watch(isAuthenticated, (authenticated) => {
+  if (authenticated) {
+    router.push('/');
+  }
+});
 
 // Set page meta
 definePageMeta({

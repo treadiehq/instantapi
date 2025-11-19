@@ -11,6 +11,45 @@ import { EmailService } from './email.service';
 import { SignupDto, LoginDto, AuthResponseDto } from './dto/auth.dto';
 import { randomBytes } from 'crypto';
 
+// Reserved organization names that cannot be used
+const RESERVED_ORG_NAMES = [
+  // System & Admin
+  'admin', 'administrator', 'root', 'system', 'support', 'help',
+  'api', 'www', 'cdn', 'mail', 'email', 'smtp', 'ftp', 'ssh',
+  
+  // Common Subdomains
+  'app', 'dashboard', 'console', 'portal', 'panel', 'login', 'signup',
+  'auth', 'account', 'accounts', 'user', 'users', 'profile',
+  
+  // Infrastructure
+  'server', 'database', 'db', 'cache', 'queue', 'worker', 'jobs',
+  'static', 'assets', 'media', 'uploads', 'downloads', 'files',
+  
+  // API & Webhooks
+  'webhook', 'webhooks', 'callback', 'oauth', 'api-key', 'apikey',
+  'endpoint', 'endpoints', 'tunnel', 'tunnels', 'proxy',
+  
+  // Documentation & Info
+  'docs', 'documentation', 'blog', 'news', 'about', 'contact',
+  'terms', 'privacy', 'legal', 'status', 'health',
+  
+  // Common Business
+  'sales', 'marketing', 'billing', 'invoice', 'payment', 'subscribe',
+  'enterprise', 'business', 'corporate', 'company', 'organization',
+  
+  // Reserved for InstantAPI
+  'instantapi', 'instant-api', 'instant', 'treadie', 'treadieiq', 'kage', 'onboardbase', 'random', 'number',
+  
+  // Test & Demo
+  'test', 'testing', 'demo', 'sandbox', 'example', 'sample',
+  'staging', 'dev', 'development', 'prod', 'production',
+  
+  // Prevent Abuse
+  'abuse', 'security', 'report', 'spam', 'noreply', 'no-reply',
+  'postmaster', 'hostmaster', 'webmaster', 'moderator', 'null',
+  'undefined', 'anonymous', 'guest', 'public', 'private',
+];
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -18,6 +57,11 @@ export class AuthService {
     private jwt: JwtService,
     private email: EmailService,
   ) {}
+
+  private isReservedOrgName(name: string): boolean {
+    const normalized = name.toLowerCase().trim();
+    return RESERVED_ORG_NAMES.includes(normalized);
+  }
 
   async signup(dto: SignupDto): Promise<{ message: string }> {
     // Check if user exists
@@ -27,6 +71,11 @@ export class AuthService {
 
     if (existingUser) {
       throw new ConflictException('An account with this email already exists. Please login instead.');
+    }
+
+    // Check if organization name is reserved
+    if (this.isReservedOrgName(dto.organizationName)) {
+      throw new BadRequestException('This organization name is reserved and cannot be used. Please choose a different name.');
     }
 
     // Check if organization name already exists
@@ -108,6 +157,11 @@ export class AuthService {
 
       if (existingUser) {
         throw new ConflictException('An account with this email was created while you were verifying');
+      }
+
+      // Check if organization name is reserved
+      if (this.isReservedOrgName(magicLink.organizationName)) {
+        throw new BadRequestException('This organization name is reserved and cannot be used');
       }
 
       const existingOrg = await this.prisma.organization.findFirst({
