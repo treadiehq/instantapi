@@ -211,7 +211,7 @@
         <div v-else-if="mode === 'framework'" class="p-8 bg-black">
           <div class="max-w-2xl mx-auto">
             <div class="flex items-start space-x-3 mb-6">
-              <svg class="w-8 h-8 text-purple-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-8 h-8 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01" />
               </svg>
               <div>
@@ -226,7 +226,7 @@
               <div class="mb-4">
                 <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Terminal</p>
                 <div class="flex items-center justify-between bg-black rounded-lg p-3 font-mono text-sm">
-                  <code class="text-green-400">npx @instantapi/cli expose http://localhost:3000/api/users/create</code>
+                  <code class="text-green-300">npx @instantapi/cli expose http://localhost:3000/api/users/create</code>
                   <button 
                     @click="copyFrameworkCommand"
                     class="ml-3 text-gray-400 hover:text-white transition-colors"
@@ -239,10 +239,37 @@
                 </div>
               </div>
               
-              <div class="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4">
-                <p class="text-sm text-blue-300">
+              <div class="bg-gray-500/10 border border-gray-500/10 rounded-lg p-4">
+                <p class="text-sm text-gray-400">
                   <span class="font-semibold">Note:</span> Your local backend must be running and reachable. The CLI forwards requests from the public URL to your localhost.
                 </p>
+              </div>
+            </div>
+
+            <!-- Active Tunnels -->
+            <div v-if="activeTunnels.length > 0" class="border-t border-gray-500/10 pt-4">
+              <h3 class="text-sm font-semibold text-gray-300 mb-3">Active Tunnels</h3>
+              <div class="space-y-2">
+                <div
+                  v-for="tunnel in activeTunnels"
+                  :key="tunnel.id"
+                  class="flex items-center justify-between p-3 bg-gray-500/5 rounded border border-gray-500/10"
+                >
+                  <div class="flex-1 min-w-0">
+                    <p class="text-sm font-mono text-blue-300 truncate">
+                      /t/{{ tunnel.id }}
+                    </p>
+                    <p class="text-xs text-gray-500 truncate">
+                      → {{ tunnel.targetUrl }}
+                    </p>
+                  </div>
+                  <div class="shrink-0 ml-4">
+                    <span class="inline-flex items-center gap-1 text-xs text-green-400">
+                      <span class="w-2 h-2 bg-green-300 rounded-full animate-pulse"></span>
+                      Active
+                    </span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -252,13 +279,13 @@
         <div v-else-if="mode === 'function'" class="p-8 bg-black">
           <div class="max-w-2xl mx-auto">
             <div class="flex items-start space-x-3 mb-6">
-              <svg class="w-8 h-8 text-amber-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="w-8 h-8 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
               </svg>
               <div>
                 <h3 class="text-lg font-semibold text-white mb-2">Function Mode SDK</h3>
                 <p class="text-gray-400 text-sm leading-relaxed mb-4">
-                  Expose single functions without setting up a full server. Perfect for serverless-style development!
+                  Expose single functions without setting up a full server.
                 </p>
               </div>
             </div>
@@ -268,7 +295,7 @@
               <div class="bg-gray-500/5 border border-gray-500/10 rounded-lg p-6">
                 <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Install SDK</p>
                 <div class="flex items-center justify-between bg-black rounded-lg p-3 font-mono text-sm">
-                  <code class="text-green-400">npm install @instantapi/sdk</code>
+                  <code class="text-green-300">npm install @instantapi/sdk</code>
                   <button 
                     @click="copyInstallCommand"
                     class="ml-3 text-gray-400 hover:text-white transition-colors"
@@ -284,11 +311,11 @@
               <!-- Create functions -->
               <div class="bg-gray-500/5 border border-gray-500/10 rounded-lg p-6">
                 <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">functions.ts</p>
-                <pre class="bg-black rounded-lg p-4 text-sm overflow-x-auto"><code class="text-gray-300"><span class="text-purple-400">import</span> { <span class="text-blue-400">expose</span> } <span class="text-purple-400">from</span> <span class="text-green-400">'@instantapi/sdk'</span>;
+                <pre class="bg-black rounded-lg p-4 text-sm overflow-x-auto"><code class="text-gray-300"><span class="text-purple-300">import</span> { <span class="text-blue-300">expose</span> } <span class="text-purple-300">from</span> <span class="text-green-300">'@instantapi/sdk'</span>;
 
-<span class="text-blue-400">expose</span>(<span class="text-green-400">'hello'</span>, (<span class="text-orange-400">input</span>) => {
-  <span class="text-purple-400">return</span> { 
-    message: <span class="text-green-400">`Hello \${<span class="text-orange-400">input</span>.name}!`</span>
+<span class="text-blue-300">expose</span>(<span class="text-green-300">'hello'</span>, (<span class="text-orange-300">input</span>) => {
+  <span class="text-purple-300">return</span> { 
+    message: <span class="text-green-300">`Hello \${<span class="text-orange-300">input</span>.name}!`</span>
   };
 });</code></pre>
               </div>
@@ -297,7 +324,7 @@
               <div class="bg-gray-500/5 border border-gray-500/10 rounded-lg p-6">
                 <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Expose by function name</p>
                 <div class="flex items-center justify-between bg-black rounded-lg p-3 font-mono text-sm">
-                  <code class="text-green-400">npx instant-api expose hello</code>
+                  <code class="text-green-300">npx instant-api expose hello</code>
                   <button 
                     @click="copyExposeCommand"
                     class="ml-3 text-gray-400 hover:text-white transition-colors"
@@ -308,12 +335,6 @@
                     </svg>
                   </button>
                 </div>
-              </div>
-              
-              <div class="bg-amber-500/10 border border-amber-500/20 rounded-lg p-4">
-                <p class="text-sm text-amber-300">
-                  <span class="font-semibold">Perfect for serverless-style development!</span>
-                </p>
               </div>
             </div>
           </div>
@@ -409,109 +430,6 @@
             <span v-if="loading.create">Creating...</span>
             <span v-else>Create an API</span>
           </button>
-        </div>
-      </div>
-
-      <!-- Framework Mode Section -->
-      <div class="card mt-12">
-        <div class="p-6">
-          <div class="flex items-start gap-4">
-            <!-- Icon -->
-            <div class="shrink-0">
-              <svg class="w-12 h-12 text-purple-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 14.25h13.5m-13.5 0a3 3 0 01-3-3m3 3a3 3 0 100 6h13.5a3 3 0 100-6m-16.5-3a3 3 0 013-3h13.5a3 3 0 013 3m-19.5 0a4.5 4.5 0 01.9-2.7L5.737 5.1a3.375 3.375 0 012.7-1.35h7.126c1.062 0 2.062.5 2.7 1.35l2.587 3.45a4.5 4.5 0 01.9 2.7m0 0a3 3 0 01-3 3m0 3h.008v.008h-.008v-.008zm0-6h.008v.008h-.008v-.008zm-3 6h.008v.008h-.008v-.008zm0-6h.008v.008h-.008v-.008z" />
-              </svg>
-            </div>
-            
-            <!-- Content -->
-            <div class="flex-1">
-              <h2 class="text-2xl font-medium mb-3 text-white">
-                Framework Mode
-              </h2>
-              <p class="text-gray-400 mb-6 leading-relaxed">
-                Already have a backend running? (NestJS, Express, FastAPI, etc.) Expose any local route to the internet instantly with our CLI.
-              </p>
-
-              <!-- Usage Example -->
-              <div class="bg-black/50 rounded-lg p-5 border border-gray-500/20 mb-4">
-                <div class="flex items-center justify-between mb-3">
-                  <span class="text-xs font-semibold text-gray-400 uppercase tracking-wide">Terminal</span>
-                  <button
-                    @click="copyToClipboard('npx @instantapi/cli expose http://localhost:3000/api/users/create')"
-                    class="text-xs text-gray-400 hover:text-white transition-colors"
-                  >
-                    Copy
-                  </button>
-                </div>
-                <pre class="text-sm text-blue-300 font-mono">npx @instantapi/cli expose http://localhost:3000/api/users/create</pre>
-              </div>
-
-              <!-- Active Tunnels -->
-              <div v-if="activeTunnels.length > 0" class="border-t border-gray-500/10 pt-4">
-                <h3 class="text-sm font-semibold text-gray-300 mb-3">Active Tunnels</h3>
-                <div class="space-y-2">
-                  <div
-                    v-for="tunnel in activeTunnels"
-                    :key="tunnel.id"
-                    class="flex items-center justify-between p-3 bg-gray-500/5 rounded border border-gray-500/10"
-                  >
-                    <div class="flex-1 min-w-0">
-                      <p class="text-sm font-mono text-blue-300 truncate">
-                        /t/{{ tunnel.id }}
-                      </p>
-                      <p class="text-xs text-gray-500 truncate">
-                        → {{ tunnel.targetUrl }}
-                      </p>
-                    </div>
-                    <div class="shrink-0 ml-4">
-                      <span class="inline-flex items-center gap-1 text-xs text-green-400">
-                        <span class="w-2 h-2 bg-green-300 rounded-full animate-pulse"></span>
-                        Active
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Info Note -->
-              <div class="mt-4 p-3 bg-blue-300/10 border border-blue-300/10 rounded-lg text-sm text-blue-300">
-                <span class="font-semibold">Note:</span> Your local backend must be running and reachable. The CLI forwards requests from the public URL to your localhost.
-              </div>
-
-              <!-- Advanced Features -->
-              <div class="mt-6 pt-6 border-t border-gray-500/10">
-                <h3 class="text-sm font-semibold text-gray-300 mb-3">Advanced Features</h3>
-                <div class="space-y-3">
-                  <!-- Function Mode -->
-                  <details class="group">
-                    <summary class="cursor-pointer text-sm text-gray-400 hover:text-white flex items-center gap-2">
-                      <svg class="w-4 h-4 transition-transform group-open:rotate-90" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" clip-rule="evenodd" />
-                      </svg>
-                      Function Mode SDK
-                    </summary>
-                    <div class="mt-2 ml-6 text-xs text-gray-500 space-y-2">
-                      <p>Expose single functions without setting up a full server:</p>
-                      <div class="bg-black/50 rounded p-2 font-mono">
-                        <div class="text-green-300">// Install SDK</div>
-                        <div class="text-gray-400">npm install @instantapi/sdk</div>
-                        <div class="text-green-300 mt-2">// functions.ts</div>
-                        <div class="text-purple-300">import</div> <div class="text-white">{ expose } <div class="text-purple-300">from</div> '@instantapi/sdk';</div>
-                        <div class="text-white mt-1">expose('hello', (input) => {</div>
-                        <div class="text-white">  <div class="text-purple-300">return</div> { message: <div class="text-yellow-300">`Hello ${input.name}!`</div> };</div>
-                        <div class="text-white">});</div>
-                      </div>
-                      <div class="bg-black/50 rounded-lg p-2 font-mono mt-2">
-                        <div class="text-green-300"># Expose by function name</div>
-                        <div class="text-white">npx instant-api expose hello</div>
-                      </div>
-                      <p class="text-blue-300">Perfect for serverless-style development!</p>
-                    </div>
-                  </details>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
 
