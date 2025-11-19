@@ -1,5 +1,6 @@
 <template>
-  <div class="min-h-screen">
+  <div class="min-h-screen relative">
+    <div class="radial-gradient absolute top-0 md:right-14 right-5"></div>
     <!-- Header Navigation -->
     <header class="border-b border-gray-500/20 bg-black/80 backdrop-blur-sm sticky top-0 z-50">
       <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-0">
@@ -53,384 +54,400 @@
       </div>
 
       <!-- Main Card -->
-      <div class="card mt-14 md:mt-16">
-        <!-- Mode Tabs -->
-        <div class="border-b border-gray-500/10">
-          <div class="flex">
-            <button
-              @click="switchToSnippetMode"
-              :class="[
-                'px-6 py-3 text-sm font-medium transition-colors',
-                mode === 'snippet'
-                  ? 'text-white border-b-2 border-blue-300'
-                  : 'text-gray-400 hover:text-white'
-              ]"
-            >
-              Snippet
-            </button>
-            <button
-              @click="switchToFileMode"
-              :class="[
-                'px-6 py-3 text-sm font-medium transition-colors',
-                mode === 'file'
-                  ? 'text-white border-b-2 border-blue-300'
-                  : 'text-gray-400 hover:text-white'
-              ]"
-            >
-              File Upload
-            </button>
-            <button
-              @click="switchToFrameworkMode"
-              :class="[
-                'px-6 py-3 text-sm font-medium transition-colors',
-                mode === 'framework'
-                  ? 'text-white border-b-2 border-blue-300'
-                  : 'text-gray-400 hover:text-white'
-              ]"
-            >
-              Framework
-            </button>
-            <button
-              @click="switchToFunctionMode"
-              :class="[
-                'px-6 py-3 text-sm font-medium transition-colors',
-                mode === 'function'
-                  ? 'text-white border-b-2 border-blue-300'
-                  : 'text-gray-400 hover:text-white'
-              ]"
-            >
-              Function
-            </button>
-          </div>
-        </div>
-
-        <!-- Configuration Panel (hidden for Framework and Function modes) -->
-        <div v-if="mode !== 'framework' && mode !== 'function'" class="p-4 border-b border-gray-500/10">
-          <!-- Optional Fields -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <!-- <label class="block text-xs font-semibold mb-2 text-gray-300">Name (optional)</label> -->
-              <input
-                v-model="endpointName"
-              :disabled="loading.create"
-                type="text"
-                placeholder="Enter a name for your API"
-                class="block w-full rounded-lg bg-gray-500/5 py-2.5 px-4 text-sm font-medium text-white placeholder:text-gray-500 border border-gray-500/10 hover:bg-gray-500/10 focus:outline-none focus:ring-2 focus:ring-gray-500/10 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150"
-              />
-            </div>
-            <!-- Example Buttons (for snippet mode) -->
-            <div v-if="mode === 'snippet'" class="relative flex items-end">
-              <select
-                @change="loadExample(($event.target as HTMLSelectElement).value)"
-                :disabled="loading.create"
-                class="block w-full appearance-none rounded-lg bg-gray-500/5 py-2.5 pl-4 pr-10 text-sm font-medium text-white border border-gray-500/10 hover:bg-gray-500/15 focus:outline-none focus:ring-2 focus:ring-gray-500/10 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150"
-              >
-                <option value="">Select an example...</option>
-                <option v-for="(example, idx) in examples" :key="idx" :value="idx">
-              {{ example.name }}
-            </option>
-              </select>
-              <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2 pt-0">
-                <svg class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
-                  <path fill-rule="evenodd" d="M10 3a.75.75 0 01.55.24l3.25 3.5a.75.75 0 11-1.1 1.02L10 4.852 7.3 7.76a.75.75 0 01-1.1-1.02l3.25-3.5A.75.75 0 0110 3zm-3.76 9.2a.75.75 0 011.06.04l2.7 2.908 2.7-2.908a.75.75 0 111.1 1.02l-3.25 3.5a.75.75 0 01-1.1 0l-3.25-3.5a.75.75 0 01.04-1.06z" clip-rule="evenodd" />
-                </svg>
-              </div>
-            </div>
-            <!-- <div>
-              <label class="block text-xs font-semibold mb-2 text-gray-300">Description (optional)</label>
-              <input
-                v-model="endpointDescription"
-                :disabled="loading.create"
-                type="text"
-                placeholder="Describe what your API does"
-                class="block w-full rounded-lg bg-gray-500/10 py-2.5 px-4 text-sm font-medium text-white placeholder:text-gray-500 border border-gray-500/10 hover:bg-gray-500/15 focus:outline-none focus:ring-2 focus:ring-gray-500/10 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150"
-              />
-            </div> -->
-          </div>
-        </div>
-
-        <!-- Code Editor or File Upload -->
-        <div v-if="mode === 'snippet'" class="bg-black">
-          <CodeEditor
-            v-model="code"
-            :language="language"
-            :placeholder="placeholderCode"
-            :disabled="loading.create"
-          />
-        </div>
-
-        <!-- File Upload Mode -->
-        <div v-else-if="mode === 'file'" class="p-8 bg-black">
-          <div class="max-w-xl mx-auto">
-            <label class="block">
-              <div 
-                @dragenter="handleDragEnter"
-                @dragleave="handleDragLeave"
-                @dragover="handleDragOver"
-                @drop="handleDrop"
-                :class="[
-                  'border-2 border-dashed rounded-lg p-8 text-center transition-all cursor-pointer',
-                  isDragging 
-                    ? 'border-blue-400 bg-blue-500/10 scale-105' 
-                    : 'border-gray-500/30 hover:border-gray-500/50'
-                ]"
-              >
-                <input
-                  type="file"
-                  ref="fileInput"
-                  @change="handleFileSelect"
-                  accept=".js,.ts,.py"
-                  class="hidden"
-                  :disabled="loading.create"
-                />
-                <svg 
+      <div class="border bg-gray-500/5 border-gray-500/15 mt-14 md:mt-16 relative inner-container mb-[-1px] ml-[-1px]">
+        <div class="border border-t-0 border-l-0 border-r-0 border-gray-500/10">
+          <div>
+            <!-- Mode Tabs -->
+            <div class="border-b border-gray-500/10">
+              <div class="flex">
+                <button
+                  @click="switchToSnippetMode"
                   :class="[
-                    'w-12 h-12 mx-auto mb-4 transition-colors',
-                    isDragging ? 'text-blue-400' : 'text-gray-400'
-                  ]" 
-                  fill="none" 
-                  stroke="currentColor" 
-                  viewBox="0 0 24 24"
+                    'px-6 py-3 text-sm font-medium transition-colors',
+                    mode === 'snippet'
+                      ? 'text-white border-b-2 border-blue-300'
+                      : 'text-gray-400 hover:text-white'
+                  ]"
                 >
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                </svg>
-                <div v-if="selectedFile" class="mb-2">
-                  <p class="text-white font-medium">{{ selectedFile.name }}</p>
-                  <p class="text-xs text-gray-400">{{ formatFileSize(selectedFile.size) }}</p>
-                </div>
-                <p v-else :class="['mb-1', isDragging ? 'text-blue-400 font-medium' : 'text-gray-400']">
-                  {{ isDragging ? 'Drop file to upload' : 'Drop your file here or click to browse' }}
-                </p>
-                <p class="text-xs text-gray-500">Supports .js, .ts, .py (max 64KB)</p>
-              </div>
-            </label>
-          </div>
-        </div>
-
-        <!-- Framework Mode -->
-        <div v-else-if="mode === 'framework'" class="p-8 bg-black">
-          <div class="max-w-2xl mx-auto">
-            <div class="flex items-start space-x-3 mb-6">
-              <svg class="w-8 h-8 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01" />
-              </svg>
-              <div>
-                <h3 class="text-lg font-semibold text-white mb-2">Framework Mode</h3>
-                <p class="text-gray-400 text-sm leading-relaxed mb-4">
-                  Already have a backend running? (NestJS, Express, FastAPI, etc.) Expose any local route to the internet instantly with our CLI.
-                </p>
+                  Snippet
+                </button>
+                <button
+                  @click="switchToFileMode"
+                  :class="[
+                    'px-6 py-3 text-sm font-medium transition-colors',
+                    mode === 'file'
+                      ? 'text-white border-b-2 border-blue-300'
+                      : 'text-gray-400 hover:text-white'
+                  ]"
+                >
+                  File Upload
+                </button>
+                <button
+                  @click="switchToFrameworkMode"
+                  :class="[
+                    'px-6 py-3 text-sm font-medium transition-colors',
+                    mode === 'framework'
+                      ? 'text-white border-b-2 border-blue-300'
+                      : 'text-gray-400 hover:text-white'
+                  ]"
+                >
+                  Framework
+                </button>
+                <button
+                  @click="switchToFunctionMode"
+                  :class="[
+                    'px-6 py-3 text-sm font-medium transition-colors',
+                    mode === 'function'
+                      ? 'text-white border-b-2 border-blue-300'
+                      : 'text-gray-400 hover:text-white'
+                  ]"
+                >
+                  Function
+                </button>
               </div>
             </div>
-            
-            <div class="bg-gray-500/5 border border-gray-500/10 rounded-lg p-6">
-              <div class="mb-4">
-                <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Terminal</p>
-                <div class="flex items-center justify-between bg-black rounded-lg p-3 font-mono text-sm">
-                  <code class="text-green-300">npx @instantapi/cli expose http://localhost:3000/api/users/create</code>
-                  <button 
-                    @click="copyFrameworkCommand"
-                    class="ml-3 text-gray-400 hover:text-white transition-colors"
-                    title="Copy command"
+
+            <!-- Configuration Panel (hidden for Framework and Function modes) -->
+            <div v-if="mode !== 'framework' && mode !== 'function'" class="p-4 border-b border-gray-500/10">
+              <!-- Optional Fields -->
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <!-- <label class="block text-xs font-semibold mb-2 text-gray-300">Name (optional)</label> -->
+                  <input
+                    v-model="endpointName"
+                  :disabled="loading.create"
+                    type="text"
+                    placeholder="Enter a name for your API"
+                    class="block w-full rounded-lg bg-gray-500/5 py-2.5 px-4 text-sm font-medium text-white placeholder:text-gray-500 border border-gray-500/10 hover:bg-gray-500/10 focus:outline-none focus:ring-2 focus:ring-gray-500/10 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150"
+                  />
+                </div>
+                <!-- Example Buttons (for snippet mode) -->
+                <div v-if="mode === 'snippet'" class="relative flex items-end">
+                  <select
+                    @change="loadExample(($event.target as HTMLSelectElement).value)"
+                    :disabled="loading.create"
+                    class="block w-full appearance-none rounded-lg bg-gray-500/5 py-2.5 pl-4 pr-10 text-sm font-medium text-white border border-gray-500/10 hover:bg-gray-500/15 focus:outline-none focus:ring-2 focus:ring-gray-500/10 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150"
                   >
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                    <option value="">Select an example...</option>
+                    <option v-for="(example, idx) in examples" :key="idx" :value="idx">
+                  {{ example.name }}
+                </option>
+                  </select>
+                  <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2 pt-0">
+                    <svg class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
+                      <path fill-rule="evenodd" d="M10 3a.75.75 0 01.55.24l3.25 3.5a.75.75 0 11-1.1 1.02L10 4.852 7.3 7.76a.75.75 0 01-1.1-1.02l3.25-3.5A.75.75 0 0110 3zm-3.76 9.2a.75.75 0 011.06.04l2.7 2.908 2.7-2.908a.75.75 0 111.1 1.02l-3.25 3.5a.75.75 0 01-1.1 0l-3.25-3.5a.75.75 0 01.04-1.06z" clip-rule="evenodd" />
                     </svg>
-                  </button>
+                  </div>
                 </div>
-              </div>
-              
-              <div class="bg-gray-500/10 border border-gray-500/10 rounded-lg p-4">
-                <p class="text-sm text-gray-400">
-                  <span class="font-semibold">Note:</span> Your local backend must be running and reachable. The CLI forwards requests from the public URL to your localhost.
-                </p>
+                <!-- <div>
+                  <label class="block text-xs font-semibold mb-2 text-gray-300">Description (optional)</label>
+                  <input
+                    v-model="endpointDescription"
+                    :disabled="loading.create"
+                    type="text"
+                    placeholder="Describe what your API does"
+                    class="block w-full rounded-lg bg-gray-500/10 py-2.5 px-4 text-sm font-medium text-white placeholder:text-gray-500 border border-gray-500/10 hover:bg-gray-500/15 focus:outline-none focus:ring-2 focus:ring-gray-500/10 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150"
+                  />
+                </div> -->
               </div>
             </div>
 
-            <!-- Active Tunnels -->
-            <div v-if="activeTunnels.length > 0" class="border-t border-gray-500/10 pt-4">
-              <h3 class="text-sm font-semibold text-gray-300 mb-3">Active Tunnels</h3>
-              <div class="space-y-2">
-                <div
-                  v-for="tunnel in activeTunnels"
-                  :key="tunnel.id"
-                  class="flex items-center justify-between p-3 bg-gray-500/5 rounded border border-gray-500/10"
-                >
-                  <div class="flex-1 min-w-0">
-                    <p class="text-sm font-mono text-blue-300 truncate">
-                      /t/{{ tunnel.id }}
+            <!-- Code Editor or File Upload -->
+            <div v-if="mode === 'snippet'" class="bg-black">
+              <CodeEditor
+                v-model="code"
+                :language="language"
+                :placeholder="placeholderCode"
+                :disabled="loading.create"
+              />
+            </div>
+
+            <!-- File Upload Mode -->
+            <div v-else-if="mode === 'file'" class="p-8 bg-black">
+              <div class="max-w-xl mx-auto">
+                <label class="block">
+                  <div 
+                    @dragenter="handleDragEnter"
+                    @dragleave="handleDragLeave"
+                    @dragover="handleDragOver"
+                    @drop="handleDrop"
+                    :class="[
+                      'border-2 border-dashed rounded-lg p-8 text-center transition-all cursor-pointer',
+                      isDragging 
+                        ? 'border-blue-400 bg-blue-500/10 scale-105' 
+                        : 'border-gray-500/30 hover:border-gray-500/50'
+                    ]"
+                  >
+                    <input
+                      type="file"
+                      ref="fileInput"
+                      @change="handleFileSelect"
+                      accept=".js,.ts,.py"
+                      class="hidden"
+                      :disabled="loading.create"
+                    />
+                    <svg 
+                      :class="[
+                        'w-12 h-12 mx-auto mb-4 transition-colors',
+                        isDragging ? 'text-blue-400' : 'text-gray-400'
+                      ]" 
+                      fill="none" 
+                      stroke="currentColor" 
+                      viewBox="0 0 24 24"
+                    >
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                    </svg>
+                    <div v-if="selectedFile" class="mb-2">
+                      <p class="text-white font-medium">{{ selectedFile.name }}</p>
+                      <p class="text-xs text-gray-400">{{ formatFileSize(selectedFile.size) }}</p>
+                    </div>
+                    <p v-else :class="['mb-1', isDragging ? 'text-blue-400 font-medium' : 'text-gray-400']">
+                      {{ isDragging ? 'Drop file to upload' : 'Drop your file here or click to browse' }}
                     </p>
-                    <p class="text-xs text-gray-500 truncate">
-                      → {{ tunnel.targetUrl }}
+                    <p class="text-xs text-gray-500">Supports .js, .ts, .py (max 64KB)</p>
+                  </div>
+                </label>
+              </div>
+            </div>
+
+            <!-- Framework Mode -->
+            <div v-else-if="mode === 'framework'" class="p-8 bg-black">
+              <div class="max-w-2xl mx-auto">
+                <div class="flex items-start space-x-3 mb-6">
+                  <svg class="w-8 h-8 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01" />
+                  </svg>
+                  <div>
+                    <h3 class="text-lg font-semibold text-white mb-2">Framework Mode</h3>
+                    <p class="text-gray-400 text-sm leading-relaxed mb-4">
+                      Already have a backend running? (NestJS, Express, FastAPI, etc.) Expose any local route to the internet instantly with our CLI.
                     </p>
                   </div>
-                  <div class="shrink-0 ml-4">
-                    <span class="inline-flex items-center gap-1 text-xs text-green-400">
-                      <span class="w-2 h-2 bg-green-300 rounded-full animate-pulse"></span>
-                      Active
+                </div>
+                
+                <div class="bg-gray-500/5 border border-gray-500/10 rounded-lg p-6">
+                  <div class="mb-4">
+                    <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Terminal</p>
+                    <div class="flex items-center justify-between bg-black rounded-lg p-3 font-mono text-sm">
+                      <code class="text-green-300">npx @instantapi/cli expose http://localhost:3000/api/users/create</code>
+                      <button 
+                        @click="copyFrameworkCommand"
+                        class="ml-3 text-gray-400 hover:text-white transition-colors"
+                        title="Copy command"
+                      >
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <div class="bg-gray-500/10 border border-gray-500/10 rounded-lg p-4">
+                    <p class="text-sm text-gray-400">
+                      <span class="font-semibold">Note:</span> Your local backend must be running and reachable. The CLI forwards requests from the public URL to your localhost.
+                    </p>
+                  </div>
+                </div>
+
+                <!-- Active Tunnels -->
+                <div v-if="activeTunnels.length > 0" class="border-t border-gray-500/10 pt-4">
+                  <h3 class="text-sm font-semibold text-gray-300 mb-3">Active Tunnels</h3>
+                  <div class="space-y-2">
+                    <div
+                      v-for="tunnel in activeTunnels"
+                      :key="tunnel.id"
+                      class="flex items-center justify-between p-3 bg-gray-500/5 rounded border border-gray-500/10"
+                    >
+                      <div class="flex-1 min-w-0">
+                        <p class="text-sm font-mono text-blue-300 truncate">
+                          /t/{{ tunnel.id }}
+                        </p>
+                        <p class="text-xs text-gray-500 truncate">
+                          → {{ tunnel.targetUrl }}
+                        </p>
+                      </div>
+                      <div class="shrink-0 ml-4">
+                        <span class="inline-flex items-center gap-1 text-xs text-green-400">
+                          <span class="w-2 h-2 bg-green-300 rounded-full animate-pulse"></span>
+                          Active
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Function Mode -->
+            <div v-else-if="mode === 'function'" class="p-8 bg-black">
+              <div class="max-w-2xl mx-auto">
+                <div class="flex items-start space-x-3 mb-6">
+                  <svg class="w-8 h-8 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                  </svg>
+                  <div>
+                    <h3 class="text-lg font-semibold text-white mb-2">Function Mode SDK</h3>
+                    <p class="text-gray-400 text-sm leading-relaxed mb-4">
+                      Expose single functions without setting up a full server.
+                    </p>
+                  </div>
+                </div>
+                
+                <div class="space-y-4">
+                  <!-- Install SDK -->
+                  <div class="bg-gray-500/5 border border-gray-500/10 rounded-lg p-6">
+                    <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Install SDK</p>
+                    <div class="flex items-center justify-between bg-black rounded-lg p-3 font-mono text-sm">
+                      <code class="text-green-300">npm install @instantapi/sdk</code>
+                      <button 
+                        @click="copyInstallCommand"
+                        class="ml-3 text-gray-400 hover:text-white transition-colors"
+                        title="Copy command"
+                      >
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <!-- Create functions -->
+                  <div class="bg-gray-500/5 border border-gray-500/10 rounded-lg p-6">
+                    <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">functions.ts</p>
+                    <pre class="bg-black rounded-lg p-4 text-sm overflow-x-auto"><code class="text-gray-300"><span class="text-purple-300">import</span> { <span class="text-blue-300">expose</span> } <span class="text-purple-300">from</span> <span class="text-green-300">'@instantapi/sdk'</span>;
+
+    <span class="text-blue-300">expose</span>(<span class="text-green-300">'hello'</span>, (<span class="text-orange-300">input</span>) => {
+      <span class="text-purple-300">return</span> { 
+        message: <span class="text-green-300">`Hello \${<span class="text-orange-300">input</span>.name}!`</span>
+      };
+    });</code></pre>
+                  </div>
+                  
+                  <!-- Expose by function name -->
+                  <div class="bg-gray-500/5 border border-gray-500/10 rounded-lg p-6">
+                    <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Expose by function name</p>
+                    <div class="flex items-center justify-between bg-black rounded-lg p-3 font-mono text-sm">
+                      <code class="text-green-300">npx instant-api expose hello</code>
+                      <button 
+                        @click="copyExposeCommand"
+                        class="ml-3 text-gray-400 hover:text-white transition-colors"
+                        title="Copy command"
+                      >
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Error Display -->
+            <div v-if="error.create" class="mx-4 mt-4 p-3 bg-red-500/10 border border-red-500/20 rounded text-red-400 text-sm">
+              {{ error.create }}
+            </div>
+
+            <!-- Configuration and Create Button (hidden for Framework and Function modes) -->
+            <div v-if="mode !== 'framework' && mode !== 'function'" class="flex justify-between items-end p-4 border-t border-gray-500/10">
+              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <!-- Language Select -->
+                <div class="relative">
+                  <label class="block text-xs font-semibold mb-2 text-gray-300">Language</label>
+                  <select
+                    v-model="language"
+                    :disabled="loading.create"
+                    class="block w-full appearance-none rounded-lg bg-gray-500/5 py-2.5 pl-4 pr-10 text-sm font-medium text-white border border-gray-500/10 hover:bg-gray-500/10 focus:outline-none focus:ring-2 focus:ring-gray-500/10 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150"
+                  >
+                    <option value="javascript">JavaScript</option>
+                    <option value="python">Python</option>
+                  </select>
+                  <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2 pt-6">
+                    <svg class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
+                      <path fill-rule="evenodd" d="M10 3a.75.75 0 01.55.24l3.25 3.5a.75.75 0 11-1.1 1.02L10 4.852 7.3 7.76a.75.75 0 01-1.1-1.02l3.25-3.5A.75.75 0 0110 3zm-3.76 9.2a.75.75 0 011.06.04l2.7 2.908 2.7-2.908a.75.75 0 111.1 1.02l-3.25 3.5a.75.75 0 01-1.1 0l-3.25-3.5a.75.75 0 01.04-1.06z" clip-rule="evenodd" />
+                    </svg>
+                  </div>
+                </div>
+
+                <!-- TTL Select -->
+                <div class="relative">
+                  <label class="block text-xs font-semibold mb-2 text-gray-300">Expires In</label>
+                  <select
+                    v-model="ttlHours"
+                    :disabled="loading.create"
+                    class="block w-full appearance-none rounded-lg bg-gray-500/5 py-2.5 pl-4 pr-10 text-sm font-medium text-white border border-gray-500/10 hover:bg-gray-500/10 focus:outline-none focus:ring-2 focus:ring-gray-500/10 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150"
+                  >
+                    <option :value="1">1 hour</option>
+                    <option :value="24">24 hours</option>
+                    <option :value="168">7 days</option>
+                  </select>
+                  <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2 pt-6">
+                    <svg class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
+                      <path fill-rule="evenodd" d="M10 3a.75.75 0 01.55.24l3.25 3.5a.75.75 0 11-1.1 1.02L10 4.852 7.3 7.76a.75.75 0 01-1.1-1.02l3.25-3.5A.75.75 0 0110 3zm-3.76 9.2a.75.75 0 011.06.04l2.7 2.908 2.7-2.908a.75.75 0 111.1 1.02l-3.25 3.5a.75.75 0 01-1.1 0l-3.25-3.5a.75.75 0 01.04-1.06z" clip-rule="evenodd" />
+                    </svg>
+                  </div>
+                </div>
+
+                <!-- Kind Select -->
+                <div class="relative">
+                  <label class="block text-xs font-semibold mb-2 text-gray-300">
+                    Mode
+                    <!-- <span v-if="kind === 'webhook'" class="ml-2 text-xs px-2 py-0.5 bg-purple-500/20 text-purple-300 rounded">
+                      Webhook
                     </span>
+                    <span v-else class="ml-2 text-xs px-2 py-0.5 bg-blue-500/20 text-blue-300 rounded">
+                      Standard
+                    </span> -->
+                  </label>
+                  <select
+                    v-model="kind"
+                    :disabled="loading.create"
+                    :class="[
+                      'block w-full appearance-none rounded-lg py-2.5 pl-4 pr-10 text-sm font-medium text-white border hover:bg-gray-500/10 focus:outline-none focus:ring-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150',
+                      kind === 'webhook' 
+                        ? 'bg-gray-500/5 border-gray-500/10 focus:ring-blue-500/10' 
+                        : 'bg-gray-500/5 border-gray-500/10 focus:ring-gray-500/10'
+                    ]"
+                  >
+                    <option value="snippet">Standard</option>
+                    <option value="webhook">Webhook</option>
+                  </select>
+                  <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2 pt-6">
+                    <svg class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
+                      <path fill-rule="evenodd" d="M10 3a.75.75 0 01.55.24l3.25 3.5a.75.75 0 11-1.1 1.02L10 4.852 7.3 7.76a.75.75 0 01-1.1-1.02l3.25-3.5A.75.75 0 0110 3zm-3.76 9.2a.75.75 0 011.06.04l2.7 2.908 2.7-2.908a.75.75 0 111.1 1.02l-3.25 3.5a.75.75 0 01-1.1 0l-3.25-3.5a.75.75 0 01.04-1.06z" clip-rule="evenodd" />
+                    </svg>
                   </div>
                 </div>
               </div>
+              <!-- Create Button -->
+              <button
+                @click="createEndpoint"
+                :disabled="loading.create || (!code.trim() && !selectedFile)"
+                class="btn-primary w-auto h-10 text-sm py-2 font-medium flex items-center gap-2 min-w-[140px] justify-center"
+              >
+                <!-- Loading Spinner -->
+                <svg v-if="loading.create" class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span v-if="loading.create">Creating...</span>
+                <span v-else>Create an API</span>
+              </button>
             </div>
           </div>
         </div>
-
-        <!-- Function Mode -->
-        <div v-else-if="mode === 'function'" class="p-8 bg-black">
-          <div class="max-w-2xl mx-auto">
-            <div class="flex items-start space-x-3 mb-6">
-              <svg class="w-8 h-8 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
-              </svg>
-              <div>
-                <h3 class="text-lg font-semibold text-white mb-2">Function Mode SDK</h3>
-                <p class="text-gray-400 text-sm leading-relaxed mb-4">
-                  Expose single functions without setting up a full server.
-                </p>
-              </div>
-            </div>
-            
-            <div class="space-y-4">
-              <!-- Install SDK -->
-              <div class="bg-gray-500/5 border border-gray-500/10 rounded-lg p-6">
-                <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Install SDK</p>
-                <div class="flex items-center justify-between bg-black rounded-lg p-3 font-mono text-sm">
-                  <code class="text-green-300">npm install @instantapi/sdk</code>
-                  <button 
-                    @click="copyInstallCommand"
-                    class="ml-3 text-gray-400 hover:text-white transition-colors"
-                    title="Copy command"
-                  >
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                    </svg>
-                  </button>
-                </div>
-              </div>
-              
-              <!-- Create functions -->
-              <div class="bg-gray-500/5 border border-gray-500/10 rounded-lg p-6">
-                <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">functions.ts</p>
-                <pre class="bg-black rounded-lg p-4 text-sm overflow-x-auto"><code class="text-gray-300"><span class="text-purple-300">import</span> { <span class="text-blue-300">expose</span> } <span class="text-purple-300">from</span> <span class="text-green-300">'@instantapi/sdk'</span>;
-
-<span class="text-blue-300">expose</span>(<span class="text-green-300">'hello'</span>, (<span class="text-orange-300">input</span>) => {
-  <span class="text-purple-300">return</span> { 
-    message: <span class="text-green-300">`Hello \${<span class="text-orange-300">input</span>.name}!`</span>
-  };
-});</code></pre>
-              </div>
-              
-              <!-- Expose by function name -->
-              <div class="bg-gray-500/5 border border-gray-500/10 rounded-lg p-6">
-                <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Expose by function name</p>
-                <div class="flex items-center justify-between bg-black rounded-lg p-3 font-mono text-sm">
-                  <code class="text-green-300">npx instant-api expose hello</code>
-                  <button 
-                    @click="copyExposeCommand"
-                    class="ml-3 text-gray-400 hover:text-white transition-colors"
-                    title="Copy command"
-                  >
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                    </svg>
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Error Display -->
-        <div v-if="error.create" class="mx-4 mt-4 p-3 bg-red-500/10 border border-red-500/20 rounded text-red-400 text-sm">
-          {{ error.create }}
-        </div>
-
-        <!-- Configuration and Create Button (hidden for Framework and Function modes) -->
-        <div v-if="mode !== 'framework' && mode !== 'function'" class="flex justify-between items-end p-4 border-t border-gray-500/10">
-          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            <!-- Language Select -->
-            <div class="relative">
-              <label class="block text-xs font-semibold mb-2 text-gray-300">Language</label>
-              <select
-                v-model="language"
-                :disabled="loading.create"
-                class="block w-full appearance-none rounded-lg bg-gray-500/5 py-2.5 pl-4 pr-10 text-sm font-medium text-white border border-gray-500/10 hover:bg-gray-500/10 focus:outline-none focus:ring-2 focus:ring-gray-500/10 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150"
-              >
-                <option value="javascript">JavaScript</option>
-                <option value="python">Python</option>
-              </select>
-              <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2 pt-6">
-                <svg class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
-                  <path fill-rule="evenodd" d="M10 3a.75.75 0 01.55.24l3.25 3.5a.75.75 0 11-1.1 1.02L10 4.852 7.3 7.76a.75.75 0 01-1.1-1.02l3.25-3.5A.75.75 0 0110 3zm-3.76 9.2a.75.75 0 011.06.04l2.7 2.908 2.7-2.908a.75.75 0 111.1 1.02l-3.25 3.5a.75.75 0 01-1.1 0l-3.25-3.5a.75.75 0 01.04-1.06z" clip-rule="evenodd" />
-                </svg>
-              </div>
-            </div>
-
-            <!-- TTL Select -->
-            <div class="relative">
-              <label class="block text-xs font-semibold mb-2 text-gray-300">Expires In</label>
-              <select
-                v-model="ttlHours"
-                :disabled="loading.create"
-                class="block w-full appearance-none rounded-lg bg-gray-500/5 py-2.5 pl-4 pr-10 text-sm font-medium text-white border border-gray-500/10 hover:bg-gray-500/10 focus:outline-none focus:ring-2 focus:ring-gray-500/10 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150"
-              >
-                <option :value="1">1 hour</option>
-                <option :value="24">24 hours</option>
-                <option :value="168">7 days</option>
-              </select>
-              <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2 pt-6">
-                <svg class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
-                  <path fill-rule="evenodd" d="M10 3a.75.75 0 01.55.24l3.25 3.5a.75.75 0 11-1.1 1.02L10 4.852 7.3 7.76a.75.75 0 01-1.1-1.02l3.25-3.5A.75.75 0 0110 3zm-3.76 9.2a.75.75 0 011.06.04l2.7 2.908 2.7-2.908a.75.75 0 111.1 1.02l-3.25 3.5a.75.75 0 01-1.1 0l-3.25-3.5a.75.75 0 01.04-1.06z" clip-rule="evenodd" />
-                </svg>
-              </div>
-            </div>
-
-            <!-- Kind Select -->
-            <div class="relative">
-              <label class="block text-xs font-semibold mb-2 text-gray-300">
-                Mode
-                <!-- <span v-if="kind === 'webhook'" class="ml-2 text-xs px-2 py-0.5 bg-purple-500/20 text-purple-300 rounded">
-                  Webhook
-                </span>
-                <span v-else class="ml-2 text-xs px-2 py-0.5 bg-blue-500/20 text-blue-300 rounded">
-                  Standard
-                </span> -->
-              </label>
-              <select
-                v-model="kind"
-                :disabled="loading.create"
-                :class="[
-                  'block w-full appearance-none rounded-lg py-2.5 pl-4 pr-10 text-sm font-medium text-white border hover:bg-gray-500/10 focus:outline-none focus:ring-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150',
-                  kind === 'webhook' 
-                    ? 'bg-gray-500/5 border-gray-500/10 focus:ring-blue-500/10' 
-                    : 'bg-gray-500/5 border-gray-500/10 focus:ring-gray-500/10'
-                ]"
-              >
-                <option value="snippet">Standard</option>
-                <option value="webhook">Webhook</option>
-              </select>
-              <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2 pt-6">
-                <svg class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
-                  <path fill-rule="evenodd" d="M10 3a.75.75 0 01.55.24l3.25 3.5a.75.75 0 11-1.1 1.02L10 4.852 7.3 7.76a.75.75 0 01-1.1-1.02l3.25-3.5A.75.75 0 0110 3zm-3.76 9.2a.75.75 0 011.06.04l2.7 2.908 2.7-2.908a.75.75 0 111.1 1.02l-3.25 3.5a.75.75 0 01-1.1 0l-3.25-3.5a.75.75 0 01.04-1.06z" clip-rule="evenodd" />
-                </svg>
-              </div>
-            </div>
-          </div>
-          <!-- Create Button -->
-          <button
-            @click="createEndpoint"
-            :disabled="loading.create || (!code.trim() && !selectedFile)"
-            class="btn-primary w-auto h-10 text-sm py-2 font-medium flex items-center gap-2 min-w-[140px] justify-center"
-          >
-            <!-- Loading Spinner -->
-            <svg v-if="loading.create" class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-            <span v-if="loading.create">Creating...</span>
-            <span v-else>Create an API</span>
-          </button>
-        </div>
+        <span
+          class="main-section bottom-l absolute w-[1px] h-[1px] bottom-[-1px] left-[-1px]"
+        ></span
+        ><span
+          class="main-section bottom-l absolute w-[1px] h-[1px] bottom-[-1px] right-[-1px]"
+        ></span
+        ><span
+          class="main-section bottom-l absolute w-[1px] h-[1px] top-[-1px] right-[-1px]"
+        ></span
+        ><span
+          class="main-section bottom-l absolute w-[1px] h-[1px] top-[-1px] left-[-1px]"
+        ></span>
       </div>
 
       <!-- Success Modal -->

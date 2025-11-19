@@ -142,6 +142,67 @@
       font-size: 16px;
     }
   }
+
+  /* .p-contain:before {
+    position: absolute;
+    content: "";
+    width: 100%;
+    height: 200px;
+    bottom: calc(100%);
+    left: 0;
+    z-index: -1;
+    opacity: 1;
+  } */
+  
+  .inner-container:before {
+    bottom: -1px;
+  }
+  
+  .inner-container:after {
+    top: -1px;
+  }
+  
+  .bottom-l:before {
+    @apply bg-white;
+    content: "";
+    width: 1px;
+    height: 9px;
+    @apply absolute;
+    top: -4px;
+  }
+  .bottom-l:after {
+    @apply bg-white;
+    content: "";
+    width: 9px;
+    height: 1px;
+    @apply absolute;
+    left: -4px;
+  }
+  
+
+  .radial-gradient {
+    /* background: rgb(217,217,217); */
+    background: radial-gradient(circle, rgba(255,255,255,0.100000) 1%, rgba(0,0,0,0.000000000000005) 70%);
+  }
+
+  /* md */
+  @media (min-width: 768px) {
+    .radial-gradient {
+      width: 550px;
+      height: 550px;
+    }
+  }
+
+
+
+  /* lg */
+  @media (min-width: 1024px) {
+    .radial-gradient {
+      width: 950px;
+      height: 950px;
+    }
+  }
+  
 }
 
 /* Component utilities */

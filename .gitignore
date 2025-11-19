@@ -15,3 +15,5 @@ logs/*
 # PID files for process management
 .pids/
 
+test-server.js
+functions.ts
