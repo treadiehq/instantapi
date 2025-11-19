@@ -167,11 +167,6 @@ docker ps  # Postgres
 cd cli && npm run build
 ```
 
-## Production
-
-See **[DEPLOYMENT.md](./DEPLOYMENT.md)** for production setup (~30 minutes).
-
-**Cost:** $5-10/month (Cloudflare Workers + database)
 
 ## Docs
 
@@ -179,15 +174,9 @@ See **[DEPLOYMENT.md](./DEPLOYMENT.md)** for production setup (~30 minutes).
 - **[cli/README.md](./cli/README.md)** - CLI docs
 - **[DEPLOYMENT.md](./DEPLOYMENT.md)** - Deploy guide
 
-## Use Cases
-
-- 🧪 Test webhooks locally (Stripe, Twilio)
-- ⚡ Quick prototypes & demos
-- 📊 Real-time dashboards
-- 🎓 Learning & teaching
-- 🚀 Hackathon projects
-
 ---
 
-**Made for developers who move fast** ⚡
+## License
+
+FSL-1.1-MIT - See [LICENSE](LICENSE)
 
