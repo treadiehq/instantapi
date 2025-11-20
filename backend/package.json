@@ -3,6 +3,10 @@
   "version": "0.1.0",
   "description": "Instant API Backend",
   "private": true,
+  "engines": {
+    "node": ">=20.16.0",
+    "npm": ">=10.0.0"
+  },
   "scripts": {
     "build": "nest build",
     "start": "nest start",

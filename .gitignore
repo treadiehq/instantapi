@@ -17,6 +17,4 @@ logs/*
 
 test-server.js
 functions.ts
-Production_Deployment.md
-RAILWAY_DEPLOYMENT.md
-DEPLOYMENT_CHECKLIST.md
+DEPLOYMENT.md

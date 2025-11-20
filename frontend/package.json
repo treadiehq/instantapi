@@ -3,6 +3,10 @@
   "version": "0.1.0",
   "description": "Instant API Frontend",
   "private": true,
+  "engines": {
+    "node": ">=20.16.0",
+    "npm": ">=10.0.0"
+  },
   "scripts": {
     "dev": "nuxt dev",
     "build": "nuxt build",

@@ -26,6 +26,13 @@ export default defineNuxtConfig({
       link: [
         { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
       ],
+      script: [
+        {
+          src: 'https://cdn.seline.com/seline.js',
+          async: true,
+          'data-token': '81f5c0b9bd3274e'
+        }
+      ],
     },
   },
 
