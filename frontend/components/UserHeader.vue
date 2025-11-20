@@ -61,17 +61,25 @@
             </button>
           </div>
 
-          <div v-if="loadingKeys" class="text-center py-8 text-gray-400">
-            Loading...
+          <!-- Skeleton Loader -->
+          <div v-if="loadingKeys" class="space-y-2">
+            <div v-for="i in 2" :key="i" class="border border-gray-500/20 rounded-lg p-4 animate-pulse">
+              <div class="h-4 bg-gray-500/20 rounded w-3/4 mb-2"></div>
+              <div class="h-3 bg-gray-500/10 rounded w-1/2"></div>
+            </div>
           </div>
 
-          <div v-else-if="apiKeys.length === 0" class="text-center py-8 text-gray-400">
-            <p class="mb-4">No API keys yet</p>
+          <!-- Empty State -->
+          <div v-else-if="apiKeys.length === 0" class="text-center py-8">
+            <svg class="w-12 h-12 text-gray-600 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15.75 5.25a3 3 0 013 3m3 0a6 6 0 01-7.029 5.912c-.563-.097-1.159.026-1.563.43L10.5 17.25H8.25v2.25H6v2.25H2.25v-2.818c0-.597.237-1.17.659-1.591l6.499-6.499c.404-.404.527-1 .43-1.563A6 6 0 1121.75 8.25z" />
+            </svg>
+            <p class="text-gray-400 text-sm mb-4">No API keys yet</p>
             <button
               @click="modalView = 'generate'"
-              class="btn-secondary py-2 px-4 text-xs"
+              class="btn-primary py-2 px-4 text-xs"
             >
-              Create your first key
+              Create Your First Key
             </button>
           </div>
 
@@ -173,13 +181,26 @@
               <input
                 :value="generatedKey"
                 readonly
-                class="flex-1 px-3 py-2 input-field focus:border-transparent font-mono text-xs"
+                @click="copyApiKey"
+                class="flex-1 px-3 py-2 input-field focus:border-transparent font-mono text-xs cursor-pointer hover:bg-gray-500/10 transition-colors"
+                title="Click to copy"
               />
               <button
                 @click="copyApiKey"
-                class="btn-secondary py-3"
+                :class="[
+                  'py-3 px-4 transition-colors font-medium text-sm',
+                  copied
+                    ? 'bg-green-500/10 text-green-400 border border-green-500/20'
+                    : 'btn-secondary'
+                ]"
               >
-                {{ copied ? '✓' : 'Copy' }}
+                <span v-if="copied" class="flex items-center gap-1.5">
+                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                  </svg>
+                  Copied
+                </span>
+                <span v-else>Copy</span>
               </button>
             </div>
             <div class="bg-amber-400/10 border border-amber-400/10 rounded-lg p-3 mt-3">
