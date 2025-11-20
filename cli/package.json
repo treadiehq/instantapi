@@ -1,24 +1,42 @@
 {
-  "name": "@instantapi/cli",
+  "name": "@instantapihq/cli",
   "version": "1.0.0",
   "description": "CLI for Instant API - expose local routes to the internet",
   "main": "dist/index.js",
   "bin": {
     "instant-api": "./dist/index.js"
   },
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
-    "start": "node dist/index.js"
+    "start": "node dist/index.js",
+    "prepublishOnly": "npm run build"
   },
   "keywords": [
     "api",
     "tunnel",
     "ngrok",
-    "proxy"
+    "proxy",
+    "instant-api",
+    "cli",
+    "expose",
+    "localhost"
   ],
-  "author": "",
-  "license": "MIT",
+  "author": "Treadie, Inc.",
+  "license": "FSL-1.1-MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/treadiehq/instantapi.git",
+    "directory": "cli"
+  },
+  "homepage": "https://github.com/treadiehq/instantapi#readme",
+  "bugs": {
+    "url": "https://github.com/treadiehq/instantapi/issues"
+  },
   "dependencies": {
     "axios": "^1.6.2",
     "chalk": "^4.1.2",

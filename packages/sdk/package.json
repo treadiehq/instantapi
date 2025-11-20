@@ -1,21 +1,38 @@
 {
-  "name": "@instantapi/sdk",
+  "name": "@instantapihq/sdk",
   "version": "1.0.0",
   "description": "SDK for exposing functions via Instant API",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch",
-    "test": "echo \"No tests yet\""
+    "test": "echo \"No tests yet\"",
+    "prepublishOnly": "npm run build"
   },
   "keywords": [
     "instant-api",
     "serverless",
-    "functions"
+    "functions",
+    "api",
+    "sdk",
+    "faas"
   ],
-  "author": "",
-  "license": "MIT",
+  "author": "Treadie, Inc.",
+  "license": "FSL-1.1-MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/treadiehq/instantapi.git",
+    "directory": "packages/sdk"
+  },
+  "homepage": "https://github.com/treadiehq/instantapi#readme",
+  "bugs": {
+    "url": "https://github.com/treadiehq/instantapi/issues"
+  },
   "dependencies": {
     "express": "^4.18.2",
     "get-port": "^5.1.1"
