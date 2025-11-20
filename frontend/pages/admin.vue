@@ -19,15 +19,15 @@
         </div>
         <div class="bg-gray-500/5 border border-gray-500/15 rounded-lg p-4">
           <p class="text-sm text-gray-400 mb-1">Authenticated</p>
-          <p class="text-2xl font-bold text-green-400">{{ stats.authenticatedEndpoints }}</p>
+          <p class="text-2xl font-bold text-green-300">{{ stats.authenticatedEndpoints }}</p>
         </div>
         <div class="bg-gray-500/5 border border-gray-500/15 rounded-lg p-4">
           <p class="text-sm text-gray-400 mb-1">Unauthenticated</p>
-          <p class="text-2xl font-bold text-amber-400">{{ stats.unauthenticatedEndpoints }}</p>
+          <p class="text-2xl font-bold text-amber-300">{{ stats.unauthenticatedEndpoints }}</p>
         </div>
         <div class="bg-gray-500/5 border border-gray-500/15 rounded-lg p-4">
           <p class="text-sm text-gray-400 mb-1">Total Users</p>
-          <p class="text-2xl font-bold text-blue-400">{{ stats.totalUsers }}</p>
+          <p class="text-2xl font-bold text-blue-300">{{ stats.totalUsers }}</p>
         </div>
         <div class="bg-gray-500/5 border border-gray-500/15 rounded-lg p-4">
           <p class="text-sm text-gray-400 mb-1">Created Today</p>
@@ -39,11 +39,11 @@
         </div>
         <div class="bg-gray-500/5 border border-gray-500/15 rounded-lg p-4">
           <p class="text-sm text-gray-400 mb-1">JavaScript</p>
-          <p class="text-2xl font-bold text-yellow-400">{{ stats.javascriptCount }}</p>
+          <p class="text-2xl font-bold text-yellow-300">{{ stats.javascriptCount }}</p>
         </div>
         <div class="bg-gray-500/5 border border-gray-500/15 rounded-lg p-4">
           <p class="text-sm text-gray-400 mb-1">Python</p>
-          <p class="text-2xl font-bold text-blue-400">{{ stats.pythonCount }}</p>
+          <p class="text-2xl font-bold text-blue-300">{{ stats.pythonCount }}</p>
         </div>
       </div>
 
@@ -98,9 +98,9 @@
           <!-- Bulk Actions -->
           <button
             v-if="selectedEndpoints.size > 0"
-            @click="bulkDelete"
+            @click="confirmBulkDelete"
             :disabled="deleting"
-            class="bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-lg px-4 py-2 text-sm font-medium transition-colors"
+            class="bg-red-400/10 hover:bg-red-400/20 text-red-400 rounded-lg px-4 py-2 text-sm font-medium transition-colors disabled:opacity-50"
           >
             Delete {{ selectedEndpoints.size }} Selected
           </button>
@@ -152,8 +152,8 @@
                     :class="[
                       'text-xs px-2 py-1 rounded',
                       endpoint.organizationId
-                        ? 'bg-green-500/10 text-green-400'
-                        : 'bg-amber-500/10 text-amber-400'
+                        ? 'bg-green-300/10 text-green-300'
+                        : 'bg-amber-300/10 text-amber-300'
                     ]"
                   >
                     {{ endpoint.organizationId ? 'Auth' : 'Unauth' }}
@@ -179,15 +179,15 @@
                   <div class="flex gap-2">
                     <button
                       @click="viewCode(endpoint)"
-                      class="text-xs px-3 py-1 bg-blue-500/10 hover:bg-blue-500/20 text-blue-400 rounded transition-colors"
+                      class="text-xs px-3 py-1 bg-blue-300/10 hover:bg-blue-300/20 text-blue-300 rounded transition-colors"
                     >
                       View
                     </button>
                     <button
                       v-if="!endpoint.organizationId"
-                      @click="deleteEndpoint(endpoint.id)"
+                      @click="confirmDelete(endpoint)"
                       :disabled="deleting"
-                      class="text-xs px-3 py-1 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded transition-colors"
+                      class="text-xs px-3 py-1 bg-red-400/10 hover:bg-red-400/20 text-red-400 rounded transition-colors disabled:opacity-50"
                     >
                       Delete
                     </button>
@@ -240,10 +240,56 @@
       </div>
     </div>
 
+    <!-- Delete Confirmation Modal -->
+    <Teleport to="body">
+      <div v-if="deleteConfirmation.show" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" @click.self="deleteConfirmation.show = false">
+        <div class="bg-gray-900 border border-red-500/30 rounded-lg p-6 max-w-md w-full">
+          <div class="flex items-start gap-4 mb-4">
+            <div class="flex-shrink-0 w-10 h-10 bg-red-500/10 rounded-full flex items-center justify-center">
+              <svg class="w-5 h-5 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+            </div>
+            <div class="flex-1">
+              <h3 class="text-lg font-semibold text-white mb-2">
+                {{ deleteConfirmation.bulk ? `Delete ${deleteConfirmation.count} Endpoints?` : 'Delete Endpoint?' }}
+              </h3>
+              <p class="text-sm text-gray-400">
+                {{ deleteConfirmation.bulk 
+                  ? `You are about to permanently delete ${deleteConfirmation.count} endpoints. This action cannot be undone.`
+                  : 'This endpoint will be permanently deleted. This action cannot be undone.'
+                }}
+              </p>
+              <div v-if="!deleteConfirmation.bulk && deleteConfirmation.endpoint" class="mt-3 p-2 bg-black rounded text-xs">
+                <p class="text-gray-500">ID: <span class="text-blue-300 font-mono">{{ deleteConfirmation.endpoint.id.substring(0, 12) }}...</span></p>
+                <p class="text-gray-500">Language: <span class="text-white">{{ deleteConfirmation.endpoint.language }}</span></p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="flex gap-3">
+            <button
+              @click="deleteConfirmation.show = false"
+              class="flex-1 px-4 py-2 bg-gray-500/10 hover:bg-gray-500/20 text-white rounded-lg transition-colors text-sm font-medium"
+            >
+              Cancel
+            </button>
+            <button
+              @click="executeDelete"
+              :disabled="deleting"
+              class="flex-1 px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-colors text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {{ deleting ? 'Deleting...' : 'Delete' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </Teleport>
+
     <!-- Code View Modal -->
     <Teleport to="body">
       <div v-if="viewingEndpoint" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" @click.self="viewingEndpoint = null">
-        <div class="bg-gray-900 border border-gray-500/30 rounded-lg p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+        <div class="bg-black border border-gray-500/30 rounded-lg p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto">
           <div class="flex items-start justify-between mb-4">
             <div>
               <h3 class="text-lg font-semibold text-white">Endpoint Code</h3>
@@ -275,7 +321,7 @@
             </div>
           </div>
 
-          <pre class="bg-black rounded-lg p-4 text-sm text-gray-300 overflow-x-auto">{{ viewingEndpoint.code }}</pre>
+          <pre class="bg-gray-500/5 border border-gray-500/15 rounded-lg p-4 text-sm text-gray-300 overflow-x-auto">{{ viewingEndpoint.code }}</pre>
         </div>
       </div>
     </Teleport>
@@ -306,6 +352,12 @@ const totalPages = computed(() => Math.ceil(total.value / limit.value))
 const selectedEndpoints = ref<Set<string>>(new Set())
 const selectAll = computed(() => selectedEndpoints.value.size === endpoints.value.length && endpoints.value.length > 0)
 const viewingEndpoint = ref<any>(null)
+const deleteConfirmation = ref({
+  show: false,
+  endpoint: null as any,
+  bulk: false,
+  count: 0,
+})
 
 // Filters
 const filters = ref({
@@ -364,63 +416,70 @@ async function loadEndpoints() {
   }
 }
 
-// Delete endpoint
-async function deleteEndpoint(id: string) {
-  if (!confirm('Are you sure you want to delete this endpoint? This cannot be undone.')) {
-    return
-  }
-
-  deleting.value = true
-  try {
-    const response = await fetch(`${API_BASE}/api/admin/endpoints/${id}`, {
-      method: 'DELETE',
-      headers: {
-        'Authorization': `Bearer ${token.value}`,
-      },
-    })
-
-    if (response.ok) {
-      await loadEndpoints()
-      await loadStats()
-    } else {
-      alert('Failed to delete endpoint')
-    }
-  } catch (error) {
-    console.error('Failed to delete endpoint:', error)
-    alert('Failed to delete endpoint')
-  } finally {
-    deleting.value = false
+// Show delete confirmation modal
+function confirmDelete(endpoint: any) {
+  deleteConfirmation.value = {
+    show: true,
+    endpoint,
+    bulk: false,
+    count: 1,
   }
 }
 
-// Bulk delete
-async function bulkDelete() {
-  if (!confirm(`Are you sure you want to delete ${selectedEndpoints.value.size} endpoints? This cannot be undone.`)) {
-    return
+// Show bulk delete confirmation modal
+function confirmBulkDelete() {
+  deleteConfirmation.value = {
+    show: true,
+    endpoint: null,
+    bulk: true,
+    count: selectedEndpoints.value.size,
   }
+}
 
+// Execute delete after confirmation
+async function executeDelete() {
   deleting.value = true
   try {
-    const response = await fetch(`${API_BASE}/api/admin/endpoints/bulk-delete`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token.value}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        endpointIds: Array.from(selectedEndpoints.value),
-      }),
-    })
+    if (deleteConfirmation.value.bulk) {
+      // Bulk delete
+      const response = await fetch(`${API_BASE}/api/admin/endpoints/bulk-delete`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token.value}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          endpointIds: Array.from(selectedEndpoints.value),
+        }),
+      })
 
-    if (response.ok) {
-      await loadEndpoints()
-      await loadStats()
+      if (response.ok) {
+        await loadEndpoints()
+        await loadStats()
+        deleteConfirmation.value.show = false
+      } else {
+        alert('Failed to delete endpoints')
+      }
     } else {
-      alert('Failed to delete endpoints')
+      // Single delete
+      const response = await fetch(`${API_BASE}/api/admin/endpoints/${deleteConfirmation.value.endpoint.id}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token.value}`,
+        },
+      })
+
+      if (response.ok) {
+        await loadEndpoints()
+        await loadStats()
+        deleteConfirmation.value.show = false
+      } else {
+        alert('Failed to delete endpoint')
+      }
     }
   } catch (error) {
-    console.error('Failed to bulk delete:', error)
-    alert('Failed to delete endpoints')
+    console.error('Failed to delete:', error)
+    alert('Failed to delete')
   } finally {
     deleting.value = false
   }
