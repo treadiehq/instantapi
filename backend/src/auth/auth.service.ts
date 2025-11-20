@@ -346,8 +346,8 @@ export class AuthService {
       },
     });
 
-    // Send email
-    await this.email.sendMagicLink(email, token);
+    // Send login email
+    await this.email.sendLoginEmail(email, token);
   }
 
   private async generateSignupMagicLink(
@@ -372,8 +372,8 @@ export class AuthService {
       },
     });
 
-    // Send email
-    await this.email.sendMagicLink(email, token);
+    // Send signup email
+    await this.email.sendSignupEmail(email, token);
   }
 }
 

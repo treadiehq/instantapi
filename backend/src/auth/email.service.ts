@@ -23,14 +23,89 @@ export class EmailService {
     }
   }
 
-  async sendMagicLink(email: string, magicLink: string): Promise<void> {
+  async sendSignupEmail(email: string, magicLink: string): Promise<void> {
     const frontendUrl = this.config.get('FRONTEND_URL') || 'http://localhost:3000';
     const verifyUrl = `${frontendUrl}/verify?token=${magicLink}`;
 
     if (!this.isProduction || !this.resend) {
       // Local development: print to terminal
       this.logger.log('==========================================');
-      this.logger.log('🔐 MAGIC LINK FOR LOCAL DEVELOPMENT');
+      this.logger.log('✨ SIGNUP LINK FOR LOCAL DEVELOPMENT');
+      this.logger.log('==========================================');
+      this.logger.log(`Email: ${email}`);
+      this.logger.log(`Link: ${verifyUrl}`);
+      this.logger.log('==========================================');
+      this.logger.log('Click the link above to complete signup');
+      this.logger.log('==========================================');
+      return;
+    }
+
+    // Production: send via Resend
+    try {
+      await this.resend.emails.send({
+        from: this.config.get('EMAIL_FROM') || 'Instant API <noreply@instantapi.co>',
+        to: email,
+        subject: '✨ Welcome to Instant API - Complete your signup',
+        html: `
+          <!DOCTYPE html>
+          <html>
+            <head>
+              <meta charset="utf-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            </head>
+            <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333333; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9fafb;">
+              <div style="background: linear-gradient(135deg, rgb(142, 197, 255) 0%, rgb(100, 170, 255) 100%); padding: 40px; border-radius: 12px 12px 0 0; text-align: center;">
+                <h1 style="color: #ffffff; margin: 0; font-size: 32px; font-weight: 700;">Welcome! 🎉</h1>
+              </div>
+              
+              <div style="background: #ffffff; padding: 40px; border-radius: 0 0 12px 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                <h2 style="color: #111827; margin-top: 0; font-size: 24px;">Let's get you started</h2>
+                <p style="color: #4b5563; font-size: 16px; line-height: 1.7;">
+                  You're just one click away from creating APIs instantly. No servers, no deployment, no hassle.
+                </p>
+                
+                <div style="text-align: center; margin: 35px 0;">
+                  <a href="${verifyUrl}" style="display: inline-block; background: linear-gradient(135deg, rgb(142, 197, 255) 0%, rgb(100, 170, 255) 100%); color: #ffffff; padding: 16px 40px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px; box-shadow: 0 4px 12px rgba(142, 197, 255, 0.3);">Complete Signup</a>
+                </div>
+                
+                <p style="color: #6b7280; font-size: 14px; margin-top: 30px;">
+                  Or copy and paste this link into your browser:<br>
+                  <a href="${verifyUrl}" style="color: rgb(100, 170, 255); word-break: break-all; text-decoration: none;">${verifyUrl}</a>
+                </p>
+                
+                <div style="background: #f0f9ff; border-left: 4px solid rgb(142, 197, 255); padding: 16px; margin: 30px 0; border-radius: 4px;">
+                  <p style="color: #1e40af; font-size: 14px; margin: 0;">
+                    <strong>⏱️ This link expires in 15 minutes</strong>
+                  </p>
+                </div>
+                
+                <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 30px 0;">
+                
+                <p style="color: #9ca3af; font-size: 12px; text-align: center; margin: 0;">
+                  Didn't create an account? You can safely ignore this email.
+                </p>
+              </div>
+            </body>
+          </html>
+        `,
+        text: `Welcome to Instant API! 🎉\n\nYou're just one click away from creating APIs instantly.\n\nClick this link to complete your signup: ${verifyUrl}\n\nThis link will expire in 15 minutes.\n\nIf you didn't create an account, you can safely ignore this email.`,
+      });
+      
+      this.logger.log(`✨ Signup email sent to ${email}`);
+    } catch (error) {
+      this.logger.error(`Failed to send signup email to ${email}`, error);
+      throw new Error('Failed to send signup email');
+    }
+  }
+
+  async sendLoginEmail(email: string, magicLink: string): Promise<void> {
+    const frontendUrl = this.config.get('FRONTEND_URL') || 'http://localhost:3000';
+    const verifyUrl = `${frontendUrl}/verify?token=${magicLink}`;
+
+    if (!this.isProduction || !this.resend) {
+      // Local development: print to terminal
+      this.logger.log('==========================================');
+      this.logger.log('🔐 LOGIN LINK FOR LOCAL DEVELOPMENT');
       this.logger.log('==========================================');
       this.logger.log(`Email: ${email}`);
       this.logger.log(`Link: ${verifyUrl}`);
@@ -43,7 +118,7 @@ export class EmailService {
     // Production: send via Resend
     try {
       await this.resend.emails.send({
-        from: this.config.get('EMAIL_FROM') || 'noreply@instantapi.dev',
+        from: this.config.get('EMAIL_FROM') || 'Instant API <noreply@instantapi.com>',
         to: email,
         subject: 'Sign in to Instant API',
         html: `
@@ -53,41 +128,48 @@ export class EmailService {
               <meta charset="utf-8">
               <meta name="viewport" content="width=device-width, initial-scale=1.0">
             </head>
-            <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px;">
-              <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 30px; border-radius: 10px 10px 0 0; text-align: center;">
-                <h1 style="color: white; margin: 0; font-size: 28px;">Instant API</h1>
+            <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333333; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9fafb;">
+              <div style="background: linear-gradient(135deg, rgb(142, 197, 255) 0%, rgb(100, 170, 255) 100%); padding: 40px; border-radius: 12px 12px 0 0; text-align: center;">
+                <h1 style="color: #ffffff; margin: 0; font-size: 32px; font-weight: 700;">Instant API</h1>
               </div>
               
-              <div style="background: #f9fafb; padding: 40px; border-radius: 0 0 10px 10px;">
-                <h2 style="color: #111827; margin-top: 0;">Sign in to your account</h2>
-                <p style="color: #6b7280; font-size: 16px;">Click the button below to sign in to Instant API. This link will expire in 15 minutes.</p>
+              <div style="background: #ffffff; padding: 40px; border-radius: 0 0 12px 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                <h2 style="color: #111827; margin-top: 0; font-size: 24px;">Welcome back! 👋</h2>
+                <p style="color: #4b5563; font-size: 16px; line-height: 1.7;">
+                  Click the button below to sign in to your Instant API account.
+                </p>
                 
-                <div style="text-align: center; margin: 30px 0;">
-                  <a href="${verifyUrl}" style="display: inline-block; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 14px 32px; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 16px;">Sign In</a>
+                <div style="text-align: center; margin: 35px 0;">
+                  <a href="${verifyUrl}" style="display: inline-block; background: linear-gradient(135deg, rgb(142, 197, 255) 0%, rgb(100, 170, 255) 100%); color: #ffffff; padding: 16px 40px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px; box-shadow: 0 4px 12px rgba(142, 197, 255, 0.3);">Sign In to Your Account</a>
                 </div>
                 
-                <p style="color: #9ca3af; font-size: 14px; margin-top: 30px;">
+                <p style="color: #6b7280; font-size: 14px; margin-top: 30px;">
                   Or copy and paste this link into your browser:<br>
-                  <a href="${verifyUrl}" style="color: #667eea; word-break: break-all;">${verifyUrl}</a>
+                  <a href="${verifyUrl}" style="color: rgb(100, 170, 255); word-break: break-all; text-decoration: none;">${verifyUrl}</a>
                 </p>
+                
+                <div style="background: #fef3c7; border-left: 4px solid #f59e0b; padding: 16px; margin: 30px 0; border-radius: 4px;">
+                  <p style="color: #92400e; font-size: 14px; margin: 0;">
+                    <strong>⏱️ This link expires in 15 minutes</strong>
+                  </p>
+                </div>
                 
                 <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 30px 0;">
                 
                 <p style="color: #9ca3af; font-size: 12px; text-align: center; margin: 0;">
-                  If you didn't request this email, you can safely ignore it.
+                  If you didn't request this sign-in link, you can safely ignore this email.
                 </p>
               </div>
             </body>
           </html>
         `,
-        text: `Sign in to Instant API\n\nClick this link to sign in: ${verifyUrl}\n\nThis link will expire in 15 minutes.\n\nIf you didn't request this email, you can safely ignore it.`,
+        text: `Welcome back to Instant API! 👋\n\nClick this link to sign in: ${verifyUrl}\n\nThis link will expire in 15 minutes.\n\nIf you didn't request this sign-in link, you can safely ignore it.`,
       });
       
-      this.logger.log(`Magic link sent to ${email}`);
+      this.logger.log(`🔐 Login email sent to ${email}`);
     } catch (error) {
-      this.logger.error(`Failed to send email to ${email}`, error);
-      throw new Error('Failed to send magic link email');
+      this.logger.error(`Failed to send login email to ${email}`, error);
+      throw new Error('Failed to send login email');
     }
   }
 }
-
