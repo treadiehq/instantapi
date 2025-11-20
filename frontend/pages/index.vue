@@ -257,7 +257,7 @@
                         <div class="mb-4">
                           <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Terminal</p>
                           <div class="flex items-center justify-between bg-black rounded-lg p-3 font-mono text-sm">
-                            <code class="text-green-300">npx @instantapi/cli expose http://localhost:3000/api/users/create</code>
+                            <code class="text-green-300">npx @instantapihq/cli expose http://localhost:3000/api/users/create</code>
                             <button 
                               @click="copyFrameworkCommand"
                               class="ml-3 text-gray-400 hover:text-white transition-colors"
@@ -326,7 +326,7 @@
                         <div class="bg-gray-500/5 border border-gray-500/10 rounded-lg p-6">
                           <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Install SDK</p>
                           <div class="flex items-center justify-between bg-black rounded-lg p-3 font-mono text-sm">
-                            <code class="text-green-300">npm install @instantapi/sdk</code>
+                            <code class="text-green-300">npm install @instantapihq/sdk</code>
                             <button 
                               @click="copyInstallCommand"
                               class="ml-3 text-gray-400 hover:text-white transition-colors"
@@ -342,7 +342,7 @@
                         <!-- Create functions -->
                         <div class="bg-gray-500/5 border border-gray-500/10 rounded-lg p-6">
                           <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">functions.ts</p>
-                          <pre class="bg-black rounded-lg p-4 text-sm overflow-x-auto"><code class="text-gray-300"><span class="text-purple-300">import</span> { <span class="text-blue-300">expose</span> } <span class="text-purple-300">from</span> <span class="text-green-300">'@instantapi/sdk'</span>;
+                          <pre class="bg-black rounded-lg p-4 text-sm overflow-x-auto"><code class="text-gray-300"><span class="text-purple-300">import</span> { <span class="text-blue-300">expose</span> } <span class="text-purple-300">from</span> <span class="text-green-300">'@instantapihq/sdk'</span>;
 
 <span class="text-blue-300">expose</span>(<span class="text-green-300">'hello'</span>, (<span class="text-orange-300">input</span>) => {
   <span class="text-purple-300">return</span> {
@@ -355,7 +355,7 @@
                         <div class="bg-gray-500/5 border border-gray-500/10 rounded-lg p-6">
                           <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Expose by function name</p>
                           <div class="flex items-center justify-between bg-black rounded-lg p-3 font-mono text-sm">
-                            <code class="text-green-300">npx instant-api expose hello</code>
+                            <code class="text-green-300">npx @instantapihq/cli expose hello</code>
                             <button 
                               @click="copyExposeCommand"
                               class="ml-3 text-gray-400 hover:text-white transition-colors"
@@ -391,7 +391,7 @@
                         <div class="bg-gray-500/5 border border-gray-500/10 rounded-lg p-6">
                           <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Expose Streaming Endpoint</p>
                           <div class="flex items-center justify-between bg-black rounded-lg p-3 font-mono text-sm mb-4">
-                            <code class="text-green-300">npx @instantapi/cli expose http://localhost:3000/api/stream</code>
+                            <code class="text-green-300">npx @instantapihq/cli expose http://localhost:3000/api/stream</code>
                             <button 
                               @click="copyStreamCommand"
                               class="ml-3 text-gray-400 hover:text-white transition-colors"
@@ -1684,22 +1684,22 @@ function switchToStreamMode() {
 
 // Copy command helpers for Framework, Function, and Stream modes
 async function copyFrameworkCommand() {
-  const cmd = 'npx @instantapi/cli expose http://localhost:3000/api/users/create'
+  const cmd = 'npx @instantapihq/cli expose http://localhost:3000/api/users/create'
   await copyToClipboard(cmd)
 }
 
 async function copyInstallCommand() {
-  const cmd = 'npm install @instantapi/sdk'
+  const cmd = 'npm install @instantapihq/sdk'
   await copyToClipboard(cmd)
 }
 
 async function copyExposeCommand() {
-  const cmd = 'npx instant-api expose hello'
+  const cmd = 'npx @instantapihq/cli expose hello'
   await copyToClipboard(cmd)
 }
 
 async function copyStreamCommand() {
-  const cmd = 'npx @instantapi/cli expose http://localhost:3000/api/stream'
+  const cmd = 'npx @instantapihq/cli expose http://localhost:3000/api/stream'
   await copyToClipboard(cmd)
 }
 
