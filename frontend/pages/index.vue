@@ -153,7 +153,20 @@
                   </div>
 
                   <!-- Code Editor or File Upload -->
-                  <div v-if="mode === 'snippet'" class="bg-black">
+                  <div v-if="mode === 'snippet'" class="bg-black relative">
+                    <!-- Fullscreen Toggle Button -->
+                    <button
+                      @click="isEditorFullscreen = !isEditorFullscreen"
+                      class="absolute top-2 right-2 z-10 p-2 bg-gray-500/10 hover:bg-gray-500/20 text-gray-400 hover:text-white rounded transition-colors"
+                      :title="isEditorFullscreen ? 'Exit Fullscreen' : 'Fullscreen'"
+                    >
+                      <svg v-if="!isEditorFullscreen" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                      </svg>
+                      <svg v-else class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
                     <CodeEditor
                       v-model="code"
                       :language="language"
@@ -176,6 +189,59 @@
                       </span>
                     </div>
                   </div>
+                  
+                  <!-- Fullscreen Editor Overlay -->
+                  <Teleport to="body">
+                    <div
+                      v-if="isEditorFullscreen"
+                      class="fixed inset-0 z-50 bg-black flex flex-col"
+                    >
+                      <div class="flex items-center justify-between px-6 py-3 border-b border-gray-500/20">
+                        <div class="flex items-center space-x-4">
+                          <h3 class="text-sm font-medium text-white">Code Editor</h3>
+                          <span class="text-xs text-gray-500">{{ language }}</span>
+                        </div>
+                        <button
+                          @click="isEditorFullscreen = false"
+                          class="p-2 text-gray-400 hover:text-white transition-colors"
+                          title="Exit Fullscreen (Esc)"
+                        >
+                          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
+                      </div>
+                      <div class="flex-1 overflow-hidden">
+                        <CodeEditor
+                          v-model="code"
+                          :language="language"
+                          :placeholder="placeholderCode"
+                          :disabled="loading.create"
+                        />
+                      </div>
+                      <div class="px-6 py-3 border-t border-gray-500/20 flex justify-between items-center">
+                        <div class="text-xs space-x-4">
+                          <span :class="[
+                            'font-medium',
+                            codeBytes > MAX_CODE_SIZE ? 'text-red-400' : codeBytes > MAX_CODE_SIZE * 0.9 ? 'text-amber-400' : 'text-gray-400'
+                          ]">
+                            {{ formatBytes(codeBytes) }} / {{ formatBytes(MAX_CODE_SIZE) }}
+                          </span>
+                          <span :class="[
+                            codeBytes > MAX_CODE_SIZE ? 'text-red-400' : codeBytes > MAX_CODE_SIZE * 0.9 ? 'text-amber-400' : 'text-gray-500'
+                          ]">
+                            {{ codePercentage }}% used
+                          </span>
+                        </div>
+                        <button
+                          @click="isEditorFullscreen = false"
+                          class="btn-secondary py-2 px-4 text-xs"
+                        >
+                          Done Editing
+                        </button>
+                      </div>
+                    </div>
+                  </Teleport>
 
                   <!-- File Upload Mode -->
                   <div v-else-if="mode === 'file'" class="p-8 bg-black">
@@ -436,8 +502,40 @@ eventSource.<span class="text-blue-300">onmessage</span> = (<span class="text-or
                   </div>
 
                   <!-- Error Display -->
-                  <div v-if="error.create" class="mx-4 mt-4 p-3 bg-red-500/10 border border-red-500/20 rounded text-red-400 text-sm">
-                    {{ error.create }}
+                  <div v-if="error.create" class="mx-4 mt-4">
+                    <div class="p-4 bg-red-500/10 border border-red-500/20 rounded-lg space-y-3">
+                      <div class="flex items-start justify-between gap-3">
+                        <div class="flex items-start gap-2 flex-1">
+                          <svg class="w-5 h-5 text-red-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          <div class="flex-1">
+                            <p class="text-red-400 text-sm font-medium">{{ error.create }}</p>
+                            <div v-if="errorDetails.create" class="mt-2">
+                              <button
+                                @click="showErrorDetails = !showErrorDetails"
+                                class="text-xs text-red-300 hover:text-red-200 flex items-center gap-1"
+                              >
+                                <svg class="w-3 h-3" :class="showErrorDetails ? 'rotate-90' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                </svg>
+                                {{ showErrorDetails ? 'Hide' : 'Show' }} details
+                              </button>
+                              <pre v-if="showErrorDetails" class="mt-2 p-3 bg-black/30 rounded text-xs text-red-300 overflow-x-auto">{{ errorDetails.create }}</pre>
+                            </div>
+                          </div>
+                        </div>
+                        <button
+                          @click="retryCreateEndpoint"
+                          class="shrink-0 px-3 py-1.5 bg-red-500/20 hover:bg-red-500/30 text-red-300 hover:text-red-200 rounded text-xs font-medium transition-colors flex items-center gap-1.5"
+                        >
+                          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                          </svg>
+                          Retry
+                        </button>
+                      </div>
+                    </div>
                   </div>
 
                   <!-- Configuration and Create Button (hidden for Framework, Function, and Stream modes) -->
@@ -788,8 +886,40 @@ eventSource.<span class="text-blue-300">onmessage</span> = (<span class="text-or
                 </div>
 
                 <!-- Error Display -->
-                <div v-if="error.test" class="mb-4 p-4 bg-red-400/10 border border-red-400/10 rounded text-red-400 text-sm">
-                  {{ error.test }}
+                <div v-if="error.test" class="mb-4">
+                  <div class="p-4 bg-red-500/10 border border-red-500/20 rounded-lg space-y-3">
+                    <div class="flex items-start justify-between gap-3">
+                      <div class="flex items-start gap-2 flex-1">
+                        <svg class="w-5 h-5 text-red-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <div class="flex-1">
+                          <p class="text-red-400 text-sm font-medium">{{ error.test }}</p>
+                          <div v-if="errorDetails.test" class="mt-2">
+                            <button
+                              @click="showTestErrorDetails = !showTestErrorDetails"
+                              class="text-xs text-red-300 hover:text-red-200 flex items-center gap-1"
+                            >
+                              <svg class="w-3 h-3" :class="showTestErrorDetails ? 'rotate-90' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                              </svg>
+                              {{ showTestErrorDetails ? 'Hide' : 'Show' }} details
+                            </button>
+                            <pre v-if="showTestErrorDetails" class="mt-2 p-3 bg-black/30 rounded text-xs text-red-300 overflow-x-auto">{{ errorDetails.test }}</pre>
+                          </div>
+                        </div>
+                      </div>
+                      <button
+                        @click="retryTestEndpoint"
+                        class="shrink-0 px-3 py-1.5 bg-red-500/20 hover:bg-red-500/30 text-red-300 hover:text-red-200 rounded text-xs font-medium transition-colors flex items-center gap-1.5"
+                      >
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
+                        Retry
+                      </button>
+                    </div>
+                  </div>
                 </div>
 
                 <!-- Send Button -->
@@ -985,7 +1115,7 @@ eventSource.<span class="text-blue-300">onmessage</span> = (<span class="text-or
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 
 const config = useRuntimeConfig()
 const API_BASE = config.public.apiBase
@@ -1009,6 +1139,9 @@ const endpointName = ref('')
 const endpointDescription = ref('')
 const selectedFile = ref<File | null>(null)
 const fileInput = ref<HTMLInputElement | null>(null)
+
+// Fullscreen editor state
+const isEditorFullscreen = ref(false)
 
 // Drag & drop state
 const isDragging = ref(false)
@@ -1231,6 +1364,19 @@ onMounted(() => {
       fetchDashboard()
     }
   }, 30000)
+  
+  // Handle Escape key for fullscreen editor
+  const handleKeydown = (e: KeyboardEvent) => {
+    if (e.key === 'Escape' && isEditorFullscreen.value) {
+      isEditorFullscreen.value = false
+    }
+  }
+  window.addEventListener('keydown', handleKeydown)
+  
+  // Cleanup
+  onUnmounted(() => {
+    window.removeEventListener('keydown', handleKeydown)
+  })
 })
 
 // Clear draft when endpoint is created
@@ -1349,6 +1495,12 @@ const error = ref({
   create: '',
   test: '',
 })
+const errorDetails = ref({
+  create: '',
+  test: '',
+})
+const showErrorDetails = ref(false)
+const showTestErrorDetails = ref(false)
 
 // Placeholder code examples
 const placeholderCode = computed(() => {
@@ -1733,10 +1885,19 @@ async function createEndpoint() {
   } catch (err: any) {
     const errorMessage = err.message || 'Failed to create endpoint'
     error.value.create = errorMessage
+    errorDetails.value.create = err.stack || JSON.stringify(err, null, 2)
     showToast(errorMessage, 'error', 5000)
   } finally {
     loading.value.create = false
   }
+}
+
+// Retry create endpoint
+function retryCreateEndpoint() {
+  error.value.create = ''
+  errorDetails.value.create = ''
+  showErrorDetails.value = false
+  createEndpoint()
 }
 
 // Test endpoint
@@ -1783,10 +1944,19 @@ async function testEndpoint() {
   } catch (err: any) {
     const errorMessage = err.message || 'Failed to execute endpoint'
     error.value.test = errorMessage
+    errorDetails.value.test = err.stack || JSON.stringify(err, null, 2)
     showToast(errorMessage, 'error', 5000)
   } finally {
     loading.value.test = false
   }
+}
+
+// Retry test endpoint
+function retryTestEndpoint() {
+  error.value.test = ''
+  errorDetails.value.test = ''
+  showTestErrorDetails.value = false
+  testEndpoint()
 }
 
 // Health check endpoint
