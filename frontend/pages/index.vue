@@ -12,7 +12,7 @@
     
     <!-- Public Header (for non-authenticated users) -->
     <header v-else class="border-b border-gray-500/20 bg-black/80 backdrop-blur-sm sticky top-0 z-50">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-0">
+      <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-0">
         <div class="flex items-center justify-between h-12">
           <div class="flex items-center space-x-3">
             <img src="~/assets/img/logo.png" alt="Instant API" class="w-6 h-6" />
@@ -34,7 +34,7 @@
 
     <!-- Main Content -->
     <div class="py-12 px-4 sm:px-6 lg:px-0 antialiased">
-      <div class="max-w-7xl mx-auto">
+      <div :class="isAuthenticated ? 'max-w-7xl mx-auto' : 'max-w-5xl mx-auto'">
         <!-- Hero Section (only for non-authenticated users) -->
         <div v-if="!isAuthenticated" class="mt-6 md:mt-12 max-w-4xl mb-20">
           <h1 class="mb-5 text-3xl font-bold sm:mb-6 sm:text-5xl leading-tight text-white">
