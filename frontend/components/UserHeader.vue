@@ -5,7 +5,7 @@
       <div class="flex items-center space-x-3">
         <img src="~/assets/img/logo.png" alt="Echos" class="w-6 h-6"></img>
         <span class="text-sm text-gray-500/50">|</span>
-        <span class="text-sm text-gray-400">{{ user?.organizationName }}</span>
+        <span class="text-sm text-white font-medium">{{ user?.organizationName }}</span>
       </div>
 
       <!-- User Menu -->
