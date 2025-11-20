@@ -189,59 +189,6 @@
                       </span>
                     </div>
                   </div>
-                  
-                  <!-- Fullscreen Editor Overlay -->
-                  <Teleport to="body">
-                    <div
-                      v-if="isEditorFullscreen"
-                      class="fixed inset-0 z-50 bg-black flex flex-col"
-                    >
-                      <div class="flex items-center justify-between px-6 py-3 border-b border-gray-500/20">
-                        <div class="flex items-center space-x-4">
-                          <h3 class="text-sm font-medium text-white">Code Editor</h3>
-                          <span class="text-xs text-gray-500">{{ language }}</span>
-                        </div>
-                        <button
-                          @click="isEditorFullscreen = false"
-                          class="p-2 text-gray-400 hover:text-white transition-colors"
-                          title="Exit Fullscreen (Esc)"
-                        >
-                          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                          </svg>
-                        </button>
-                      </div>
-                      <div class="flex-1 overflow-hidden">
-                        <CodeEditor
-                          v-model="code"
-                          :language="language"
-                          :placeholder="placeholderCode"
-                          :disabled="loading.create"
-                        />
-                      </div>
-                      <div class="px-6 py-3 border-t border-gray-500/20 flex justify-between items-center">
-                        <div class="text-xs space-x-4">
-                          <span :class="[
-                            'font-medium',
-                            codeBytes > MAX_CODE_SIZE ? 'text-red-400' : codeBytes > MAX_CODE_SIZE * 0.9 ? 'text-amber-400' : 'text-gray-400'
-                          ]">
-                            {{ formatBytes(codeBytes) }} / {{ formatBytes(MAX_CODE_SIZE) }}
-                          </span>
-                          <span :class="[
-                            codeBytes > MAX_CODE_SIZE ? 'text-red-400' : codeBytes > MAX_CODE_SIZE * 0.9 ? 'text-amber-400' : 'text-gray-500'
-                          ]">
-                            {{ codePercentage }}% used
-                          </span>
-                        </div>
-                        <button
-                          @click="isEditorFullscreen = false"
-                          class="btn-secondary py-2 px-4 text-xs"
-                        >
-                          Done Editing
-                        </button>
-                      </div>
-                    </div>
-                  </Teleport>
 
                   <!-- File Upload Mode -->
                   <div v-else-if="mode === 'file'" class="p-8 bg-black">
@@ -1110,6 +1057,59 @@ eventSource.<span class="text-blue-300">onmessage</span> = (<span class="text-or
     
     <!-- Toast Notifications -->
     <Toast ref="toastComponent" />
+    
+    <!-- Fullscreen Editor Overlay -->
+    <Teleport to="body">
+      <div
+        v-if="isEditorFullscreen"
+        class="fixed inset-0 z-50 bg-black flex flex-col"
+      >
+        <div class="flex items-center justify-between px-6 py-3 border-b border-gray-500/20">
+          <div class="flex items-center space-x-4">
+            <h3 class="text-sm font-medium text-white">Code Editor</h3>
+            <span class="text-xs text-gray-500">{{ language }}</span>
+          </div>
+          <button
+            @click="isEditorFullscreen = false"
+            class="p-2 text-gray-400 hover:text-white transition-colors"
+            title="Exit Fullscreen (Esc)"
+          >
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+        <div class="flex-1 overflow-hidden">
+          <CodeEditor
+            v-model="code"
+            :language="language"
+            :placeholder="placeholderCode"
+            :disabled="loading.create"
+          />
+        </div>
+        <div class="px-6 py-3 border-t border-gray-500/20 flex justify-between items-center">
+          <div class="text-xs space-x-4">
+            <span :class="[
+              'font-medium',
+              codeBytes > MAX_CODE_SIZE ? 'text-red-400' : codeBytes > MAX_CODE_SIZE * 0.9 ? 'text-amber-400' : 'text-gray-400'
+            ]">
+              {{ formatBytes(codeBytes) }} / {{ formatBytes(MAX_CODE_SIZE) }}
+            </span>
+            <span :class="[
+              codeBytes > MAX_CODE_SIZE ? 'text-red-400' : codeBytes > MAX_CODE_SIZE * 0.9 ? 'text-amber-400' : 'text-gray-500'
+            ]">
+              {{ codePercentage }}% used
+            </span>
+          </div>
+          <button
+            @click="isEditorFullscreen = false"
+            class="btn-secondary py-2 px-4 text-xs"
+          >
+            Done Editing
+          </button>
+        </div>
+      </div>
+    </Teleport>
     </div>
   </div>
 </template>
