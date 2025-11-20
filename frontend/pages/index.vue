@@ -1245,7 +1245,11 @@ async function fetchEndpoints() {
       },
     });
     if (response.ok) {
-      endpoints.value = await response.json();
+      const data = await response.json();
+      console.log('📋 Fetched endpoints:', data);
+      endpoints.value = data;
+    } else {
+      console.error('Failed to fetch endpoints:', response.status, response.statusText);
     }
   } catch (error) {
     console.error('Failed to fetch endpoints:', error);
@@ -1861,6 +1865,8 @@ async function createEndpoint() {
       return
     }
 
+    console.log('✅ Created endpoint:', data);
+
     endpointId.value = data.id
     endpointUrl.value = data.url
     expiresAt.value = new Date(data.expiresAt).toLocaleString()
@@ -1880,7 +1886,8 @@ async function createEndpoint() {
     
     // Refresh dashboard if authenticated
     if (isAuthenticated.value) {
-      fetchDashboard()
+      console.log('🔄 Refreshing dashboard after endpoint creation...');
+      await fetchDashboard()
     }
   } catch (err: any) {
     const errorMessage = err.message || 'Failed to create endpoint'
