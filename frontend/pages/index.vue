@@ -102,11 +102,23 @@
                       >
                         Function
                       </button>
+                      <button
+                        v-if="isAuthenticated"
+                        @click="switchToStreamMode"
+                        :class="[
+                          'px-6 py-3 text-sm font-medium transition-colors',
+                          mode === 'stream'
+                            ? 'text-white border-b-2 border-blue-300'
+                            : 'text-gray-400 hover:text-white'
+                        ]"
+                      >
+                        Stream
+                      </button>
                     </div>
                   </div>
 
-                  <!-- Configuration Panel (hidden for Framework and Function modes) -->
-                  <div v-if="mode !== 'framework' && mode !== 'function'" class="p-4 border-b border-gray-500/10">
+                  <!-- Configuration Panel (hidden for Framework, Function, and Stream modes) -->
+                  <div v-if="mode !== 'framework' && mode !== 'function' && mode !== 'stream'" class="p-4 border-b border-gray-500/10">
                     <!-- Optional Fields -->
                     <div :class="isAuthenticated ? 'grid grid-cols-1 md:grid-cols-2 gap-4' : ''">
                       <!-- Name field (only for authenticated users) -->
@@ -148,6 +160,21 @@
                       :placeholder="placeholderCode"
                       :disabled="loading.create"
                     />
+                    <!-- Character Count -->
+                    <div class="px-4 py-2 border-t border-gray-500/10 flex justify-between items-center text-xs">
+                      <span :class="[
+                        'font-medium',
+                        codeBytes > MAX_CODE_SIZE ? 'text-red-400' : codeBytes > MAX_CODE_SIZE * 0.9 ? 'text-amber-400' : 'text-gray-500'
+                      ]">
+                        {{ formatBytes(codeBytes) }} / {{ formatBytes(MAX_CODE_SIZE) }}
+                      </span>
+                      <span :class="[
+                        'text-xs',
+                        codeBytes > MAX_CODE_SIZE ? 'text-red-400' : codeBytes > MAX_CODE_SIZE * 0.9 ? 'text-amber-400' : 'text-gray-500'
+                      ]">
+                        {{ codePercentage }}% used
+                      </span>
+                    </div>
                   </div>
 
                   <!-- File Upload Mode -->
@@ -304,11 +331,11 @@
                           <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">functions.ts</p>
                           <pre class="bg-black rounded-lg p-4 text-sm overflow-x-auto"><code class="text-gray-300"><span class="text-purple-300">import</span> { <span class="text-blue-300">expose</span> } <span class="text-purple-300">from</span> <span class="text-green-300">'@instantapi/sdk'</span>;
 
-          <span class="text-blue-300">expose</span>(<span class="text-green-300">'hello'</span>, (<span class="text-orange-300">input</span>) => {
-            <span class="text-purple-300">return</span> { 
-              message: <span class="text-green-300">`Hello \${<span class="text-orange-300">input</span>.name}!`</span>
-            };
-          });</code></pre>
+<span class="text-blue-300">expose</span>(<span class="text-green-300">'hello'</span>, (<span class="text-orange-300">input</span>) => {
+  <span class="text-purple-300">return</span> {
+    message: <span class="text-green-300">`Hello \${<span class="text-orange-300">input</span>.name}!`</span>
+  };
+});</code></pre>
                         </div>
                         
                         <!-- Expose by function name -->
@@ -507,16 +534,28 @@
                   Your Endpoint URL
                 </label>
                 <div class="flex gap-2 items-start">
-                  <div class="code-block flex-1 break-all overflow-hidden text-blue-300 text-sm">
+                  <div 
+                    @click="copyToClipboard(endpointUrl, 'main-url')"
+                    class="code-block flex-1 break-all overflow-hidden text-blue-300 text-sm cursor-pointer hover:bg-blue-300/10 transition-colors rounded px-2 py-1 -mx-2 -my-1"
+                    title="Click to copy"
+                  >
                     {{ endpointUrl }}
                   </div>
                   <button
-                    @click="copyToClipboard(endpointUrl)"
-                    class="btn-secondary px-2 py-2 shrink-0"
-                    title="Copy URL"
+                    @click="copyToClipboard(endpointUrl, 'main-url-btn')"
+                    :class="[
+                      'px-2 py-2 shrink-0 transition-colors',
+                      isCopied('main-url') || isCopied('main-url-btn')
+                        ? 'bg-green-500/10 text-green-400'
+                        : 'btn-secondary'
+                    ]"
+                    :title="isCopied('main-url') || isCopied('main-url-btn') ? 'Copied!' : 'Copy URL'"
                   >
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                    <svg v-if="!isCopied('main-url') && !isCopied('main-url-btn')" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184" />
+                    </svg>
+                    <svg v-else class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
                     </svg>
                   </button>
                 </div>
@@ -663,7 +702,7 @@
                     :disabled="loading.test"
                   ></textarea>
                   <!-- JSON Validation Error -->
-                  <div v-if="jsonValidationError" class="mt-2 p-2 bg-yellow-500/10 border border-yellow-500/20 rounded text-yellow-400 text-xs flex items-start gap-2">
+                  <div v-if="jsonValidationError" class="mt-2 p-2 bg-yellow-300/10 border border-yellow-300/10 rounded text-yellow-300 text-xs flex items-start gap-2">
                     <svg class="w-4 h-4 shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
                       <path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
                     </svg>
@@ -672,7 +711,7 @@
                 </div>
 
                 <!-- Error Display -->
-                <div v-if="error.test" class="mb-4 p-4 bg-red-500/10 border border-red-500/20 rounded text-red-400 text-sm">
+                <div v-if="error.test" class="mb-4 p-4 bg-red-400/10 border border-red-400/10 rounded text-red-400 text-sm">
                   {{ error.test }}
                 </div>
 
@@ -698,7 +737,7 @@
                     <label class="block text-sm font-medium mb-2 text-gray-300">
                       Error
                     </label>
-                    <div class="p-4 bg-red-500/10 border border-red-500/20 rounded text-red-400 text-sm">
+                    <div class="p-4 bg-red-400/10 border border-red-400/20 rounded text-red-400 text-sm">
                       <div class="font-medium">{{ executionError.message }}</div>
                       <div v-if="executionError.stack" class="mt-2 text-xs opacity-75 font-mono">{{ executionError.stack }}</div>
                     </div>
@@ -749,19 +788,20 @@
             </div>
 
             <div v-else-if="!endpoints.length && !tunnels.length" class="border border-gray-500/15 rounded-lg p-8 text-center bg-gray-500/5">
-              <div class="flex flex-col items-center space-y-3">
-                <svg class="w-12 h-12 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div class="flex flex-col items-center space-y-4">
+                <svg class="w-12 h-12 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
                 </svg>
                 <div class="space-y-1">
-                  <p class="text-gray-300 text-sm font-medium">No APIs yet</p>
-                  <p class="text-gray-500 text-xs">Create your first API to get started</p>
+                  <p class="text-white text-sm font-medium">No APIs yet</p>
+                  <p class="text-gray-400 text-xs">Create your first API to get started</p>
                 </div>
-                <div class="pt-2">
-                  <div class="text-xs text-gray-600 space-y-1">
-                    <p>💡 Paste code → Get API in seconds</p>
-                  </div>
-                </div>
+                <button 
+                  @click="switchToSnippetMode"
+                  class="mt-2 px-4 py-2 bg-blue-300/10 hover:bg-blue-300/20 text-blue-300 text-xs font-medium rounded-lg transition-colors"
+                >
+                  Create Your First API →
+                </button>
               </div>
             </div>
 
@@ -770,7 +810,7 @@
               <div v-if="endpoints.length > 0">
                 <h3 class="text-xs font-semibold text-gray-400 mb-2 uppercase tracking-wide">Endpoints ({{ endpoints.length }})</h3>
                 <div class="space-y-2">
-                  <div v-for="endpoint in endpoints" :key="endpoint.id" class="border border-gray-500/15 rounded-lg p-3 bg-gray-500/5 hover:bg-gray-500/10 transition-colors">
+                  <div v-for="endpoint in paginatedEndpoints" :key="endpoint.id" class="border border-gray-500/15 rounded-lg p-3 bg-gray-500/5 hover:bg-gray-500/10 transition-colors">
                     <div class="space-y-2">
                       <div class="flex items-center gap-1.5 flex-wrap">
                         <span class="text-xs px-1.5 py-0.5 rounded bg-blue-300/10 text-blue-300">{{ endpoint.kind }}</span>
@@ -781,13 +821,21 @@
                       <div class="flex items-center justify-between">
                         <span class="text-xs text-gray-500">{{ formatDate(endpoint.createdAt) }}</span>
                         <div class="flex gap-2">
-                          <button @click="copyToClipboard(endpoint.url)" class="text-xs px-2 py-1 rounded bg-gray-500/10 text-gray-300 hover:bg-gray-500/20 transition-colors">
-                            Copy
+                          <button 
+                            @click="copyToClipboard(endpoint.url, `endpoint-${endpoint.id}`)" 
+                            :class="[
+                              'text-xs px-2 py-1 rounded transition-colors',
+                              isCopied(`endpoint-${endpoint.id}`)
+                                ? 'bg-green-300/10 text-green-300'
+                                : 'bg-gray-500/10 text-gray-300 hover:bg-gray-500/20'
+                            ]"
+                          >
+                            {{ isCopied(`endpoint-${endpoint.id}`) ? '✓ Copied' : 'Copy' }}
                           </button>
                           <button 
                             @click="deleteEndpoint(endpoint.id)" 
                             :disabled="deletingEndpointId === endpoint.id"
-                            class="text-xs px-2 py-1 rounded bg-red-500/10 text-red-400 hover:bg-red-500/20 transition-colors disabled:opacity-50"
+                            class="text-xs px-2 py-1 rounded bg-red-400/10 text-red-400 hover:bg-red-500/20 transition-colors disabled:opacity-50"
                           >
                             {{ deletingEndpointId === endpoint.id ? '...' : 'Delete' }}
                           </button>
@@ -796,13 +844,21 @@
                     </div>
                   </div>
                 </div>
+                <!-- Show More Button for Endpoints -->
+                <button 
+                  v-if="hasMoreEndpoints"
+                  @click="endpointsPage++"
+                  class="mt-2 w-full text-xs py-2 px-3 rounded bg-gray-500/5 hover:bg-gray-500/10 text-gray-400 hover:text-gray-300 transition-colors"
+                >
+                  Show More ({{ endpoints.length - paginatedEndpoints.length }} more)
+                </button>
               </div>
 
               <!-- Tunnels Section -->
               <div v-if="tunnels.length > 0" class="mt-4">
                 <h3 class="text-xs font-semibold text-gray-400 mb-2 uppercase tracking-wide">Tunnels ({{ tunnels.length }})</h3>
                 <div class="space-y-2">
-                  <div v-for="tunnel in tunnels" :key="tunnel.id" class="border border-gray-500/15 rounded-lg p-3 bg-gray-500/5 hover:bg-gray-500/10 transition-colors">
+                  <div v-for="tunnel in paginatedTunnels" :key="tunnel.id" class="border border-gray-500/15 rounded-lg p-3 bg-gray-500/5 hover:bg-gray-500/10 transition-colors">
                     <div class="space-y-2">
                       <div class="flex items-center gap-1.5 flex-wrap">
                         <span class="text-xs px-1.5 py-0.5 rounded bg-green-300/10 text-green-300">
@@ -815,13 +871,29 @@
                       <p class="text-xs text-gray-400 font-mono truncate">→ {{ tunnel.targetUrl }}</p>
                       <div class="flex items-center justify-between">
                         <span class="text-xs text-gray-500">{{ formatDate(tunnel.lastSeenAt) }}</span>
-                        <button @click="copyToClipboard(`http://localhost:3001/t/${tunnel.id}`)" class="text-xs px-2 py-1 rounded bg-gray-500/10 text-gray-300 hover:bg-gray-500/20 transition-colors">
-                          Copy
+                        <button 
+                          @click="copyToClipboard(`http://localhost:3001/t/${tunnel.id}`, `tunnel-${tunnel.id}`)"
+                          :class="[
+                            'text-xs px-2 py-1 rounded transition-colors',
+                            isCopied(`tunnel-${tunnel.id}`)
+                              ? 'bg-green-500/10 text-green-400'
+                              : 'bg-gray-500/10 text-gray-300 hover:bg-gray-500/20'
+                          ]"
+                        >
+                          {{ isCopied(`tunnel-${tunnel.id}`) ? '✓ Copied' : 'Copy' }}
                         </button>
                       </div>
                     </div>
                   </div>
                 </div>
+                <!-- Show More Button for Tunnels -->
+                <button 
+                  v-if="hasMoreTunnels"
+                  @click="tunnelsPage++"
+                  class="mt-2 w-full text-xs py-2 px-3 rounded bg-gray-500/5 hover:bg-gray-500/10 text-gray-400 hover:text-gray-300 transition-colors"
+                >
+                  Show More ({{ tunnels.length - paginatedTunnels.length }} more)
+                </button>
               </div>
             </div>
           </div>
@@ -851,7 +923,7 @@ function showToast(message: string, type: 'success' | 'error' | 'info' = 'info',
 }
 
 // Form state
-const mode = ref<'snippet' | 'file' | 'framework' | 'function'>('snippet')
+const mode = ref<'snippet' | 'file' | 'framework' | 'function' | 'stream'>('snippet')
 const language = ref<'javascript' | 'python'>('javascript')
 const code = ref('')
 const ttlHours = ref(1)
@@ -869,11 +941,53 @@ const dragCounter = ref(0)
 const DRAFT_KEY = 'instantapi_draft'
 const lastSaved = ref<Date | null>(null)
 
+// Code size constants and tracking
+const MAX_CODE_SIZE = 64 * 1024 // 64KB in bytes
+
+// Computed: Code size in bytes
+const codeBytes = computed(() => new Blob([code.value]).size)
+
+// Computed: Percentage used
+const codePercentage = computed(() => Math.min(100, Math.round((codeBytes.value / MAX_CODE_SIZE) * 100)))
+
+// Format bytes helper
+function formatBytes(bytes: number): string {
+  if (bytes < 1024) return `${bytes} B`
+  if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
+  return `${(bytes / (1024 * 1024)).toFixed(2)} MB`
+}
+
 // Dashboard state
 const endpoints = ref<any[]>([])
 const tunnels = ref<any[]>([])
 const loading = ref({ create: false, test: false, health: false, dashboard: false })
 const deletingEndpointId = ref<string | null>(null)
+
+// Copy feedback state
+const copiedItems = ref<Set<string>>(new Set())
+
+// Pagination state
+const itemsPerPage = 10
+const endpointsPage = ref(1)
+const tunnelsPage = ref(1)
+
+// Computed: Paginated endpoints
+const paginatedEndpoints = computed(() => {
+  const start = 0
+  const end = endpointsPage.value * itemsPerPage
+  return endpoints.value.slice(start, end)
+})
+
+// Computed: Paginated tunnels
+const paginatedTunnels = computed(() => {
+  const start = 0
+  const end = tunnelsPage.value * itemsPerPage
+  return tunnels.value.slice(start, end)
+})
+
+// Computed: Has more items
+const hasMoreEndpoints = computed(() => endpoints.value.length > endpointsPage.value * itemsPerPage)
+const hasMoreTunnels = computed(() => tunnels.value.length > tunnelsPage.value * itemsPerPage)
 
 // Watch for language changes and clear code if it has content
 watch(language, (newLang, oldLang) => {
@@ -1656,11 +1770,19 @@ function closeModal() {
   error.value.test = ''
 }
 
-// Copy to clipboard
-async function copyToClipboard(text: string) {
+// Copy to clipboard with feedback
+async function copyToClipboard(text: string, itemId?: string) {
   try {
     await navigator.clipboard.writeText(text)
-    showToast('Copied to clipboard!', 'success')
+    showToast('Copied to clipboard!', 'success', 1500)
+    
+    // Add temporary copied state
+    if (itemId) {
+      copiedItems.value.add(itemId)
+      setTimeout(() => {
+        copiedItems.value.delete(itemId)
+      }, 2000)
+    }
   } catch {
     // Fallback for older browsers
     const textarea = document.createElement('textarea')
@@ -1669,8 +1791,20 @@ async function copyToClipboard(text: string) {
     textarea.select()
     document.execCommand('copy')
     document.body.removeChild(textarea)
-    showToast('Copied to clipboard!', 'success')
+    showToast('Copied to clipboard!', 'success', 1500)
+    
+    if (itemId) {
+      copiedItems.value.add(itemId)
+      setTimeout(() => {
+        copiedItems.value.delete(itemId)
+      }, 2000)
+    }
   }
+}
+
+// Helper to check if item was copied
+function isCopied(itemId: string): boolean {
+  return copiedItems.value.has(itemId)
 }
 
 // Format JSON for display
