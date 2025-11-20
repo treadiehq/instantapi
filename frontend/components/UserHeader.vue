@@ -31,6 +31,13 @@
             >
               Manage API Keys
             </button>
+            <NuxtLink
+              to="/admin"
+              @click="showMenu = false"
+              class="block w-full text-left px-2 py-2 text-xs text-blue-400 hover:bg-gray-500/20 rounded-lg transition-colors"
+            >
+              Admin Panel
+            </NuxtLink>
             <button
               @click="handleLogout"
               class="w-full text-left px-2 py-2 text-xs text-red-400 hover:bg-gray-500/20 rounded-lg transition-colors"

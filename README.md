@@ -241,6 +241,7 @@ curl http://localhost:3000  # Frontend
 ## Documentation
 
 - **[DEPLOYMENT.md](./DEPLOYMENT.md)** - Production deployment guide
+- **[ADMIN.md](./ADMIN.md)** - Admin panel setup and management
 
 ---
 

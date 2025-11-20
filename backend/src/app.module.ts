@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { EndpointsModule } from './endpoints/endpoints.module';
 import { TunnelsModule } from './tunnels/tunnels.module';
 import { AuthModule } from './auth/auth.module';
+import { AdminModule } from './admin/admin.module';
 import { PrismaService } from './prisma.service';
 
 @Module({
@@ -11,6 +12,7 @@ import { PrismaService } from './prisma.service';
     AuthModule,
     EndpointsModule,
     TunnelsModule,
+    AdminModule,
   ],
   providers: [PrismaService],
 })
