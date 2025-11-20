@@ -45,7 +45,7 @@ export class EmailService {
       await this.resend.emails.send({
         from: this.config.get('EMAIL_FROM') || 'Instant API <noreply@instantapi.co>',
         to: email,
-        subject: '✨ Welcome to Instant API - Complete your signup',
+        subject: 'Welcome to Instant API!',
         html: `
           <!DOCTYPE html>
           <html>
@@ -54,8 +54,8 @@ export class EmailService {
               <meta name="viewport" content="width=device-width, initial-scale=1.0">
             </head>
             <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333333; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9fafb;">
-              <div style="background: linear-gradient(135deg, rgb(142, 197, 255) 0%, rgb(100, 170, 255) 100%); padding: 40px; border-radius: 12px 12px 0 0; text-align: center;">
-                <h1 style="color: #ffffff; margin: 0; font-size: 32px; font-weight: 700;">Welcome! 🎉</h1>
+              <div style="background: rgb(142 197 255) padding: 40px; border-radius: 12px 12px 0 0; text-align: center;">
+                <h1 style="color: #ffffff; margin: 0; font-size: 32px; font-weight: 700;">Welcome to Instant API! 🎉</h1>
               </div>
               
               <div style="background: #ffffff; padding: 40px; border-radius: 0 0 12px 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
@@ -65,7 +65,7 @@ export class EmailService {
                 </p>
                 
                 <div style="text-align: center; margin: 35px 0;">
-                  <a href="${verifyUrl}" style="display: inline-block; background: linear-gradient(135deg, rgb(142, 197, 255) 0%, rgb(100, 170, 255) 100%); color: #ffffff; padding: 16px 40px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px; box-shadow: 0 4px 12px rgba(142, 197, 255, 0.3);">Complete Signup</a>
+                  <a href="${verifyUrl}" style="display: inline-block; background: rgb(142 197 255) color: #ffffff; padding: 16px 40px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px; box-shadow: 0 4px 12px rgba(142, 197, 255, 0.3);">Complete Signup</a>
                 </div>
                 
                 <p style="color: #6b7280; font-size: 14px; margin-top: 30px;">
@@ -75,7 +75,7 @@ export class EmailService {
                 
                 <div style="background: #f0f9ff; border-left: 4px solid rgb(142, 197, 255); padding: 16px; margin: 30px 0; border-radius: 4px;">
                   <p style="color: #1e40af; font-size: 14px; margin: 0;">
-                    <strong>⏱️ This link expires in 15 minutes</strong>
+                    <strong>This link expires in 15 minutes</strong>
                   </p>
                 </div>
                 
@@ -129,7 +129,7 @@ export class EmailService {
               <meta name="viewport" content="width=device-width, initial-scale=1.0">
             </head>
             <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333333; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9fafb;">
-              <div style="background: linear-gradient(135deg, rgb(142, 197, 255) 0%, rgb(100, 170, 255) 100%); padding: 40px; border-radius: 12px 12px 0 0; text-align: center;">
+              <div style="background: rgb(142 197 255) padding: 40px; border-radius: 12px 12px 0 0; text-align: center;">
                 <h1 style="color: #ffffff; margin: 0; font-size: 32px; font-weight: 700;">Instant API</h1>
               </div>
               
@@ -140,7 +140,7 @@ export class EmailService {
                 </p>
                 
                 <div style="text-align: center; margin: 35px 0;">
-                  <a href="${verifyUrl}" style="display: inline-block; background: linear-gradient(135deg, rgb(142, 197, 255) 0%, rgb(100, 170, 255) 100%); color: #ffffff; padding: 16px 40px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px; box-shadow: 0 4px 12px rgba(142, 197, 255, 0.3);">Sign In to Your Account</a>
+                  <a href="${verifyUrl}" style="display: inline-block; background: rgb(142 197 255) color: #ffffff; padding: 16px 40px; text-decoration: none; border-radius: 8px; font-weight: 600; font-size: 16px; box-shadow: 0 4px 12px rgba(142, 197, 255, 0.3);">Sign In to Your Account</a>
                 </div>
                 
                 <p style="color: #6b7280; font-size: 14px; margin-top: 30px;">
@@ -150,7 +150,7 @@ export class EmailService {
                 
                 <div style="background: #fef3c7; border-left: 4px solid #f59e0b; padding: 16px; margin: 30px 0; border-radius: 4px;">
                   <p style="color: #92400e; font-size: 14px; margin: 0;">
-                    <strong>⏱️ This link expires in 15 minutes</strong>
+                    <strong>This link expires in 15 minutes</strong>
                   </p>
                 </div>
                 
