@@ -65,6 +65,65 @@ export default {
       });
     }
 
+    // Test endpoint from docs - Execute Python code
+    if (request.method === 'GET' && new URL(request.url).pathname === '/run') {
+      try {
+        const sandbox = getSandbox(env.Sandbox, "test-sandbox");
+        const result = await sandbox.exec('python3 -c "print(2 + 2)"');
+        return new Response(JSON.stringify({
+          output: result.stdout,
+          error: result.stderr,
+          exitCode: result.exitCode,
+          success: result.success,
+        }), {
+          headers: {
+            'Content-Type': 'application/json',
+            ...corsHeaders,
+          },
+        });
+      } catch (error: any) {
+        console.error('Error in /run:', error);
+        return new Response(JSON.stringify({
+          error: error.message,
+          stack: error.stack,
+        }), {
+          status: 500,
+          headers: {
+            'Content-Type': 'application/json',
+            ...corsHeaders,
+          },
+        });
+      }
+    }
+
+    // Test endpoint from docs - Work with files
+    if (request.method === 'GET' && new URL(request.url).pathname === '/file') {
+      try {
+        const sandbox = getSandbox(env.Sandbox, "test-sandbox");
+        await sandbox.writeFile("/workspace/hello.txt", "Hello, Sandbox!");
+        const file = await sandbox.readFile("/workspace/hello.txt");
+        return new Response(JSON.stringify({
+          content: file.content,
+        }), {
+          headers: {
+            'Content-Type': 'application/json',
+            ...corsHeaders,
+          },
+        });
+      } catch (error: any) {
+        return new Response(JSON.stringify({
+          error: error.message,
+          stack: error.stack,
+        }), {
+          status: 500,
+          headers: {
+            'Content-Type': 'application/json',
+            ...corsHeaders,
+          },
+        });
+      }
+    }
+
     // Execute endpoint
     if (request.method === 'POST' && new URL(request.url).pathname === '/execute') {
       const startTime = Date.now();
@@ -156,53 +215,78 @@ async function executeJavaScript(
       const sessionId = `js-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
       const sandbox = getSandbox(env.Sandbox, sessionId);
 
-      // Create a Node.js execution context with fetch enabled
-      const ctx = await sandbox.createCodeContext({ language: 'javascript' });
-
       // Wrap user code to call handler with input and headers (for webhook mode)
       const handlerArgs = mode === 'webhook' 
         ? `${JSON.stringify(input)}, ${JSON.stringify(headers || {})}` 
         : JSON.stringify(input);
       
       const wrappedCode = `
-// Expose fetch for outbound HTTP requests
-const fetch = globalThis.fetch;
+const input = ${handlerArgs};
 
 ${code}
 
 // Auto-detect: use handler if defined, otherwise return last expression
 if (typeof handler === 'function') {
-  handler(${handlerArgs});
+  const result = handler(input);
+  console.log(JSON.stringify({ __result: result }));
 } else {
-  // Return the last expression or result variable if defined
-  typeof result !== 'undefined' ? result : undefined;
+  // Return the result variable if defined
+  if (typeof result !== 'undefined') {
+    console.log(JSON.stringify({ __result: result }));
+  }
 }
 `;
 
-      // Execute the code
-      const execResult = await sandbox.runCode(wrappedCode, { context: ctx });
+      // Write the code to a file
+      await sandbox.writeFile('/workspace/code.js', wrappedCode);
 
-      // Extract result and logs
-      const result = execResult.results?.[0]?.text ? JSON.parse(execResult.results[0].text) : null;
-      const sandboxLogs = execResult.logs || [];
+      // Execute with Node.js
+      const execResult = await sandbox.exec('node /workspace/code.js');
+
+      // Parse result from stdout
+      let result = null;
+      const output = execResult.stdout || '';
+      const lines = output.split('\n');
+      
+      for (const line of lines) {
+        if (line.trim().startsWith('{') && line.includes('__result')) {
+          try {
+            const parsed = JSON.parse(line);
+            result = parsed.__result;
+          } catch {}
+        } else if (line.trim()) {
+          logs.push(line);
+        }
+      }
+
+      // Add stderr to logs
+      if (execResult.stderr) {
+        logs.push(...execResult.stderr.split('\n').filter(l => l.trim()));
+      }
+
       const durationMs = Date.now() - startTime;
+
+      // Check for execution errors
+      if (execResult.exitCode !== 0) {
+        return {
+          error: { message: execResult.stderr || 'JavaScript execution failed with non-zero exit code' },
+          logs,
+          durationMs,
+        };
+      }
 
       return {
         result,
-        logs: sandboxLogs,
+        logs,
         durationMs,
         error: null,
       };
     }
     
     // Fallback for local development (when Sandbox binding not available)
-    // Cloudflare Workers blocks eval/Function constructor for security
-    // For full functionality, deploy to Cloudflare with Workers Paid plan
-    
     logs.push('[Local Dev Mode] Cloudflare Sandbox binding not available');
     logs.push('[Local Dev Mode] JavaScript execution requires production deployment');
     logs.push('[Local Dev Mode] Deploy to Cloudflare Workers with Paid plan to enable');
-    logs.push('[Local Dev Mode] Or test via the UI at http://localhost:3000');
 
     return {
       error: { message: 'Cloudflare Sandbox binding not available in local development. Deploy to Cloudflare Workers (Paid plan) for full execution, or use the web UI for testing.' },
@@ -241,57 +325,78 @@ async function executePython(
       const sessionId = `py-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
       const sandbox = getSandbox(env.Sandbox, sessionId);
 
-      // Create a Python execution context
-      const ctx = await sandbox.createCodeContext({ language: 'python' });
-
       // Wrap user code to call handler with input and headers (for webhook mode)
-      const handlerArgs = mode === 'webhook' 
-        ? `input_data, ${JSON.stringify(headers || {})}` 
-        : 'input_data';
+      const inputJson = JSON.stringify(input).replace(/\\/g, '\\\\').replace(/"/g, '\\"');
+      const headersJson = JSON.stringify(headers || {}).replace(/\\/g, '\\\\').replace(/"/g, '\\"');
       
       const wrappedCode = `
 import json
-import urllib.request
-import urllib.parse
+import sys
 
-# Simple HTTP helpers for outbound requests
-def http_get(url):
-    """Simple GET request helper"""
-    with urllib.request.urlopen(url) as response:
-        return json.loads(response.read().decode())
+# Parse input
+input_json = """${inputJson}"""
+input_data = json.loads(input_json)
 
-def http_post(url, data=None):
-    """Simple POST request helper"""
-    data_bytes = json.dumps(data).encode('utf-8') if data else None
-    req = urllib.request.Request(url, data=data_bytes, headers={'Content-Type': 'application/json'})
-    with urllib.request.urlopen(req) as response:
-        return json.loads(response.read().decode())
+${mode === 'webhook' ? `
+headers_json = """${headersJson}"""
+headers = json.loads(headers_json)
+` : ''}
 
 ${code}
 
 # Auto-detect: use handler if defined, otherwise return result variable
-input_data = ${JSON.stringify(input)}
-
 if 'handler' in dir():
-    result = handler(${handlerArgs})
+    result = handler(${mode === 'webhook' ? 'input_data, headers' : 'input_data'})
 else:
     # Return result variable if defined, otherwise None
     result = result if 'result' in dir() else None
 
-result
+# Output result as JSON
+print("__RESULT_START__")
+print(json.dumps(result))
+print("__RESULT_END__")
 `;
 
-      // Execute the code
-      const execResult = await sandbox.runCode(wrappedCode, { context: ctx });
+      // Write the code to a file
+      await sandbox.writeFile('/workspace/code.py', wrappedCode);
 
-      // Extract result and logs
-      const result = execResult.results?.[0]?.text ? JSON.parse(execResult.results[0].text) : null;
-      const sandboxLogs = execResult.logs || [];
+      // Execute with Python
+      const execResult = await sandbox.exec('python3 /workspace/code.py');
+
+      // Parse result from stdout
+      let result = null;
+      const output = execResult.stdout || '';
+      const resultMatch = output.match(/__RESULT_START__\s*([\s\S]*?)\s*__RESULT_END__/);
+      
+      if (resultMatch) {
+        try {
+          result = JSON.parse(resultMatch[1].trim());
+        } catch {}
+      }
+
+      // Extract logs (everything before result markers)
+      const logLines = output.split('__RESULT_START__')[0].split('\n').filter(l => l.trim());
+      logs.push(...logLines);
+
+      // Add stderr to logs
+      if (execResult.stderr) {
+        logs.push(...execResult.stderr.split('\n').filter(l => l.trim()));
+      }
+
       const durationMs = Date.now() - startTime;
+
+      // Check for execution errors
+      if (execResult.exitCode !== 0) {
+        return {
+          error: { message: execResult.stderr || 'Python execution failed with non-zero exit code' },
+          logs,
+          durationMs,
+        };
+      }
 
       return {
         result,
-        logs: sandboxLogs,
+        logs,
         durationMs,
         error: null,
       };
@@ -300,7 +405,6 @@ result
     // Fallback for local development: Python not available without actual Cloudflare Sandbox
     logs.push('[Local Dev] Python execution requires Cloudflare Sandbox binding');
     logs.push('[Local Dev] Deploy to Cloudflare Workers with Paid plan to enable Python');
-    logs.push('[Local Dev] For now, try JavaScript examples instead');
 
     return {
       error: { message: 'Python execution requires Cloudflare Workers Paid plan with Sandbox binding. Use JavaScript for local development.' },

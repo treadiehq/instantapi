@@ -17,4 +17,5 @@ logs/*
 
 test-server.js
 functions.ts
+test-sandbox.sh
 DEPLOYMENT.md

@@ -1,9 +1,10 @@
 name = "instant-api-sandbox"
 main = "src/index.ts"
-compatibility_date = "2024-01-01"
+compatibility_date = "2025-11-20"
 compatibility_flags = ["nodejs_compat"]
 
-# Containers configuration for Sandbox SDK
+# Containers configuration for Sandbox SDK (array notation for wrangler 4+)
+# Uses the official Cloudflare sandbox container image
 [[containers]]
 class_name = "Sandbox"
 image = "./Dockerfile"
