@@ -1009,7 +1009,7 @@ onMounted(() => {
         ttlHours.value = isAuthenticated.value ? restoredTTL : 1
         endpointName.value = draft.endpointName || ''
         endpointDescription.value = draft.endpointDescription || ''
-        showToast('Draft restored from previous session', 'info', 2000)
+        // Draft restored silently - no need to notify
       }
     } catch (e) {
       console.error('Failed to load draft:', e)
