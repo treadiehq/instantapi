@@ -55,7 +55,7 @@
           >
             <span v-if="loading">Sending magic link...</span>
             <!-- <span v-else-if="success">Check your email!</span> -->
-            <span v-else>Send Magic Link</span>
+            <span v-else>Send magic link</span>
           </button>
         </form>
 

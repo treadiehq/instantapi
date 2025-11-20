@@ -110,7 +110,7 @@
 
           <button
             @click="closeApiKeyModal"
-            class="w-full btn-secondary py-3 mt-4"
+            class="w-full btn-secondary text-sm py-3 mt-4"
           >
             Close
           </button>

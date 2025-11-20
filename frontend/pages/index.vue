@@ -358,13 +358,90 @@
                     </div>
                   </div>
 
+                  <!-- Stream Mode -->
+                  <div v-else-if="mode === 'stream'" class="p-8 bg-black">
+                    <div class="max-w-2xl mx-auto">
+                      <div class="flex items-start space-x-3 mb-6">
+                        <svg class="w-8 h-8 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                        </svg>
+                        <div>
+                          <h3 class="text-lg font-semibold text-white mb-2">Streaming</h3>
+                          <p class="text-gray-400 text-sm leading-relaxed mb-4">
+                            Expose streaming endpoints (SSE, WebSockets) from your local server to the internet instantly.
+                          </p>
+                        </div>
+                      </div>
+                      
+                      <div class="space-y-4">
+                        <!-- Framework with Streaming -->
+                        <div class="bg-gray-500/5 border border-gray-500/10 rounded-lg p-6">
+                          <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Expose Streaming Endpoint</p>
+                          <div class="flex items-center justify-between bg-black rounded-lg p-3 font-mono text-sm mb-4">
+                            <code class="text-green-300">npx @instantapi/cli expose http://localhost:3000/api/stream</code>
+                            <button 
+                              @click="copyStreamCommand"
+                              class="ml-3 text-gray-400 hover:text-white transition-colors"
+                              title="Copy command"
+                            >
+                              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                              </svg>
+                            </button>
+                          </div>
+                          <div class="bg-gray-500/10 border border-gray-500/10 rounded-lg p-4">
+                            <p class="text-sm text-gray-400 mb-2">
+                              <span class="font-semibold">How it works:</span>
+                            </p>
+                            <ul class="text-sm text-gray-400 space-y-1 list-disc list-inside">
+                              <li>Automatically detects SSE and WebSocket requests</li>
+                              <li>Forwards streaming responses in real-time</li>
+                              <li>Supports Server-Sent Events (text/event-stream)</li>
+                              <li>Supports WebSocket upgrades</li>
+                            </ul>
+                          </div>
+                        </div>
+
+                        <!-- SSE Example -->
+                        <div class="bg-gray-500/5 border border-gray-500/10 rounded-lg p-6">
+                          <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Server-Sent Events Example (Express)</p>
+                          <pre class="bg-black rounded-lg p-4 text-sm overflow-x-auto"><code class="text-gray-300"><span class="text-purple-300">app</span>.<span class="text-blue-300">get</span>(<span class="text-green-300">'/api/stream'</span>, (<span class="text-orange-300">req</span>, <span class="text-orange-300">res</span>) => {
+  <span class="text-orange-300">res</span>.<span class="text-blue-300">setHeader</span>(<span class="text-green-300">'Content-Type'</span>, <span class="text-green-300">'text/event-stream'</span>);
+  <span class="text-orange-300">res</span>.<span class="text-blue-300">setHeader</span>(<span class="text-green-300">'Cache-Control'</span>, <span class="text-green-300">'no-cache'</span>);
+  <span class="text-orange-300">res</span>.<span class="text-blue-300">setHeader</span>(<span class="text-green-300">'Connection'</span>, <span class="text-green-300">'keep-alive'</span>);
+
+  <span class="text-purple-300">let</span> count = <span class="text-yellow-300">0</span>;
+  <span class="text-purple-300">const</span> interval = <span class="text-blue-300">setInterval</span>(() => {
+    <span class="text-orange-300">res</span>.<span class="text-blue-300">write</span>(<span class="text-green-300">`data: </span><span class="text-yellow-300">\${</span>JSON.<span class="text-blue-300">stringify</span>({ count: count++ })<span class="text-yellow-300">}</span><span class="text-green-300">\n\n`</span>);
+  }, <span class="text-yellow-300">1000</span>);
+
+  <span class="text-orange-300">req</span>.<span class="text-blue-300">on</span>(<span class="text-green-300">'close'</span>, () => {
+    <span class="text-blue-300">clearInterval</span>(interval);
+  });
+});</code></pre>
+                        </div>
+
+                        <!-- Client Example -->
+                        <div class="bg-gray-500/5 border border-gray-500/10 rounded-lg p-6">
+                          <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Client Example</p>
+                          <pre class="bg-black rounded-lg p-4 text-sm overflow-x-auto"><code class="text-gray-300"><span class="text-purple-300">const</span> eventSource = <span class="text-purple-300">new</span> <span class="text-blue-300">EventSource</span>(<span class="text-green-300">'https://api.instantapi.dev/t/YOUR_TUNNEL_ID'</span>);
+
+eventSource.<span class="text-blue-300">onmessage</span> = (<span class="text-orange-300">event</span>) => {
+  <span class="text-purple-300">const</span> data = JSON.<span class="text-blue-300">parse</span>(<span class="text-orange-300">event</span>.data);
+  console.<span class="text-blue-300">log</span>(<span class="text-green-300">'Received:'</span>, data);
+};</code></pre>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
                   <!-- Error Display -->
                   <div v-if="error.create" class="mx-4 mt-4 p-3 bg-red-500/10 border border-red-500/20 rounded text-red-400 text-sm">
                     {{ error.create }}
                   </div>
 
-                  <!-- Configuration and Create Button (hidden for Framework and Function modes) -->
-                  <div v-if="mode !== 'framework' && mode !== 'function'" class="flex justify-between items-end p-4 border-t border-gray-500/10">
+                  <!-- Configuration and Create Button (hidden for Framework, Function, and Stream modes) -->
+                  <div v-if="mode !== 'framework' && mode !== 'function' && mode !== 'stream'" class="flex justify-between items-end p-4 border-t border-gray-500/10">
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                       <!-- Language Select -->
                       <div class="relative">
@@ -546,7 +623,7 @@
                     :class="[
                       'px-2 py-2 shrink-0 transition-colors',
                       isCopied('main-url') || isCopied('main-url-btn')
-                        ? 'bg-green-500/10 text-green-400'
+                        ? 'bg-green-300/10 text-green-300'
                         : 'btn-secondary'
                     ]"
                     :title="isCopied('main-url') || isCopied('main-url-btn') ? 'Copied!' : 'Copy URL'"
@@ -690,13 +767,13 @@
                 <div class="mb-4">
                   <label class="block text-sm font-medium mb-2 text-gray-300">
                     Request Body (JSON)
-                    <span v-if="!jsonValidationError" class="text-green-400 text-xs ml-2">✓ Valid</span>
+                    <span v-if="!jsonValidationError" class="text-green-300 text-xs ml-2">✓ Valid</span>
                   </label>
                   <textarea
                     v-model="requestBody"
                     :class="[
                       'input-field font-mono text-sm',
-                      jsonValidationError ? 'border-red-500/10 focus:ring-red-500/10' : ''
+                      jsonValidationError ? 'border-red-400/10 focus:ring-red-400/10' : ''
                     ]"
                     rows="6"
                     :disabled="loading.test"
@@ -1443,7 +1520,17 @@ function switchToFunctionMode() {
   }
 }
 
-// Copy command helpers for Framework and Function modes
+// Switch to stream mode
+function switchToStreamMode() {
+  mode.value = 'stream'
+  code.value = ''
+  selectedFile.value = null
+  if (fileInput.value) {
+    fileInput.value.value = ''
+  }
+}
+
+// Copy command helpers for Framework, Function, and Stream modes
 async function copyFrameworkCommand() {
   const cmd = 'npx @instantapi/cli expose http://localhost:3000/api/users/create'
   await copyToClipboard(cmd)
@@ -1456,6 +1543,11 @@ async function copyInstallCommand() {
 
 async function copyExposeCommand() {
   const cmd = 'npx instant-api expose hello'
+  await copyToClipboard(cmd)
+}
+
+async function copyStreamCommand() {
+  const cmd = 'npx @instantapi/cli expose http://localhost:3000/api/stream'
   await copyToClipboard(cmd)
 }
 
