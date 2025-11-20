@@ -12,7 +12,7 @@
     
     <!-- Public Header (for non-authenticated users) -->
     <header v-else class="border-b border-gray-500/20 bg-black/80 backdrop-blur-sm sticky top-0 z-50">
-      <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-0">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-0">
         <div class="flex items-center justify-between h-12">
           <div class="flex items-center space-x-3">
             <img src="~/assets/img/logo.png" alt="Instant API" class="w-6 h-6" />
@@ -34,7 +34,7 @@
 
     <!-- Main Content -->
     <div class="py-12 px-4 sm:px-6 lg:px-0 antialiased">
-      <div :class="isAuthenticated ? 'max-w-7xl mx-auto' : 'max-w-5xl mx-auto'">
+      <div :class="isAuthenticated ? 'max-w-7xl mx-auto' : 'max-w-4xl mx-auto'">
         <!-- Hero Section (only for non-authenticated users) -->
         <div v-if="!isAuthenticated" class="mt-6 md:mt-12 max-w-4xl mb-20">
           <h1 class="mb-5 text-3xl font-bold sm:mb-6 sm:text-5xl leading-tight text-white">
@@ -748,8 +748,21 @@
               <p class="text-gray-400 mt-3 text-sm">Loading...</p>
             </div>
 
-            <div v-else-if="!endpoints.length && !tunnels.length" class="border border-gray-500/15 rounded-lg p-6 text-center bg-gray-500/5">
-              <p class="text-gray-400 text-sm">No APIs yet</p>
+            <div v-else-if="!endpoints.length && !tunnels.length" class="border border-gray-500/15 rounded-lg p-8 text-center bg-gray-500/5">
+              <div class="flex flex-col items-center space-y-3">
+                <svg class="w-12 h-12 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                </svg>
+                <div class="space-y-1">
+                  <p class="text-gray-300 text-sm font-medium">No APIs yet</p>
+                  <p class="text-gray-500 text-xs">Create your first API to get started</p>
+                </div>
+                <div class="pt-2">
+                  <div class="text-xs text-gray-600 space-y-1">
+                    <p>💡 Paste code → Get API in seconds</p>
+                  </div>
+                </div>
+              </div>
             </div>
 
             <div v-else class="space-y-3 max-h-[calc(100vh-200px)] overflow-y-auto">
