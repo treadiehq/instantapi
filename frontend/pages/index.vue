@@ -16,7 +16,7 @@
         <div class="flex items-center justify-between h-12">
           <div class="flex items-center space-x-3">
             <img src="~/assets/img/logo.png" alt="Instant API" class="w-6 h-6" />
-            <h1 class="text-base font-bold text-white">Instant API</h1>
+            <h1 class="text-base font-medium text-white">Instant API</h1>
           </div>
           <nav class="flex items-center space-x-4">
             <a href="https://github.com/treadiehq/instantapi" class="text-gray-500 hover:text-white transition-colors cursor-pointer" title="GitHub" target="_blank" rel="noopener noreferrer">
@@ -36,14 +36,14 @@
     <div class="py-12 px-4 sm:px-6 lg:px-0 antialiased">
       <div class="max-w-7xl mx-auto">
         <!-- Hero Section (only for non-authenticated users) -->
-        <div v-if="!isAuthenticated" class="mt-6 md:mt-12 max-w-3xl mb-20 jetmono">
-          <h1 class="mb-6 text-2xl font-bold sm:mb-8 sm:text-3xl leading-tight text-white">
-            Turn your <span class="bg-blue-300 px-1 text-black">code</span> into a <span class="bg-amber-300 px-1 text-black">API</span> instantly
+        <div v-if="!isAuthenticated" class="mt-6 md:mt-12 max-w-4xl mb-20">
+          <h1 class="mb-5 text-3xl font-bold sm:mb-6 sm:text-5xl leading-tight text-white">
+            Turn your <span class="bg-blue-300 px-1 text-black">code</span> into <span class="bg-amber-300 px-1 text-black">API</span> instantly
           </h1>
           <p class="text-gray-400 text-sm leading-[1.6] sm:text-base">
-            <span class="bg-blue-300 px-1 text-black">Paste your code</span> or upload a file, and get a 
-            <span class="bg-green-300 px-1 text-black">secure endpoint</span> you can call from anywhere. 
-            No servers, no deployment, no configuration.
+            Paste your code or upload a file, and get a 
+            secure endpoint you can call from anywhere. 
+            No servers, no deploy, no config.
           </p>
         </div>
         <!-- Two Column Layout (authenticated) or Single Column (non-authenticated) -->
@@ -54,7 +54,7 @@
               <div class="border border-t-0 border-l-0 border-r-0 border-gray-500/10">
                 <div>
                   <!-- Mode Tabs -->
-                  <div class="border-b border-gray-500/10 jetmono">
+                  <div class="border-b border-gray-500/10">
                     <div class="flex">
                       <button
                         @click="switchToSnippetMode"
@@ -106,7 +106,7 @@
                   </div>
 
                   <!-- Configuration Panel (hidden for Framework and Function modes) -->
-                  <div v-if="mode !== 'framework' && mode !== 'function'" class="p-4 border-b border-gray-500/10 jetmono">
+                  <div v-if="mode !== 'framework' && mode !== 'function'" class="p-4 border-b border-gray-500/10">
                     <!-- Optional Fields -->
                     <div :class="isAuthenticated ? 'grid grid-cols-1 md:grid-cols-2 gap-4' : ''">
                       <!-- Name field (only for authenticated users) -->
@@ -141,7 +141,7 @@
                   </div>
 
                   <!-- Code Editor or File Upload -->
-                  <div v-if="mode === 'snippet'" class="bg-black jetmono">
+                  <div v-if="mode === 'snippet'" class="bg-black">
                     <CodeEditor
                       v-model="code"
                       :language="language"
@@ -151,7 +151,7 @@
                   </div>
 
                   <!-- File Upload Mode -->
-                  <div v-else-if="mode === 'file'" class="p-8 bg-black jetmono">
+                  <div v-else-if="mode === 'file'" class="p-8 bg-black">
                     <div class="max-w-xl mx-auto">
                       <label class="block">
                         <div 
@@ -199,7 +199,7 @@
                   </div>
 
                   <!-- Framework Mode -->
-                  <div v-else-if="mode === 'framework'" class="p-8 bg-black jetmono">
+                  <div v-else-if="mode === 'framework'" class="p-8 bg-black">
                     <div class="max-w-2xl mx-auto">
                       <div class="flex items-start space-x-3 mb-6">
                         <svg class="w-8 h-8 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -267,7 +267,7 @@
                   </div>
 
                   <!-- Function Mode -->
-                  <div v-else-if="mode === 'function'" class="p-8 bg-black jetmono">
+                  <div v-else-if="mode === 'function'" class="p-8 bg-black">
                     <div class="max-w-2xl mx-auto">
                       <div class="flex items-start space-x-3 mb-6">
                         <svg class="w-8 h-8 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -338,7 +338,7 @@
 
                   <!-- Configuration and Create Button (hidden for Framework and Function modes) -->
                   <div v-if="mode !== 'framework' && mode !== 'function'" class="flex justify-between items-end p-4 border-t border-gray-500/10">
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 jetmono">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                       <!-- Language Select -->
                       <div class="relative">
                         <label class="block text-xs font-semibold mb-2 text-gray-300">Language</label>
