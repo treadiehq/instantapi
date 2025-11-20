@@ -6,10 +6,11 @@ Turn code into APIs instantly. Write JavaScript or Python, get a working API end
 
 Create APIs in seconds without setting up servers, deploying code, or writing configuration files.
 
-**Two ways to create APIs:**
+**Three ways to create APIs:**
 
 1. **Code Snippet** - Paste JS/Python code → Get instant API endpoint
-2. **Framework** - Expose your local dev server (like ngrok)
+2. **Framework Mode (CLI)** - Expose your local dev server (like ngrok)
+3. **Function Mode (SDK)** - Write functions, get serverless APIs
 
 ## Quick Start
 
@@ -84,8 +85,30 @@ Expose your local development server to the internet:
 # Your local server running on localhost:3000
 npm start
 
-# Expose it (coming soon)
-npx instant-api expose http://localhost:3000
+# Expose it via CLI
+npx @instantapi/cli expose http://localhost:3000/api
+
+# You get a public URL instantly
+# Public URL: http://localhost:3001/t/abc123
+```
+
+### 4. Function Mode (SDK)
+
+Write functions and expose them as APIs:
+
+```typescript
+// app.ts
+import { expose } from '@instantapi/sdk';
+
+expose('greet', (input) => {
+  return { message: `Hello ${input.name}!` };
+});
+
+// Terminal 1: Run functions
+node app.ts
+
+// Terminal 2: Expose to internet
+npx @instantapi/cli expose greet
 ```
 
 ## Authentication
