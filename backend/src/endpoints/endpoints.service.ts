@@ -97,6 +97,8 @@ export class EndpointsService {
 
   // List all endpoints for an organization
   async listEndpoints(organizationId: string) {
+    console.log(`📋 Listing endpoints for organization: ${organizationId}`);
+    
     const endpoints = await this.prisma.endpoint.findMany({
       where: {
         organizationId,
@@ -118,6 +120,8 @@ export class EndpointsService {
         expiresAt: true,
       },
     });
+
+    console.log(`📋 Found ${endpoints.length} endpoints for organization ${organizationId}`);
 
     const backendUrl = process.env.BACKEND_URL || 'http://localhost:3001';
 
