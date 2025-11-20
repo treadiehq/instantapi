@@ -27,10 +27,12 @@ export class EndpointsService {
 
     console.log(`✅ Created endpoint ${endpoint.id} (${endpoint.language}, ${kind}, TTL: ${ttlHours}h)`);
 
+    const backendUrl = process.env.BACKEND_URL || 'http://localhost:3001';
+
     return {
       id: endpoint.id,
       language: endpoint.language,
-      url: `http://localhost:3001/run/${endpoint.id}`,
+      url: `${backendUrl}/run/${endpoint.id}`,
       expiresAt: expiresAt.toISOString(),
       ttlHours,
       kind,
@@ -60,10 +62,12 @@ export class EndpointsService {
 
     console.log(`✅ Created file endpoint ${endpoint.id} (${endpoint.language}, ${kind}, TTL: ${ttlHours}h)`);
 
+    const backendUrl = process.env.BACKEND_URL || 'http://localhost:3001';
+
     return {
       id: endpoint.id,
       language: endpoint.language,
-      url: `http://localhost:3001/run/${endpoint.id}`,
+      url: `${backendUrl}/run/${endpoint.id}`,
       expiresAt: expiresAt.toISOString(),
       ttlHours,
       kind,
