@@ -158,6 +158,4 @@ node dist/index.js expose http://localhost:3000
 
 ## License
 
-FSL-1.1-MIT - See [LICENSE](../LICENSE)
-
-Built by [Treadie, Inc.](https://treadie.com)
+See [FSL-1.1-MIT](LICENSE) for full details.

@@ -246,12 +246,4 @@ curl http://localhost:3000  # Frontend
 
 ## License
 
-FSL-1.1-MIT (Fair Source License with MIT conversion after 2 years)
-
-See [LICENSE](LICENSE) for full details.
-
-**In short:**
-- Free for individuals and small teams
-- Source code available
-- Converts to MIT after 2 years
-- Built by [Treadie, Inc.](https://treadie.com)
+See [FSL-1.1-MIT](LICENSE) for full details.

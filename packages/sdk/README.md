@@ -248,6 +248,4 @@ curl http://localhost:7777/health
 
 ## License
 
-FSL-1.1-MIT - See [LICENSE](../../LICENSE)
-
-Built by [Treadie, Inc.](https://treadie.com)
+See [FSL-1.1-MIT](LICENSE) for full details.
