@@ -171,7 +171,7 @@ npx @instantapihq/cli expose greet
 **Backend** - Create `backend/.env`:
 ```env
 DATABASE_URL="postgresql://postgres:postgres@localhost:5432/instantapi"
-CLOUDFLARE_SANDBOX_URL="https://instant-api-sandbox.onboardbase.workers.dev"
+CLOUDFLARE_SANDBOX_URL="https://instant-api-sandbox.YOUR-NAME.workers.dev"
 BACKEND_URL="http://localhost:3001"
 FRONTEND_URL="http://localhost:3000"
 JWT_SECRET="your-secret-key-change-in-production"
@@ -180,7 +180,7 @@ PORT="3001"
 
 # Optional: For production email (uses console in dev)
 RESEND_API_KEY=""
-EMAIL_FROM="noreply@instantapi.com"
+EMAIL_FROM="noreply@yourcompany.com"
 ```
 
 **Frontend** - Create `frontend/.env`:
@@ -237,10 +237,6 @@ npm run dev
 curl http://localhost:3001/health  # Backend
 curl http://localhost:3000  # Frontend
 ```
-
-## Documentation
-
-- **[DEPLOYMENT.md](./DEPLOYMENT.md)** - Production deployment guide
 
 ---
 

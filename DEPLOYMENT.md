@@ -102,7 +102,7 @@ JWT_SECRET=<paste-generated-secret-here>
 
 # Email (get free key from resend.com)
 RESEND_API_KEY=re_<your-key>
-EMAIL_FROM=onboarding@resend.dev
+EMAIL_FROM=onboarding@yourcompany.com
 
 # URLs (update after deployment)
 BACKEND_URL=https://placeholder.railway.app
@@ -112,14 +112,14 @@ FRONTEND_URL=https://placeholder.railway.app
 **Generate Domain:**
 1. Go to **"Settings"** → **"Networking"**
 2. Click **"Generate Domain"**
-3. Copy the URL (like `https://instantapi-backend-production.up.railway.app`)
+3. Copy the URL (like `https://instantapi-backend-xxx.railway.app`)
 4. Update `BACKEND_URL` with this URL
 
 Wait for deployment to finish (~2 minutes).
 
 **Test Backend:**
 ```bash
-curl https://instantapi-backend-production.up.railway.app/health
+curl https://instantapi-backend-xxx.railway.app/health
 # Should return health check response
 ```
 
@@ -141,7 +141,7 @@ Click **"Variables"** tab:
 
 ```bash
 # Backend API URL (from step 4)
-NUXT_PUBLIC_API_BASE=https://instantapi-backend-production.up.railway.app
+NUXT_PUBLIC_API_BASE=https://instantapi-backend-xxx.railway.app
 
 NODE_ENV=production
 ```
@@ -156,7 +156,7 @@ NODE_ENV=production
 Go back to backend service → **"Variables"** and update:
 
 ```bash
-FRONTEND_URL=https://instantapi-frontend-production.up.railway.app
+FRONTEND_URL=https://instantapi-frontend-xxx.railway.app
 ```
 
 ### 6. Test Everything
@@ -173,7 +173,7 @@ function handler(input) {
 2. Click "Create API"
 3. Test the endpoint:
 ```bash
-curl -X POST https://instantapi-backend-production.up.railway.app/run/YOUR-ID \
+curl -X POST https://instantapi-backend-xxx.railway.app/run/YOUR-ID \
   -H "Content-Type: application/json" \
   -d '{"name": "Production"}'
 ```
