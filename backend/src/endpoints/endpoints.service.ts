@@ -119,9 +119,11 @@ export class EndpointsService {
       },
     });
 
+    const backendUrl = process.env.BACKEND_URL || 'http://localhost:3001';
+
     return endpoints.map(endpoint => ({
       ...endpoint,
-      url: `http://localhost:3001/run/${endpoint.id}`,
+      url: `${backendUrl}/run/${endpoint.id}`,
     }));
   }
 

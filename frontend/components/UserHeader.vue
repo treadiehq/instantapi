@@ -2,11 +2,11 @@
   <div class="bg-black border-b border-gray-500/20 px-6 py-2">
     <div class="max-w-7xl mx-auto flex items-center justify-between">
       <!-- Logo/Brand -->
-      <div class="flex items-center space-x-3">
+      <NuxtLink to="/" class="flex items-center space-x-3">
         <img src="/logo.png" alt="Echos" class="w-6 h-6" />
         <span class="text-sm text-gray-500/50">|</span>
         <span class="text-sm text-white font-medium">{{ user?.organizationName }}</span>
-      </div>
+      </NuxtLink>
 
       <!-- User Menu -->
       <div class="flex items-center space-x-4">
