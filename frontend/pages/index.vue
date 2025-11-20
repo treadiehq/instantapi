@@ -1418,13 +1418,6 @@ onMounted(() => {
     fetchDashboard()
   }
   
-  // Refresh dashboard every 30 seconds if authenticated
-  setInterval(() => {
-    if (isAuthenticated.value) {
-      fetchDashboard()
-    }
-  }, 30000)
-  
   // Handle Escape key for fullscreen editor
   const handleKeydown = (e: KeyboardEvent) => {
     if (e.key === 'Escape' && isEditorFullscreen.value) {
