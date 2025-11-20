@@ -587,8 +587,8 @@ eventSource.<span class="text-blue-300">onmessage</span> = (<span class="text-or
               ></span>
             </div>
 
-            <!-- Success Modal (only for authenticated users) -->
-            <Teleport to="body" v-if="isAuthenticated">
+            <!-- Success Modal -->
+            <Teleport to="body">
               <Transition
                 enter-active-class="transition-opacity duration-200"
                 enter-from-class="opacity-0"
