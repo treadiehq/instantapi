@@ -1,12 +1,2 @@
 [phases.setup]
-nixPkgs = ['nodejs_18', 'npm-9_x']
-
-[phases.install]
-cmds = ['npm i']
-
-[phases.build]
-cmds = ['npm run build']
-
-[start]
-cmd = 'chmod +x start.sh && ./start.sh'
-
+nixPkgs = ['nodejs-20_x', 'npm-10_x']
