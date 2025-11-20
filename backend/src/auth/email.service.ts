@@ -118,7 +118,7 @@ export class EmailService {
     // Production: send via Resend
     try {
       await this.resend.emails.send({
-        from: this.config.get('EMAIL_FROM') || 'Instant API <noreply@instantapi.com>',
+        from: this.config.get('EMAIL_FROM') || 'Instant API <noreply@instantapi.co>',
         to: email,
         subject: 'Sign in to Instant API',
         html: `

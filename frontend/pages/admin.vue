@@ -51,18 +51,40 @@
       <div class="bg-gray-500/5 border border-gray-500/15 rounded-lg p-4 mb-6">
         <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
           <!-- Auth Type Filter -->
-          <select v-model="filters.authType" @change="loadEndpoints" class="bg-gray-500/5 border border-gray-500/10 rounded-lg px-3 py-2 text-sm text-white">
-            <option value="all">All Types</option>
-            <option value="authenticated">Authenticated Only</option>
-            <option value="unauthenticated">Unauthenticated Only</option>
-          </select>
+          <div class="relative">
+            <select 
+              v-model="filters.authType" 
+              @change="loadEndpoints" 
+              class="block w-full appearance-none rounded-lg bg-gray-500/5 py-2.5 pl-4 pr-10 text-sm font-medium text-white border border-gray-500/10 hover:bg-gray-500/10 focus:outline-none focus:ring-2 focus:ring-gray-500/10 transition-all duration-150"
+            >
+              <option value="all">All Types</option>
+              <option value="authenticated">Authenticated Only</option>
+              <option value="unauthenticated">Unauthenticated Only</option>
+            </select>
+            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+              <svg class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M10 3a.75.75 0 01.55.24l3.25 3.5a.75.75 0 11-1.1 1.02L10 4.852 7.3 7.76a.75.75 0 01-1.1-1.02l3.25-3.5A.75.75 0 0110 3zm-3.76 9.2a.75.75 0 011.06.04l2.7 2.908 2.7-2.908a.75.75 0 111.1 1.02l-3.25 3.5a.75.75 0 01-1.1 0l-3.25-3.5a.75.75 0 01.04-1.06z" clip-rule="evenodd" />
+              </svg>
+            </div>
+          </div>
 
           <!-- Language Filter -->
-          <select v-model="filters.language" @change="loadEndpoints" class="bg-gray-500/5 border border-gray-500/10 rounded-lg px-3 py-2 text-sm text-white">
-            <option value="all">All Languages</option>
-            <option value="javascript">JavaScript</option>
-            <option value="python">Python</option>
-          </select>
+          <div class="relative">
+            <select 
+              v-model="filters.language" 
+              @change="loadEndpoints" 
+              class="block w-full appearance-none rounded-lg bg-gray-500/5 py-2.5 pl-4 pr-10 text-sm font-medium text-white border border-gray-500/10 hover:bg-gray-500/10 focus:outline-none focus:ring-2 focus:ring-gray-500/10 transition-all duration-150"
+            >
+              <option value="all">All Languages</option>
+              <option value="javascript">JavaScript</option>
+              <option value="python">Python</option>
+            </select>
+            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2">
+              <svg class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M10 3a.75.75 0 01.55.24l3.25 3.5a.75.75 0 11-1.1 1.02L10 4.852 7.3 7.76a.75.75 0 01-1.1-1.02l3.25-3.5A.75.75 0 0110 3zm-3.76 9.2a.75.75 0 011.06.04l2.7 2.908 2.7-2.908a.75.75 0 111.1 1.02l-3.25 3.5a.75.75 0 01-1.1 0l-3.25-3.5a.75.75 0 01.04-1.06z" clip-rule="evenodd" />
+              </svg>
+            </div>
+          </div>
 
           <!-- Search -->
           <input
