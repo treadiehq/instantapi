@@ -1,8 +1,8 @@
 #!/bin/sh
 cd /app
-ls -la .output/
-ls -la .output/public/ || echo "No public directory found"
-ls -la .output/server/ || echo "No server directory found"
+# Create symlink or copy public directory to where Nitro expects it
+mkdir -p .output/server/chunks/public
+cp -r .output/public/* .output/server/chunks/public/ 2>/dev/null || ln -s /app/.output/public/* /app/.output/server/chunks/public/ 2>/dev/null || true
 echo "Starting Nitro server..."
 node .output/server/index.mjs
 
