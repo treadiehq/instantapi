@@ -196,13 +196,6 @@ curl http://localhost:3001/health  # Backend
 curl http://localhost:3000  # Frontend
 ```
 
-## Tech Stack
-
-- **Frontend**: Nuxt 3, Vue 3, TailwindCSS
-- **Backend**: NestJS, Prisma, PostgreSQL
-- **Code Execution**: Cloudflare Workers with Sandbox SDK
-- **Auth**: Magic link (passwordless)
-
 ## Documentation
 
 - **[DEPLOYMENT.md](./DEPLOYMENT.md)** - Production deployment guide

@@ -1,14 +1,13 @@
 # Cloudflare Sandbox Worker
 
-This worker executes user-provided JavaScript and Python code safely using the production [Cloudflare Sandbox SDK](https://developers.cloudflare.com/sandbox/).
+Executes user JavaScript and Python code safely using [Cloudflare Sandbox SDK](https://developers.cloudflare.com/sandbox/).
 
-## Features
+## What It Does
 
-✅ **JavaScript Execution** - Run Node.js code in isolated containers  
-✅ **Python Execution** - Run Python code with full standard library support  
-✅ **Isolated Environments** - Each execution runs in a secure container  
-✅ **Console Logging** - Capture stdout/stderr from code execution  
-✅ **Error Handling** - Safe error isolation and reporting  
+- ✅ Runs JavaScript (Node.js) and Python 3
+- ✅ Isolated containers for each execution
+- ✅ Captures console output and errors
+- ✅ Production-grade security
 
 ## Quick Start
 
@@ -16,74 +15,84 @@ This worker executes user-provided JavaScript and Python code safely using the p
 # Install dependencies
 npm install
 
-# Start development server
-npm run dev
-
-# Deploy to Cloudflare (requires account and Workers Paid plan)
-npm run deploy
+# Deploy to Cloudflare
+npx wrangler deploy
 ```
+
+**Note:** Requires Cloudflare Workers Paid plan ($5/month).
 
 ## Development
 
-The worker runs on `http://localhost:8787` during development.
+```bash
+# Start local server
+npm run dev
 
-### Endpoints
+# Test locally
+curl http://localhost:8787/run
+```
 
-- `GET /` - Health check
-- `POST /execute` - Execute code
+## API Endpoints
 
-### Request Format
+### Health Check
+```bash
+GET /
 
-```json
+Response:
 {
-  "code": "function handler(input) { return { message: 'Hello' }; }",
-  "language": "javascript",
-  "input": { "name": "World" }
+  "status": "ok",
+  "service": "instant-api-sandbox-worker",
+  "timestamp": "2025-11-20T...",
+  "sdk": "@cloudflare/sandbox"
 }
 ```
 
-### Response Format
+### Execute Code
+```bash
+POST /execute
 
-```json
+Request:
 {
-  "result": { "message": "Hello" },
-  "logs": ["console.log output"],
+  "code": "function handler(input) { return { result: input.a + input.b }; }",
+  "language": "javascript",
+  "input": { "a": 5, "b": 3 }
+}
+
+Response:
+{
+  "result": { "result": 8 },
+  "logs": [],
+  "durationMs": 150,
   "error": null
 }
 ```
 
-## Production Deployment
+## Deployment
 
-To deploy to Cloudflare:
+1. Install Wrangler: `npm install -g wrangler`
+2. Login: `wrangler login`
+3. Upgrade to Workers Paid plan at https://dash.cloudflare.com
+4. Deploy: `npx wrangler deploy`
 
-1. Create a Cloudflare account with Workers Paid plan
-2. Install Wrangler CLI: `npm install -g wrangler`
-3. Login: `wrangler login`
-4. Deploy: `npm run deploy`
+**After first deployment**, wait 2-3 minutes for containers to provision.
 
-**Note**: Cloudflare Sandbox requires a Workers Paid plan ($5/month minimum).
+## Configuration
 
-## How It Works
-
-This worker uses the `@cloudflare/sandbox` SDK which:
-
-- Creates isolated containers for each execution
-- Supports JavaScript (Node.js) and Python natively
-- Provides automatic timeout and resource management
-- Captures logs and results
-- Ensures strong security boundaries
-
-Learn more: https://developers.cloudflare.com/sandbox/
+See `wrangler.toml` for:
+- Container configuration
+- Durable Objects setup
+- Compatibility settings
 
 ## Security
 
-The Cloudflare Sandbox SDK provides:
-- ✅ Complete isolation via containers
-- ✅ Automatic timeout limits
-- ✅ Memory and CPU limits
-- ✅ Network isolation
-- ✅ File system isolation
-- ✅ Process isolation
+The Cloudflare Sandbox provides:
+- Complete process isolation
+- Automatic resource limits (CPU, memory, network)
+- Execution timeouts
+- File system isolation
 
-This is production-grade security suitable for running untrusted user code.
+Safe for running untrusted user code.
 
+## Learn More
+
+- [Cloudflare Sandbox Docs](https://developers.cloudflare.com/sandbox/)
+- [Wrangler CLI](https://developers.cloudflare.com/workers/wrangler/)
