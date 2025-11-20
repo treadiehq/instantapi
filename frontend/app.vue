@@ -1,7 +1,7 @@
 <template>
   <div>
     <ClientOnly>
-      <NuxtPage />
+    <NuxtPage />
       <template #fallback>
         <SkeletonLoader :show-dashboard="false" />
       </template>

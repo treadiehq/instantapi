@@ -1,52 +1,15 @@
 <template>
   <div class="min-h-screen relative">
-    <!-- Skeleton loader while auth initializes -->
-    <SkeletonLoader v-if="!authInitialized" :show-dashboard="false" />
-
-    <!-- Main content after auth is initialized -->
-    <div v-else>
-      <div class="radial-gradient absolute top-0 md:right-14 right-5"></div>
-      
-    <!-- Public Header -->
-    <header class="border-b border-gray-500/20 bg-black/80 backdrop-blur-sm sticky top-0 z-50">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-0">
-        <div class="flex items-center justify-between h-12">
-          <div class="flex items-center space-x-3">
-            <img src="/logo.png" alt="Instant API" class="w-6 h-6" />
-            <h1 class="text-base font-medium text-white">Instant API</h1>
-          </div>
-          <nav class="flex items-center space-x-4">
-            <a href="https://github.com/treadiehq/instantapi" class="text-gray-500 hover:text-white transition-colors cursor-pointer" title="GitHub" target="_blank" rel="noopener noreferrer">
-                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                    <path fill-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clip-rule="evenodd"></path>
-                </svg>
-            </a>
-            <NuxtLink to="/login" class="text-sm btn-secondary py-1.5! px-4!">
-              Sign in
-            </NuxtLink>
-          </nav>
-        </div>
-      </div>
-    </header>
+    <!-- User Header -->
+    <UserHeader />
 
     <!-- Main Content -->
     <div class="py-12 px-4 sm:px-6 lg:px-0 antialiased">
-      <div class="max-w-4xl mx-auto">
-        <!-- Hero Section -->
-        <div class="mt-6 md:mt-12 max-w-4xl mb-20">
-          <h1 class="mb-5 text-3xl font-bold sm:mb-6 sm:text-5xl leading-tight text-white">
-            Turn your <span class="bg-blue-300 px-1 text-black">code</span> into <span class="bg-amber-300 px-1 text-black">API</span> instantly
-          </h1>
-          <p class="text-gray-400 text-sm leading-[1.6] sm:text-base">
-            Paste your code or upload a file, and get a 
-            secure endpoint you can call from anywhere. 
-            No servers, no deploy, no config.
-          </p>
-        </div>
-        <!-- Single Column Layout (public) -->
-        <div>
+      <div class="max-w-7xl mx-auto">
+        <!-- Two Column Layout (authenticated dashboard) -->
+        <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
           <!-- Main Card -->
-          <div>
+          <div class="lg:col-span-3">
             <div class="border bg-gray-500/5 border-gray-500/15 relative inner-container -mb-px -ml-px">
               <div class="border border-t-0 border-l-0 border-r-0 border-gray-500/10">
                 <div>
@@ -65,7 +28,6 @@
                         Snippet
                       </button>
                       <button
-                        v-if="isAuthenticated"
                         @click="switchToFileMode"
                         :class="[
                           'px-6 py-3 text-sm font-medium transition-colors',
@@ -88,7 +50,6 @@
                         Framework
                       </button>
                       <button
-                        v-if="isAuthenticated"
                         @click="switchToFunctionMode"
                         :class="[
                           'px-6 py-3 text-sm font-medium transition-colors',
@@ -100,7 +61,6 @@
                         Function
                       </button>
                       <button
-                        v-if="isAuthenticated"
                         @click="switchToStreamMode"
                         :class="[
                           'px-6 py-3 text-sm font-medium transition-colors',
@@ -117,9 +77,9 @@
                   <!-- Configuration Panel (hidden for Framework, Function, and Stream modes) -->
                   <div v-if="mode !== 'framework' && mode !== 'function' && mode !== 'stream'" class="p-4 border-b border-gray-500/10">
                     <!-- Optional Fields -->
-                    <div :class="isAuthenticated ? 'grid grid-cols-1 md:grid-cols-2 gap-4' : ''">
-                      <!-- Name field (only for authenticated users) -->
-                      <div v-if="isAuthenticated">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <!-- Name field -->
+                      <div>
                         <input
                           v-model="endpointName"
                           :disabled="loading.create"
@@ -926,7 +886,128 @@ eventSource.<span class="text-blue-300">onmessage</span> = (<span class="text-or
             </Teleport>
           </div>
         
-          <!-- My APIs Dashboard moved to /dashboard -->
+          <!-- My APIs Dashboard (right column for authenticated users) -->
+          <div v-if="isAuthenticated" class="lg:col-span-2 lg:sticky lg:top-6 lg:self-start">
+            <h2 class="text-lg font-bold text-white mb-4">My APIs</h2>
+            
+            <div v-if="loading.dashboard" class="text-center py-8">
+              <svg class="animate-spin h-6 w-6 text-blue-300 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              <p class="text-gray-400 mt-3 text-sm">Loading...</p>
+            </div>
+
+            <div v-else-if="!endpoints.length && !tunnels.length" class="border border-gray-500/15 rounded-lg p-8 text-center bg-gray-500/5">
+              <div class="flex flex-col items-center space-y-4">
+                <svg class="w-12 h-12 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                </svg>
+                <div class="space-y-1">
+                  <p class="text-white text-sm font-medium">No APIs yet</p>
+                  <p class="text-gray-400 text-xs">Create your first API to get started</p>
+                </div>
+                <button 
+                  @click="switchToSnippetMode"
+                  class="mt-2 px-4 py-2 bg-blue-300/10 hover:bg-blue-300/20 text-blue-300 text-xs font-medium rounded-lg transition-colors"
+                >
+                  Create Your First API →
+                </button>
+              </div>
+            </div>
+
+            <div v-else class="space-y-3 max-h-[calc(100vh-200px)] overflow-y-auto">
+              <!-- Endpoints Section -->
+              <div v-if="endpoints.length > 0">
+                <h3 class="text-xs font-semibold text-gray-400 mb-2 uppercase tracking-wide">Endpoints ({{ endpoints.length }})</h3>
+                <div class="space-y-2">
+                  <div v-for="endpoint in paginatedEndpoints" :key="endpoint.id" class="border border-gray-500/15 rounded-lg p-3 bg-gray-500/5 hover:bg-gray-500/10 transition-colors">
+                    <div class="space-y-2">
+                      <div class="flex items-center gap-1.5 flex-wrap">
+                        <span class="text-xs px-1.5 py-0.5 rounded bg-blue-300/10 text-blue-300">{{ endpoint.kind }}</span>
+                        <span class="text-xs px-1.5 py-0.5 rounded bg-gray-500/20 text-gray-400">{{ endpoint.language }}</span>
+                        <span v-if="endpoint.name" class="text-xs font-medium text-white truncate">{{ endpoint.name }}</span>
+                      </div>
+                      <p v-if="endpoint.description" class="text-xs text-gray-400 line-clamp-2">{{ endpoint.description }}</p>
+                      <div class="flex items-center justify-between">
+                        <span class="text-xs text-gray-500">{{ formatDate(endpoint.createdAt) }}</span>
+                        <div class="flex gap-2">
+                          <button 
+                            @click="copyToClipboard(endpoint.url, `endpoint-${endpoint.id}`)" 
+                            :class="[
+                              'text-xs px-2 py-1 rounded transition-colors',
+                              isCopied(`endpoint-${endpoint.id}`)
+                                ? 'bg-green-300/10 text-green-300'
+                                : 'bg-gray-500/10 text-gray-300 hover:bg-gray-500/20'
+                            ]"
+                          >
+                            {{ isCopied(`endpoint-${endpoint.id}`) ? '✓ Copied' : 'Copy' }}
+                          </button>
+                          <button 
+                            @click="confirmDeleteEndpoint(endpoint)" 
+                            :disabled="deletingEndpointId === endpoint.id"
+                            class="text-xs px-2 py-1 rounded bg-red-400/10 text-red-400 hover:bg-red-500/20 transition-colors disabled:opacity-50"
+                          >
+                            {{ deletingEndpointId === endpoint.id ? '...' : 'Delete' }}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- Show More Button for Endpoints -->
+                <button 
+                  v-if="hasMoreEndpoints"
+                  @click="endpointsPage++"
+                  class="mt-2 w-full text-xs py-2 px-3 rounded bg-gray-500/5 hover:bg-gray-500/10 text-gray-400 hover:text-gray-300 transition-colors"
+                >
+                  Show More ({{ endpoints.length - paginatedEndpoints.length }} more)
+                </button>
+              </div>
+
+              <!-- Tunnels Section -->
+              <div v-if="tunnels.length > 0" class="mt-4">
+                <h3 class="text-xs font-semibold text-gray-400 mb-2 uppercase tracking-wide">Tunnels ({{ tunnels.length }})</h3>
+                <div class="space-y-2">
+                  <div v-for="tunnel in paginatedTunnels" :key="tunnel.id" class="border border-gray-500/15 rounded-lg p-3 bg-gray-500/5 hover:bg-gray-500/10 transition-colors">
+                    <div class="space-y-2">
+                      <div class="flex items-center gap-1.5 flex-wrap">
+                        <span class="text-xs px-1.5 py-0.5 rounded bg-green-300/10 text-green-300">
+                          {{ tunnel.targetUrl.includes('/fn/') ? 'function' : 'framework' }}
+                        </span>
+                        <span class="text-xs px-1.5 py-0.5 rounded" :class="tunnel.isActive ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'">
+                          {{ tunnel.isActive ? 'active' : 'inactive' }}
+                        </span>
+                      </div>
+                      <p class="text-xs text-gray-400 font-mono truncate">→ {{ tunnel.targetUrl }}</p>
+                      <div class="flex items-center justify-between">
+                        <span class="text-xs text-gray-500">{{ formatDate(tunnel.lastSeenAt) }}</span>
+                        <button 
+                          @click="copyToClipboard(`${API_BASE}/t/${tunnel.id}`, `tunnel-${tunnel.id}`)"
+                          :class="[
+                            'text-xs px-2 py-1 rounded transition-colors',
+                            isCopied(`tunnel-${tunnel.id}`)
+                              ? 'bg-green-500/10 text-green-400'
+                              : 'bg-gray-500/10 text-gray-300 hover:bg-gray-500/20'
+                          ]"
+                        >
+                          {{ isCopied(`tunnel-${tunnel.id}`) ? '✓ Copied' : 'Copy' }}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- Show More Button for Tunnels -->
+                <button 
+                  v-if="hasMoreTunnels"
+                  @click="tunnelsPage++"
+                  class="mt-2 w-full text-xs py-2 px-3 rounded bg-gray-500/5 hover:bg-gray-500/10 text-gray-400 hover:text-gray-300 transition-colors"
+                >
+                  Show More ({{ tunnels.length - paginatedTunnels.length }} more)
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -1034,6 +1115,11 @@ eventSource.<span class="text-blue-300">onmessage</span> = (<span class="text-or
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
+
+// Require authentication for this page
+definePageMeta({
+  middleware: 'auth'
+})
 
 const config = useRuntimeConfig()
 const API_BASE = config.public.apiBase
@@ -2023,17 +2109,21 @@ useHead({
 // Check auth state (auth is initialized by plugin)
 const { isAuthenticated, initialized: authInitialized } = useAuth();
 
-// Redirect authenticated users to dashboard
+// Ensure non-authenticated users can only use 1 hour TTL and clear name/description
 watch(isAuthenticated, (authenticated) => {
-  if (authenticated && authInitialized.value) {
-    router.push('/dashboard')
+  if (!authenticated) {
+    if (ttlHours.value > 1) {
+      ttlHours.value = 1
+    }
+    // Clear name and description for non-authenticated users
+    endpointName.value = ''
+    endpointDescription.value = ''
+    // Clear dashboard data
+    endpoints.value = []
+    tunnels.value = []
+  } else {
+    // Fetch dashboard data when user logs in
+    fetchDashboard()
   }
-})
-
-// Check on mount as well
-onMounted(() => {
-  if (isAuthenticated.value && authInitialized.value) {
-    router.push('/dashboard')
-  }
-})
+});
 </script>

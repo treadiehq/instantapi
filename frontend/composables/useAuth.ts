@@ -86,6 +86,9 @@ export const useAuth = () => {
         localStorage.setItem('instant_api_user', JSON.stringify(response.user));
       }
       
+      // Redirect to dashboard after successful login
+      router.push('/dashboard');
+      
       return response;
     } catch (error: any) {
       throw new Error(error.data?.message || 'Verification failed');
@@ -121,7 +124,7 @@ export const useAuth = () => {
   // Logout
   const logout = () => {
     clearAuth();
-    router.push('/login');
+    router.push('/');
   };
 
   // Check if authenticated
