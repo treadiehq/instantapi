@@ -34,5 +34,15 @@ export default defineNuxtConfig({
       apiBase: 'http://localhost:3001',
     },
   },
+
+  nitro: {
+    preset: 'node-server',
+    output: {
+      dir: '.output',
+      serverDir: '.output/server',
+      publicDir: '.output/public'
+    },
+    serveStatic: true,
+  },
 })
 
