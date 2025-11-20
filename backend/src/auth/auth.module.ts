@@ -5,6 +5,7 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { EmailService } from './email.service';
 import { AuthGuard } from './guards/auth.guard';
+import { OptionalAuthGuard } from './guards/optional-auth.guard';
 import { PrismaService } from '../prisma.service';
 
 @Module({
@@ -19,8 +20,8 @@ import { PrismaService } from '../prisma.service';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, EmailService, AuthGuard, PrismaService],
-  exports: [AuthService, AuthGuard],
+  providers: [AuthService, EmailService, AuthGuard, OptionalAuthGuard, PrismaService],
+  exports: [AuthService, AuthGuard, OptionalAuthGuard],
 })
 export class AuthModule {}
 

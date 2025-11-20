@@ -18,6 +18,7 @@ import { EndpointsService } from './endpoints.service';
 import { ExecutionService } from './execution.service';
 import { CreateEndpointDto, CreateFileEndpointDto } from './dto/create-endpoint.dto';
 import { AuthGuard } from '../auth/guards/auth.guard';
+import { OptionalAuthGuard } from '../auth/guards/optional-auth.guard';
 
 @Controller()
 export class EndpointsController {
@@ -42,9 +43,10 @@ export class EndpointsController {
    * Create a new API endpoint from snippet
    * POST /api/endpoints
    * Body: { language: "javascript" | "python", code: string, name?: string, description?: string, ttlHours?: number, kind?: "snippet" | "webhook" }
-   * Auth is optional - non-authenticated users can create with restrictions
+   * Auth is optional - non-authenticated users can create with 1h TTL restriction
    */
   @Post('api/endpoints')
+  @UseGuards(OptionalAuthGuard)
   @HttpCode(HttpStatus.CREATED)
   async createEndpoint(
     @Body() createEndpointDto: CreateEndpointDto,
@@ -65,7 +67,7 @@ export class EndpointsController {
 
     const organizationId = req.user?.organizationId || null;
 
-    console.log('🔑 Creating endpoint with organizationId:', organizationId, 'from user:', req.user?.email);
+    console.log('🔑 Creating endpoint with organizationId:', organizationId, 'from user:', req.user?.email || 'Anonymous');
 
     return this.endpointsService.createEndpoint(
       createEndpointDto,
