@@ -86,7 +86,7 @@ Expose your local development server to the internet:
 npm start
 
 # Expose it via CLI
-npx @instantapi/cli expose http://localhost:3000/api
+npx @instantapihq/cli expose http://localhost:3000/api
 
 # You get a public URL instantly
 # Public URL: http://localhost:3001/t/abc123
@@ -103,7 +103,7 @@ app.get('/events', (req, res) => {
 });
 
 // Expose it
-npx @instantapi/cli expose http://localhost:3000/events
+npx @instantapihq/cli expose http://localhost:3000/events
 
 // Stream from public URL
 curl -N http://localhost:3001/t/abc123
@@ -115,7 +115,7 @@ Write functions and expose them as APIs:
 
 ```typescript
 // app.ts
-import { expose } from '@instantapi/sdk';
+import { expose } from '@instantapihq/sdk';
 
 expose('greet', (input) => {
   return { message: `Hello ${input.name}!` };
@@ -125,7 +125,7 @@ expose('greet', (input) => {
 node app.ts
 
 // Terminal 2: Expose to internet
-npx @instantapi/cli expose greet
+npx @instantapihq/cli expose greet
 ```
 
 ## Authentication
@@ -246,4 +246,12 @@ curl http://localhost:3000  # Frontend
 
 ## License
 
-FSL-1.1-MIT - See [LICENSE](LICENSE)
+FSL-1.1-MIT (Fair Source License with MIT conversion after 2 years)
+
+See [LICENSE](LICENSE) for full details.
+
+**In short:**
+- Free for individuals and small teams
+- Source code available
+- Converts to MIT after 2 years
+- Built by [Treadie, Inc.](https://treadie.com)

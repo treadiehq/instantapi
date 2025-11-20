@@ -5,13 +5,13 @@ Share your local server with the internet, like ngrok but integrated with Instan
 ## Install
 
 ```bash
-npm install -g @instantapi/cli
+npm install -g @instantapihq/cli
 ```
 
 Or use directly with npx:
 
 ```bash
-npx instant-api expose http://localhost:3000/api
+npx @instantapihq/cli expose http://localhost:3000/api
 ```
 
 ## Usage
@@ -155,3 +155,9 @@ node dist/index.js expose http://localhost:3000
 **Tunnel expired:**
 - Without auth, tunnels last 1 hour
 - Sign up and set API key for longer tunnels
+
+## License
+
+FSL-1.1-MIT - See [LICENSE](../LICENSE)
+
+Built by [Treadie, Inc.](https://treadie.com)

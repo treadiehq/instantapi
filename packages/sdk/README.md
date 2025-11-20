@@ -1,17 +1,17 @@
-# @instantapi/sdk
+# @instantapihq/sdk
 
 Write functions, get APIs. No servers, no deploy, no boilerplate.
 
 ## Install
 
 ```bash
-npm install @instantapi/sdk
+npm install @instantapihq/sdk
 ```
 
 ## Quick Start
 
 ```typescript
-import { expose } from '@instantapi/sdk';
+import { expose } from '@instantapihq/sdk';
 
 // Define a function
 expose('greet', (input) => {
@@ -28,7 +28,7 @@ Run it:
 node app.js
 
 # Terminal 2: Expose to internet
-npx instant-api expose greet
+npx @instantapihq/cli expose greet
 # CLI auto-detects and exposes http://localhost:7777/fn/greet
 
 # Terminal 3: Call your API
@@ -78,7 +78,7 @@ process.on('SIGINT', async () => {
 ### Basic Function
 
 ```typescript
-import { expose } from '@instantapi/sdk';
+import { expose } from '@instantapihq/sdk';
 
 expose('add', (input) => {
   return { result: input.a + input.b };
@@ -98,7 +98,7 @@ expose('fetchUser', async (input) => {
 ### Database Query
 
 ```typescript
-import { expose } from '@instantapi/sdk';
+import { expose } from '@instantapihq/sdk';
 import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
@@ -124,7 +124,7 @@ expose('getUser', async (input) => {
 ### Multiple Functions
 
 ```typescript
-import { expose } from '@instantapi/sdk';
+import { expose } from '@instantapihq/sdk';
 
 // Data processing
 expose('sum', (input) => {
@@ -192,7 +192,7 @@ Function mode requires an API key:
 export INSTANT_API_KEY=ik_your_key_here
 
 # 4. Expose functions
-npx instant-api expose myFunction
+npx @instantapihq/cli expose myFunction
 ```
 
 ## Metadata File
@@ -243,9 +243,11 @@ curl http://localhost:7777/health
 ## Requirements
 
 - Node.js 18+
-- @instantapi/cli for exposing functions
+- @instantapihq/cli for exposing functions
 - Instant API backend (local or production)
 
 ## License
 
-MIT
+FSL-1.1-MIT - See [LICENSE](../../LICENSE)
+
+Built by [Treadie, Inc.](https://treadie.com)

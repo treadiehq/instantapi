@@ -155,7 +155,7 @@ const sdk = new InstantAPISDK();
  * 
  * @example
  * ```typescript
- * import { expose } from '@instantapi/sdk';
+ * import { expose } from '@instantapihq/sdk';
  * 
  * expose('hello', (input) => {
  *   return { message: `Hello, ${input.name}!` };
@@ -169,9 +169,9 @@ const sdk = new InstantAPISDK();
  * 
  * Then run:
  * ```bash
- * npx instant-api expose hello
+ * npx @instantapihq/cli expose hello
  * # or
- * npx instant-api expose http://localhost:7777/fn/hello
+ * npx @instantapihq/cli expose http://localhost:7777/fn/hello
  * ```
  */
 export async function expose(name: string, handler: FunctionHandler): Promise<void> {
