@@ -1113,12 +1113,12 @@ eventSource.<span class="text-blue-300">onmessage</span> = (<span class="text-or
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
-
 // Require authentication for this page
 definePageMeta({
   middleware: 'auth'
 })
+
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 
 const config = useRuntimeConfig()
 const API_BASE = config.public.apiBase
