@@ -12,7 +12,7 @@ import { getSandbox } from '@cloudflare/sandbox';
 export { Sandbox } from '@cloudflare/sandbox';
 
 export interface Env {
-  SANDBOX: any; // Sandbox binding
+  Sandbox: any; // Sandbox binding (note: capital S, not SANDBOX)
 }
 
 interface ExecutionRequest {
@@ -151,10 +151,10 @@ async function executeJavaScript(
   
   try {
     // Check if Sandbox binding is available (production)
-    if (env.SANDBOX) {
+    if (env.Sandbox) {
       // Get sandbox instance (unique per execution)
       const sessionId = `js-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-      const sandbox = getSandbox(env.SANDBOX, sessionId);
+      const sandbox = getSandbox(env.Sandbox, sessionId);
 
       // Create a Node.js execution context with fetch enabled
       const ctx = await sandbox.createCodeContext({ language: 'javascript' });
@@ -236,10 +236,10 @@ async function executePython(
   
   try {
     // Check if Sandbox binding is available (production)
-    if (env.SANDBOX) {
+    if (env.Sandbox) {
       // Get sandbox instance (unique per execution)
       const sessionId = `py-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-      const sandbox = getSandbox(env.SANDBOX, sessionId);
+      const sandbox = getSandbox(env.Sandbox, sessionId);
 
       // Create a Python execution context
       const ctx = await sandbox.createCodeContext({ language: 'python' });

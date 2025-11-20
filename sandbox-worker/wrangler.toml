@@ -3,8 +3,6 @@ main = "src/index.ts"
 compatibility_date = "2024-01-01"
 compatibility_flags = ["nodejs_compat"]
 
-# Cloudflare Sandbox - Enable via Dashboard
-# 1. Upgrade to Workers Paid plan
-# 2. Go to Workers & Pages → instant-api-sandbox → Settings → Bindings
-# 3. Add Sandbox binding named "SANDBOX"
+# Cloudflare Sandbox binding
+# Configure via Dashboard: Workers & Pages → instant-api-sandbox → Settings → Variables → Add Binding
 
