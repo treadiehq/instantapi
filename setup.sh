@@ -53,14 +53,32 @@ fi
 
 # Backend .env
 if [ ! -f backend/.env ]; then
+    # Generate a random JWT secret
+    JWT_SECRET=$(openssl rand -base64 32 2>/dev/null || echo "CHANGE_ME_$(date +%s)_$(openssl rand -hex 16 2>/dev/null || echo 'random')")
+    
     cat > backend/.env << EOF
 DATABASE_URL=postgresql://instant:instant@localhost:5432/instant?schema=public
 CLOUDFLARE_SANDBOX_URL=http://localhost:8787
 PORT=3001
+BACKEND_URL=http://localhost:3001
+FRONTEND_URL=http://localhost:3000
+JWT_SECRET=$JWT_SECRET
+RESEND_API_KEY=
+EMAIL_FROM=noreply@instantapi.com
 EOF
-    echo "✅ Created backend/.env"
+    echo "✅ Created backend/.env with generated JWT_SECRET"
 else
     echo "⚠️  backend/.env already exists, skipping"
+fi
+
+# Frontend .env
+if [ ! -f frontend/.env ]; then
+    cat > frontend/.env << EOF
+VITE_API_BASE=http://localhost:3001
+EOF
+    echo "✅ Created frontend/.env"
+else
+    echo "⚠️  frontend/.env already exists, skipping"
 fi
 
 echo ""
@@ -82,28 +100,29 @@ echo ""
 
 # Run migrations
 echo "🗄️  Running database migrations..."
-echo "   When prompted, enter migration name: init"
-npm run prisma:migrate
+cd backend
+npx prisma migrate deploy
+cd ..
 echo ""
 
 echo "✅ Setup complete!"
 echo ""
 echo "📋 Next steps:"
 echo ""
-echo "1. Start the Sandbox Worker (in a new terminal):"
-echo "   cd sandbox-worker && npm run dev"
-echo ""
-echo "2. Start the Backend (in a new terminal):"
-echo "   cd backend && npm run start:dev"
-echo ""
-echo "3. Start the Frontend (in a new terminal):"
-echo "   cd frontend && npm run dev"
-echo ""
-echo "4. Open your browser:"
-echo "   http://localhost:3000"
-echo ""
-echo "Or run all services with:"
+echo "Option 1: Run all services at once (recommended):"
 echo "   ./start.sh"
+echo ""
+echo "Option 2: Run services manually in separate terminals:"
+echo "   Terminal 1: cd sandbox-worker && npm run dev"
+echo "   Terminal 2: cd backend && npm run start:dev"
+echo "   Terminal 3: cd frontend && npm run dev"
+echo ""
+echo "Then open: http://localhost:3000"
+echo ""
+echo "📝 Notes:"
+echo "   - Magic links are printed to backend console in development"
+echo "   - For production, set RESEND_API_KEY in backend/.env"
+echo "   - JWT_SECRET has been auto-generated for you"
 echo ""
 echo "🎉 Happy coding!"
 
