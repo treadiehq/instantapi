@@ -1026,7 +1026,7 @@ eventSource.<span class="text-blue-300">onmessage</span> = (<span class="text-or
                       <div class="flex items-center justify-between">
                         <span class="text-xs text-gray-500">{{ formatDate(tunnel.lastSeenAt) }}</span>
                         <button 
-                          @click="copyToClipboard(`http://localhost:3001/t/${tunnel.id}`, `tunnel-${tunnel.id}`)"
+                          @click="copyToClipboard(`${API_BASE}/t/${tunnel.id}`, `tunnel-${tunnel.id}`)"
                           :class="[
                             'text-xs px-2 py-1 rounded transition-colors',
                             isCopied(`tunnel-${tunnel.id}`)
