@@ -987,7 +987,7 @@ eventSource.<span class="text-blue-300">onmessage</span> = (<span class="text-or
                             {{ isCopied(`endpoint-${endpoint.id}`) ? '✓ Copied' : 'Copy' }}
                           </button>
                           <button 
-                            @click="deleteEndpoint(endpoint.id)" 
+                            @click="confirmDeleteEndpoint(endpoint)" 
                             :disabled="deletingEndpointId === endpoint.id"
                             class="text-xs px-2 py-1 rounded bg-red-400/10 text-red-400 hover:bg-red-500/20 transition-colors disabled:opacity-50"
                           >
@@ -1110,6 +1110,48 @@ eventSource.<span class="text-blue-300">onmessage</span> = (<span class="text-or
         </div>
       </div>
     </Teleport>
+
+    <!-- Delete Confirmation Modal -->
+    <Teleport to="body">
+      <div v-if="deleteConfirmation.show" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" @click.self="deleteConfirmation.show = false">
+        <div class="bg-black border border-gray-500/30 rounded-lg p-6 max-w-md w-full">
+          <div class="flex items-start gap-4 mb-4">
+            <div class="flex-shrink-0 w-10 h-10 bg-red-400/10 rounded-full flex items-center justify-center">
+              <svg class="w-5 h-5 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+            </div>
+            <div class="flex-1">
+              <h3 class="text-lg font-semibold text-white mb-2">Delete API Endpoint?</h3>
+              <p class="text-sm text-gray-400">
+                This endpoint will be permanently deleted. This action cannot be undone.
+              </p>
+              <div v-if="deleteConfirmation.endpointData" class="mt-3 p-2 bg-gray-500/5 border border-gray-500/10 rounded text-xs">
+                <p class="text-gray-500">ID: <span class="text-blue-300 font-mono">{{ deleteConfirmation.endpointData.id.substring(0, 12) }}...</span></p>
+                <p class="text-gray-500">Language: <span class="text-white">{{ deleteConfirmation.endpointData.language }}</span></p>
+                <p class="text-gray-500" v-if="deleteConfirmation.endpointData.name">Name: <span class="text-white">{{ deleteConfirmation.endpointData.name }}</span></p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="flex gap-3">
+            <button
+              @click="deleteConfirmation.show = false"
+              class="flex-1 px-4 py-2 bg-gray-500/10 hover:bg-gray-500/20 text-white rounded-lg transition-colors text-sm font-medium"
+            >
+              Cancel
+            </button>
+            <button
+              @click="executeDeleteEndpoint"
+              :disabled="deletingEndpointId !== null"
+              class="flex-1 px-4 py-2 bg-red-400 hover:bg-red-500 text-white rounded-lg transition-colors text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {{ deletingEndpointId ? 'Deleting...' : 'Delete' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </Teleport>
     </div>
   </div>
 </template>
@@ -1172,6 +1214,11 @@ const endpoints = ref<any[]>([])
 const tunnels = ref<any[]>([])
 const loading = ref({ create: false, test: false, health: false, dashboard: false })
 const deletingEndpointId = ref<string | null>(null)
+const deleteConfirmation = ref({
+  show: false,
+  endpointId: null as string | null,
+  endpointData: null as any,
+})
 
 // Copy feedback state
 const copiedItems = ref<Set<string>>(new Set())
@@ -1283,11 +1330,19 @@ async function fetchDashboard() {
   await Promise.all([fetchEndpoints(), fetchTunnels()]);
 }
 
-// Delete endpoint
-async function deleteEndpoint(id: string) {
-  if (!confirm('Are you sure you want to delete this endpoint? This action cannot be undone.')) {
-    return;
+// Show delete confirmation modal
+function confirmDeleteEndpoint(endpoint: any) {
+  deleteConfirmation.value = {
+    show: true,
+    endpointId: endpoint.id,
+    endpointData: endpoint,
   }
+}
+
+// Execute delete after confirmation
+async function executeDeleteEndpoint() {
+  const id = deleteConfirmation.value.endpointId
+  if (!id) return
 
   deletingEndpointId.value = id;
   try {
@@ -1303,6 +1358,7 @@ async function deleteEndpoint(id: string) {
       // Remove from local state
       endpoints.value = endpoints.value.filter(e => e.id !== id);
       showToast('Endpoint deleted successfully', 'success');
+      deleteConfirmation.value.show = false
     } else {
       const error = await response.json();
       showToast(error.message || 'Failed to delete endpoint', 'error');
