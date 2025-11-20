@@ -1,47 +1,157 @@
 # Instant API CLI
 
-> **⚠️ Coming Soon** - Framework/tunnel mode is currently in development.
-
 Share your local server with the internet, like ngrok but integrated with Instant API.
 
-## Planned Features
-
-- Expose local servers to the internet
-- Auto-detect SDK functions
-- Support for all frameworks (Express, FastAPI, etc.)
-- WebSocket and SSE streaming support
-
-## Preview Usage
+## Install
 
 ```bash
-# Install
-npm install -g instant-api
+npm install -g @instantapi/cli
+```
 
-# Expose local server
-instant-api expose http://localhost:3000/api
+Or use directly with npx:
 
-# With API key (no time limit)
-export INSTANT_API_KEY=ik_your_key
+```bash
+npx instant-api expose http://localhost:3000/api
+```
+
+## Usage
+
+### Expose Local Server
+
+```bash
+instant-api expose http://localhost:3000/api/users
+```
+
+You get:
+- ✅ Public URL instantly
+- ✅ Requests forwarded to your local server
+- ✅ Works with any framework (Express, NestJS, Flask, FastAPI, etc.)
+- ✅ Supports SSE/streaming
+- ✅ Press Ctrl+C to stop
+
+### Quick Test (No Auth)
+
+```bash
+# 1 hour temporary tunnel, perfect for quick tests
 instant-api expose http://localhost:3000/api
 ```
 
-## Status
+### Persistent Tunnel (With Auth)
 
-This CLI is being developed alongside the main Instant API platform. Currently, you can:
-- Create APIs via the web UI at http://localhost:3000
-- Execute JavaScript and Python code
-- Call your APIs via HTTP
+```bash
+# 1. Sign up and get API key
+export INSTANT_API_KEY=ik_your_key_here
 
-Framework mode (tunnel/expose) is coming soon!
+# 2. Expose with no time limit
+instant-api expose http://localhost:3000/api
+```
+
+### Options
+
+```bash
+instant-api expose <targetUrl> [options]
+
+Options:
+  --backend, -b  Backend URL [default: "http://localhost:3001"]
+  --help, -h     Show help
+  --version, -v  Show version
+```
+
+## Examples
+
+### Expose Express Server
+
+```bash
+# Terminal 1: Start your server
+npm run dev  # Running on http://localhost:3000
+
+# Terminal 2: Expose an endpoint
+instant-api expose http://localhost:3000/api/users/create
+
+# Output:
+# 🚀 Instant API - Framework Mode
+# ✓ Tunnel registered successfully!
+# 
+# Public URL: http://localhost:3001/t/clx123...
+# Target URL: http://localhost:3000/api/users/create
+# 
+# Waiting for requests...
+
+# Terminal 3: Test it
+curl -X POST http://localhost:3001/t/clx123... \
+  -H "Content-Type: application/json" \
+  -d '{"name": "John Doe"}'
+```
+
+### Expose Streaming Endpoint
+
+```bash
+# Your SSE endpoint
+instant-api expose http://localhost:3000/events
+
+# Test streaming
+curl -N http://localhost:3001/t/clx123...
+```
+
+### Configure API Key
+
+```bash
+# Save API key to config file
+instant-api config --api-key ik_your_key_here
+
+# View current config
+instant-api config
+```
+
+## How It Works
+
+1. **Register**: CLI registers your target URL with the backend
+2. **Poll**: CLI continuously polls for incoming requests
+3. **Forward**: Requests are forwarded to your local server
+4. **Respond**: Your server's response is sent back through the tunnel
+
+## Features
+
+- ✅ **No signup for quick tests** - 1 hour temporary tunnels
+- ✅ **Streaming support** - SSE and WebSocket
+- ✅ **All HTTP methods** - GET, POST, PUT, DELETE, etc.
+- ✅ **Header forwarding** - Preserves important headers
+- ✅ **Error handling** - Clear error messages
+- ✅ **Auto-reconnect** - Handles network issues
+
+## Requirements
+
+- Node.js 18+
+- Instant API backend running (or production URL)
+- Your local server running
 
 ## Development
 
+Build from source:
+
 ```bash
-# Build CLI
+# Clone repo
+git clone https://github.com/treadiehq/instantapi.git
+cd instantapi/cli
+
+# Build
+npm install
 npm run build
 
 # Test locally
-node dist/index.js --help
+node dist/index.js expose http://localhost:3000
 ```
 
-Stay tuned for updates! 🚀
+## Troubleshooting
+
+**Connection refused:**
+- Make sure your local server is running
+- Check the target URL is correct
+
+**Backend not responding:**
+- Verify backend is running at the correct URL
+- Use `--backend` flag if needed
+
+**Tunnel expired:**
+- Without auth, tunnels last 1 hour
+- Sign up and set API key for longer tunnels
