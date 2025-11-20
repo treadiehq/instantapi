@@ -15,7 +15,7 @@
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-0">
         <div class="flex items-center justify-between h-12">
           <div class="flex items-center space-x-3">
-            <img src="~/assets/img/logo.png" alt="Instant API" class="w-6 h-6" />
+            <img src="/logo.png" alt="Instant API" class="w-6 h-6" />
             <h1 class="text-base font-medium text-white">Instant API</h1>
           </div>
           <nav class="flex items-center space-x-4">

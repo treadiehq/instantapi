@@ -3,7 +3,7 @@
     <div class="max-w-7xl mx-auto flex items-center justify-between">
       <!-- Logo/Brand -->
       <div class="flex items-center space-x-3">
-        <img src="~/assets/img/logo.png" alt="Echos" class="w-6 h-6"></img>
+        <img src="/logo.png" alt="Echos" class="w-6 h-6" />
         <span class="text-sm text-gray-500/50">|</span>
         <span class="text-sm text-white font-medium">{{ user?.organizationName }}</span>
       </div>

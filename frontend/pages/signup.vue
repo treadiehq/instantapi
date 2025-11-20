@@ -9,7 +9,7 @@
       <!-- Logo/Header -->
       <div class="text-center mb-8">
         <div class="inline-flex items-center gap-2 mb-3">
-          <img src="~/assets/img/logo.png" alt="Echos" class="w-14 h-14">
+          <img src="/logo.png" alt="Echos" class="w-14 h-14">
         </div>
         <h1 class="text-2xl font-bold text-white mb-2">Create your account</h1>
         <p class="text-gray-400 text-sm">Get started with Instant API</p>
