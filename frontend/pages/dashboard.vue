@@ -1010,7 +1010,6 @@ eventSource.<span class="text-blue-300">onmessage</span> = (<span class="text-or
           </div>
         </div>
       </div>
-    </div>
     
     <!-- Toast Notifications -->
     <Toast ref="toastComponent" />
