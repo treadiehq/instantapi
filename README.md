@@ -92,6 +92,23 @@ npx @instantapi/cli expose http://localhost:3000/api
 # Public URL: http://localhost:3001/t/abc123
 ```
 
+**Streaming Example (SSE):**
+```javascript
+// Your Express app with SSE endpoint
+app.get('/events', (req, res) => {
+  res.setHeader('Content-Type', 'text/event-stream');
+  setInterval(() => {
+    res.write(`data: ${JSON.stringify({ time: Date.now() })}\n\n`);
+  }, 1000);
+});
+
+// Expose it
+npx @instantapi/cli expose http://localhost:3000/events
+
+// Stream from public URL
+curl -N http://localhost:3001/t/abc123
+```
+
 ### 4. Function Mode (SDK)
 
 Write functions and expose them as APIs:
@@ -139,6 +156,8 @@ npx @instantapi/cli expose greet
 - ✅ Handle JSON input/output
 - ✅ Return any data structure
 - ✅ Access request headers (webhook mode)
+- ✅ Streaming support (SSE/Server-Sent Events)
+- ✅ Expose local servers (ngrok-style tunnels)
 - ✅ Quick testing with built-in playground
 
 **Current Limits:**
@@ -228,4 +247,3 @@ curl http://localhost:3000  # Frontend
 ## License
 
 FSL-1.1-MIT - See [LICENSE](LICENSE)
-
