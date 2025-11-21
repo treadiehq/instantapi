@@ -23,11 +23,11 @@ instant-api expose http://localhost:3000/api/users
 ```
 
 You get:
-- ✅ Public URL instantly
-- ✅ Requests forwarded to your local server
-- ✅ Works with any framework (Express, NestJS, Flask, FastAPI, etc.)
-- ✅ Supports SSE/streaming
-- ✅ Press Ctrl+C to stop
+- Public URL instantly
+- Requests forwarded to your local server
+- Works with any framework (Express, NestJS, Flask, FastAPI, etc.)
+- Supports SSE/streaming
+- Press Ctrl+C to stop
 
 ### Quick Test (No Auth)
 
@@ -145,12 +145,12 @@ instant-api config
 
 ## Features
 
-- ✅ **No signup for quick tests** - 1 hour temporary tunnels
-- ✅ **Streaming support** - SSE and WebSocket
-- ✅ **All HTTP methods** - GET, POST, PUT, DELETE, etc.
-- ✅ **Header forwarding** - Preserves important headers
-- ✅ **Error handling** - Clear error messages
-- ✅ **Auto-reconnect** - Handles network issues
+- **No signup for quick tests** - 1 hour temporary tunnels
+- **Streaming support** - SSE and WebSocket
+- **All HTTP methods** - GET, POST, PUT, DELETE, etc.
+- **Header forwarding** - Preserves important headers
+- **Error handling** - Clear error messages
+- **Auto-reconnect** - Handles network issues
 
 ## Requirements
 

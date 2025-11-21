@@ -171,14 +171,14 @@ npx @instantapihq/cli expose greet
 - Python 3
 
 **What you can do:**
-- ✅ Create APIs without signup
-- ✅ Secure code execution (isolated containers)
-- ✅ Handle JSON input/output
-- ✅ Return any data structure
-- ✅ Access request headers (webhook mode)
-- ✅ Streaming support (SSE/Server-Sent Events)
-- ✅ Expose local servers (ngrok-style tunnels)
-- ✅ Quick testing with built-in playground
+- Create APIs without signup
+- Secure code execution (isolated containers)
+- Handle JSON input/output
+- Return any data structure
+- Access request headers (webhook mode)
+- Streaming support (SSE/Server-Sent Events)
+- Expose local servers (ngrok-style tunnels)
+- Quick testing with built-in playground
 
 **Current Limits:**
 - Free tier: APIs active for 24 hours
@@ -191,7 +191,7 @@ npx @instantapihq/cli expose greet
 **Backend** - Create `backend/.env`:
 ```env
 DATABASE_URL="postgresql://postgres:postgres@localhost:5432/instantapi"
-CLOUDFLARE_SANDBOX_URL="https://instant-api-sandbox.YOUR-NAME.workers.dev"
+CLOUDFLARE_SANDBOX_URL="https://xxx.YOUR-NAME.workers.dev"
 BACKEND_URL="http://localhost:3001"
 FRONTEND_URL="http://localhost:3000"
 JWT_SECRET="your-secret-key-change-in-production"
@@ -225,9 +225,9 @@ npx prisma migrate dev
 ## Production Deployment
 
 The app is production-ready and can be deployed to:
-- **Frontend & Backend**: Railway, Vercel, or any Node.js host
+- **Frontend & Backend**: Railway or any Node.js host
 - **Code Execution**: Cloudflare Workers with Sandbox SDK
-- **Database**: PostgreSQL (Railway, Supabase, etc.)
+- **Database**: PostgreSQL (Railway, Plantscale, etc.)
 
 See **[DEPLOYMENT.md](./DEPLOYMENT.md)** for detailed deployment instructions.
 

@@ -41,7 +41,7 @@ curl -X POST http://localhost:3001/t/abc123 \
 1. SDK starts a local Express server (default port: 7777)
 2. Your functions → `http://localhost:7777/fn/<name>`
 3. CLI creates a public tunnel
-4. Internet → Tunnel → Your function ✅
+4. Internet → Tunnel → Your function
 
 ## API
 
@@ -224,12 +224,12 @@ curl http://localhost:7777/health
 
 ## What Works
 
-- ✅ Sync and async functions
-- ✅ TypeScript support
-- ✅ Error handling
-- ✅ Multiple functions
-- ✅ JSON input/output
-- ✅ Auto port selection (7777-7781)
+- Sync and async functions
+- TypeScript support
+- Error handling
+- Multiple functions
+- JSON input/output
+- Auto port selection (7777-7781)
 
 ## Great For
 

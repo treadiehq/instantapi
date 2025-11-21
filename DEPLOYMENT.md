@@ -37,18 +37,18 @@ npm install
 npx wrangler deploy
 ```
 
-Save the URL you get (like `https://instant-api-sandbox.YOUR-NAME.workers.dev`).
+Save the URL you get (like `https://xxxx.YOUR-NAME.workers.dev`).
 
 **Wait 2-3 minutes** after first deployment for containers to provision.
 
 ### 4. Test It
 
 ```bash
-curl https://instant-api-sandbox.YOUR-NAME.workers.dev/run
+curl https://xxxx.YOUR-NAME.workers.dev/run
 # Should return: {"output":"4","error":"","exitCode":0,"success":true}
 ```
 
-✅ **Sandbox deployed!** Now let's deploy the app.
+**Sandbox deployed!** Now let's deploy the app.
 
 ---
 
@@ -91,7 +91,7 @@ Click **"Variables"** tab:
 DATABASE_URL=${{Postgres.DATABASE_URL}}
 
 # Cloudflare Sandbox (from Part 1)
-CLOUDFLARE_SANDBOX_URL=https://instant-api-sandbox.YOUR-NAME.workers.dev
+CLOUDFLARE_SANDBOX_URL=https://xxxx.YOUR-NAME.workers.dev
 
 # Server Config
 PORT=3001
@@ -119,7 +119,7 @@ Wait for deployment to finish (~2 minutes).
 
 **Test Backend:**
 ```bash
-curl https://instantapi-backend-xxx.railway.app/health
+curl https://xxx.railway.app/health
 # Should return health check response
 ```
 
@@ -141,7 +141,7 @@ Click **"Variables"** tab:
 
 ```bash
 # Backend API URL (from step 4)
-NUXT_PUBLIC_API_BASE=https://instantapi-backend-xxx.railway.app
+NUXT_PUBLIC_API_BASE=https://xxx.railway.app
 
 NODE_ENV=production
 ```
@@ -156,7 +156,7 @@ NODE_ENV=production
 Go back to backend service → **"Variables"** and update:
 
 ```bash
-FRONTEND_URL=https://instantapi-frontend-xxx.railway.app
+FRONTEND_URL=https://xxx.railway.app
 ```
 
 ### 6. Test Everything
@@ -173,7 +173,7 @@ function handler(input) {
 2. Click "Create API"
 3. Test the endpoint:
 ```bash
-curl -X POST https://instantapi-backend-xxx.railway.app/run/YOUR-ID \
+curl -X POST https://xxx.railway.app/run/YOUR-ID \
   -H "Content-Type: application/json" \
   -d '{"name": "Production"}'
 ```

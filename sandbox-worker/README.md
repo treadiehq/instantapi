@@ -4,10 +4,10 @@ Executes user JavaScript and Python code safely using [Cloudflare Sandbox SDK](h
 
 ## What It Does
 
-- ✅ Runs JavaScript (Node.js) and Python 3
-- ✅ Isolated containers for each execution
-- ✅ Captures console output and errors
-- ✅ Production-grade security
+- Runs JavaScript (Node.js) and Python 3
+- Isolated containers for each execution
+- Captures console output and errors
+- Production-grade security
 
 ## Quick Start
 
