@@ -119,6 +119,16 @@ npx @instantapihq/cli expose http://localhost:3000/events
 curl -N http://localhost:3001/t/abc123
 ```
 
+> **💡 Tip:** If your backend is running on a different port, configure the CLI:
+> ```bash
+> # Option 1: Use --backend flag
+> npx @instantapihq/cli expose http://localhost:3000/api --backend http://localhost:PORT
+> 
+> # Option 2: Set environment variable
+> export INSTANT_API_BACKEND_URL=http://localhost:PORT
+> npx @instantapihq/cli expose http://localhost:3000/api
+> ```
+
 ### 4. Function Mode (SDK)
 
 Write functions and expose them as APIs:

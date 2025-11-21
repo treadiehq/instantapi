@@ -168,8 +168,11 @@
                         </div>
                         
                         <div class="bg-gray-500/10 border border-gray-500/10 rounded-lg p-4">
-                          <p class="text-sm text-gray-400">
+                          <p class="text-sm text-gray-400 mb-2">
                             <span class="font-semibold">Note:</span> Your local backend must be running and reachable. The CLI forwards requests from the public URL to your localhost.
+                          </p>
+                          <p class="text-xs text-gray-500">
+                            Backend running on a different port? Use <code class="text-gray-400 bg-gray-50/10 px-1 py-0.5 rounded">--backend http://localhost:PORT</code> or set <code class="text-gray-400 bg-gray-500/10 px-1 py-0.5 rounded">INSTANT_API_BACKEND_URL</code>
                           </p>
                         </div>
                       </div>

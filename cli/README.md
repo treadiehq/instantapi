@@ -57,6 +57,39 @@ Options:
   --version, -v  Show version
 ```
 
+### Configuration
+
+#### Backend URL
+
+You can configure the backend URL in three ways (in order of precedence):
+
+1. **Command-line flag** (highest priority):
+```bash
+instant-api expose http://localhost:3000/api --backend http://localhost:8080
+```
+
+2. **Environment variable**:
+```bash
+export INSTANT_API_BACKEND_URL=http://localhost:8080
+instant-api expose http://localhost:3000/api
+```
+
+3. **Default**: `http://localhost:3001`
+
+#### API Key
+
+You can set your API key in two ways:
+
+1. **Config file** (recommended):
+```bash
+instant-api config --api-key ik_your_key_here
+```
+
+2. **Environment variable**:
+```bash
+export INSTANT_API_KEY=ik_your_key_here
+```
+
 ## Examples
 
 ### Expose Express Server
@@ -150,7 +183,10 @@ node dist/index.js expose http://localhost:3000
 
 **Backend not responding:**
 - Verify backend is running at the correct URL
-- Use `--backend` flag if needed
+- Check what port your backend is using
+- Use `--backend` flag: `instant-api expose <url> --backend http://localhost:PORT`
+- Or set environment variable: `export INSTANT_API_BACKEND_URL=http://localhost:PORT`
+- Default backend URL is `http://localhost:3001`
 
 **Tunnel expired:**
 - Without auth, tunnels last 1 hour

@@ -344,7 +344,12 @@ async function exposeRoute(targetUrl: string, backendUrl: string) {
         console.error(
           chalk.red('\n✗ Could not connect to Instant API backend'),
         );
-        console.error(chalk.gray(`  Make sure the backend is running at ${backendUrl}`));
+        console.error(chalk.gray(`  Expected backend at: ${backendUrl}`));
+        console.log(chalk.yellow('\n💡 Troubleshooting:'));
+        console.log(chalk.gray('  1. Make sure the backend is running'));
+        console.log(chalk.gray('  2. Check if it\'s running on a different port'));
+        console.log(chalk.gray('  3. Use --backend flag: npx instant-api expose <url> --backend http://localhost:PORT'));
+        console.log(chalk.gray('  4. Or set environment variable: export INSTANT_API_BACKEND_URL=http://localhost:PORT\n'));
       } else if (axiosError.response) {
         console.error(
           chalk.red('\n✗ Error:'),
@@ -376,7 +381,7 @@ yargs(hideBin(process.argv))
           alias: 'b',
           describe: 'Instant API backend URL',
           type: 'string',
-          default: 'http://localhost:3001',
+          default: process.env.INSTANT_API_BACKEND_URL || 'http://localhost:3001',
         });
     },
     (argv) => {
