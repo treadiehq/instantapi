@@ -78,7 +78,7 @@ function getAuthHeaders(warnIfMissing: boolean = false): Record<string, string> 
   if (warnIfMissing) {
     console.log(chalk.yellow('\n⚠️  Running without authentication - tunnel will have temporary restrictions'));
     console.log(chalk.gray('   To use for longer than 1 hour, create an account and set your API key:'));
-    console.log(chalk.gray('   1. Sign up at your-instance.com'));
+    console.log(chalk.gray('   1. Sign up at instantapi.co'));
     console.log(chalk.gray('   2. Generate an API key'));
     console.log(chalk.gray('   3. Run: npx instant-api config --api-key ik_...\n'));
   }
@@ -132,7 +132,7 @@ async function exposeRoute(targetUrl: string, backendUrl: string) {
   if (isFunctionMode && !apiKey) {
     console.error(chalk.red('✗ Function mode requires an API key'));
     console.log(chalk.yellow('\nTo use function mode:'));
-    console.log(chalk.gray('  1. Sign up at your-instance.com'));
+    console.log(chalk.gray('  1. Sign up at instantapi.co'));
     console.log(chalk.gray('  2. Generate an API key'));
     console.log(chalk.gray('  3. Run: npx instant-api config --api-key ik_...'));
     console.log(chalk.gray('\n  Or set environment variable: export INSTANT_API_KEY=ik_...\n'));
