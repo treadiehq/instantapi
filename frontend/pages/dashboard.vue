@@ -190,7 +190,7 @@
                           <p v-else :class="['mb-1', isDragging ? 'text-blue-400 font-medium' : 'text-gray-400']">
                             {{ isDragging ? 'Drop file to upload' : 'Drop your file here or click to browse' }}
                           </p>
-                          <p class="text-xs text-gray-500">Supports .js, .ts, .py (max 64KB)</p>
+                          <p class="text-xs text-gray-500">Supports .js, .ts, .py (max 3MB)</p>
                         </div>
                       </label>
                     </div>
@@ -1321,7 +1321,7 @@ const DRAFT_KEY = 'instantapi_draft'
 const lastSaved = ref<Date | null>(null)
 
 // Code size constants and tracking
-const MAX_CODE_SIZE = 64 * 1024 // 64KB in bytes
+const MAX_CODE_SIZE = 3 * 1024 * 1024 // 3MB in bytes
 
 // Computed: Code size in bytes
 const codeBytes = computed(() => new Blob([code.value]).size)
@@ -1897,10 +1897,10 @@ function handleFileSelect(event: Event) {
   if (target.files && target.files.length > 0) {
     const file = target.files[0]
     
-    // Validate file size (64KB limit)
-    const MAX_FILE_SIZE = 64 * 1024 // 64KB
+    // Validate file size (3MB limit)
+    const MAX_FILE_SIZE = 3 * 1024 * 1024 // 3MB
     if (file.size > MAX_FILE_SIZE) {
-      error.value.create = `File too large (${formatFileSize(file.size)}). Try removing comments or splitting into modules. Maximum size is 64KB.`
+      error.value.create = `File too large (${formatFileSize(file.size)}). Maximum size is 3MB.`
       selectedFile.value = null
       // Don't clear input - let user see what file they selected
       return

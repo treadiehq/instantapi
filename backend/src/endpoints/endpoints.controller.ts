@@ -93,10 +93,10 @@ export class EndpointsController {
       throw new BadRequestException('File is required');
     }
 
-    // Validate file size (64KB limit)
-    const MAX_FILE_SIZE = 64 * 1024; // 64KB
+    // Validate file size (3MB limit)
+    const MAX_FILE_SIZE = 3 * 1024 * 1024; // 3MB
     if (file.size > MAX_FILE_SIZE) {
-      throw new BadRequestException('File size exceeds 64KB limit');
+      throw new BadRequestException('File size exceeds 3MB limit');
     }
 
     // Validate file extension

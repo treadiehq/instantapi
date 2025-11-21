@@ -183,7 +183,7 @@ npx @instantapihq/cli expose greet
 **Current Limits:**
 - Free tier: APIs active for 24 hours
 - Signed-in users: APIs active for up to 30 days
-- Max code size: 64KB
+- Max code size: 3MB
 - Execution timeout: 30 seconds
 
 ## Local Development Setup
