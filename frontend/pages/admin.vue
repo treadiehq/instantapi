@@ -11,6 +11,14 @@
         <p class="text-gray-400">Manage all API endpoints and view statistics</p>
       </div>
 
+      <!-- Stats Cards - Loading Skeleton -->
+      <div v-if="!stats && initialLoading" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <div v-for="i in 8" :key="i" class="bg-gray-500/5 border border-gray-500/15 rounded-lg p-4 animate-pulse">
+          <div class="h-3 bg-gray-500/20 rounded w-20 mb-2"></div>
+          <div class="h-8 bg-gray-500/20 rounded w-16"></div>
+        </div>
+      </div>
+
       <!-- Stats Cards -->
       <div v-if="stats" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <div class="bg-gray-500/5 border border-gray-500/15 rounded-lg p-4">
@@ -119,6 +127,7 @@
                     @change="toggleSelectAll"
                     :checked="selectAll"
                     class="rounded"
+                    :disabled="initialLoading"
                   />
                 </th>
                 <th class="p-4">ID</th>
@@ -131,7 +140,40 @@
               </tr>
             </thead>
             <tbody>
+              <!-- Loading Skeleton -->
+              <tr v-if="initialLoading" v-for="i in 5" :key="`skeleton-${i}`" class="border-b border-gray-500/10 animate-pulse">
+                <td class="p-4">
+                  <div class="h-4 w-4 bg-gray-500/20 rounded"></div>
+                </td>
+                <td class="p-4">
+                  <div class="h-5 bg-gray-500/20 rounded w-24"></div>
+                </td>
+                <td class="p-4">
+                  <div class="h-6 bg-gray-500/20 rounded w-16"></div>
+                </td>
+                <td class="p-4">
+                  <div class="h-6 bg-gray-500/20 rounded w-20"></div>
+                </td>
+                <td class="p-4">
+                  <div class="h-5 bg-gray-500/20 rounded w-32"></div>
+                </td>
+                <td class="p-4">
+                  <div class="h-5 bg-gray-500/20 rounded w-28"></div>
+                </td>
+                <td class="p-4">
+                  <div class="h-5 bg-gray-500/20 rounded w-28"></div>
+                </td>
+                <td class="p-4">
+                  <div class="flex gap-2">
+                    <div class="h-7 bg-gray-500/20 rounded w-14"></div>
+                    <div class="h-7 bg-gray-500/20 rounded w-14"></div>
+                  </div>
+                </td>
+              </tr>
+              
+              <!-- Actual Data -->
               <tr
+                v-if="!initialLoading"
                 v-for="endpoint in endpoints"
                 :key="endpoint.id"
                 class="border-b border-gray-500/10 hover:bg-gray-500/5 transition-colors"
@@ -194,7 +236,7 @@
                   </div>
                 </td>
               </tr>
-              <tr v-if="loading">
+              <tr v-if="!initialLoading && loading">
                 <td colspan="8" class="p-8 text-center text-gray-400">
                   <svg class="animate-spin h-6 w-6 mx-auto mb-2" fill="none" viewBox="0 0 24 24">
                     <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
@@ -203,7 +245,7 @@
                   Loading...
                 </td>
               </tr>
-              <tr v-if="!loading && endpoints.length === 0">
+              <tr v-if="!initialLoading && !loading && endpoints.length === 0">
                 <td colspan="8" class="p-8 text-center text-gray-400">
                   No endpoints found
                 </td>
@@ -245,7 +287,7 @@
       <div v-if="deleteConfirmation.show" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" @click.self="deleteConfirmation.show = false">
         <div class="bg-black border border-gray-500/30 rounded-lg p-6 max-w-md w-full">
           <div class="flex items-start gap-4 mb-4">
-            <div class="flex-shrink-0 w-10 h-10 bg-red-400/10 rounded-full flex items-center justify-center">
+            <div class="shrink-0 w-10 h-10 bg-red-400/10 rounded-full flex items-center justify-center">
               <svg class="w-5 h-5 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
               </svg>
@@ -336,6 +378,10 @@ definePageMeta({
   middleware: 'auth',
 })
 
+useHead({
+  title: 'Admin - Instant API',
+});
+
 const config = useRuntimeConfig()
 const API_BASE = config.public.apiBase
 const { token } = useAuth()
@@ -344,6 +390,7 @@ const { token } = useAuth()
 const stats = ref<any>(null)
 const endpoints = ref<any[]>([])
 const loading = ref(false)
+const initialLoading = ref(true)
 const deleting = ref(false)
 const currentPage = ref(1)
 const limit = ref(50)
@@ -381,7 +428,9 @@ async function loadStats() {
       navigateTo('/')
     }
   } catch (error) {
-    console.error('Failed to load stats:', error)
+    // Failed to load stats
+  } finally {
+    initialLoading.value = false
   }
 }
 
@@ -410,9 +459,10 @@ async function loadEndpoints() {
       selectedEndpoints.value.clear()
     }
   } catch (error) {
-    console.error('Failed to load endpoints:', error)
+    // Failed to load endpoints
   } finally {
     loading.value = false
+    initialLoading.value = false
   }
 }
 
@@ -478,7 +528,6 @@ async function executeDelete() {
       }
     }
   } catch (error) {
-    console.error('Failed to delete:', error)
     alert('Failed to delete')
   } finally {
     deleting.value = false

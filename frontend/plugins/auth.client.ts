@@ -1,7 +1,13 @@
-export default defineNuxtPlugin(() => {
-  const { initAuth } = useAuth();
+export default defineNuxtPlugin({
+  name: 'auth',
+  enforce: 'pre', // Run before other plugins
+  setup() {
+    // Force auth state initialization by accessing it
+    const { isAuthenticated } = useAuth();
   
-  // Initialize auth state from localStorage before routing
-  initAuth();
+    // This ensures useState initializers run immediately
+    // before any routing or middleware
+    const _check = isAuthenticated.value;
+  },
 });
 

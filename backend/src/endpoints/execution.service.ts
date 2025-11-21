@@ -50,7 +50,6 @@ export class ExecutionService {
     const startTime = Date.now();
 
     try {
-      console.log(`🔄 Executing endpoint ${endpoint.id} (${endpoint.language}, ${endpoint.kind || 'snippet'})`);
 
       // Determine mode based on endpoint kind
       const mode = endpoint.kind === 'webhook' ? 'webhook' : 'standard';
@@ -76,7 +75,6 @@ export class ExecutionService {
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.error(`❌ Sandbox worker error: ${response.status} - ${errorText}`);
         throw new InternalServerErrorException(
           `Sandbox execution failed: ${response.status}`,
         );
@@ -87,11 +85,9 @@ export class ExecutionService {
 
       // If sandbox returned an error about local dev mode, use local fallback
       if (sandboxResult.error && sandboxResult.error.message && sandboxResult.error.message.includes('Cloudflare Sandbox binding not available')) {
-        console.log(`⚠️  Sandbox unavailable, using local fallback`);
         return this.executeLocally(endpoint, input, headers);
       }
 
-      console.log(`✅ Execution completed in ${durationMs}ms`);
 
       // Log execution to database
       await this.logExecution(
@@ -111,7 +107,6 @@ export class ExecutionService {
       };
     } catch (error) {
       const durationMs = Date.now() - startTime;
-      console.error(`❌ Execution error for endpoint ${endpoint.id}:`, error.message);
 
       // Log failed execution
       await this.logExecution(

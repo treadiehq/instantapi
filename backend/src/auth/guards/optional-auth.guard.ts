@@ -27,11 +27,9 @@ export class OptionalAuthGuard implements CanActivate {
       try {
         const user = await this.authService.validateToken(token);
         request.user = user;
-        console.log('✅ Optional auth: User authenticated:', user.email);
         return true;
       } catch (error) {
         // Token invalid, continue as unauthenticated
-        console.log('⚠️  Optional auth: Invalid token, proceeding as unauthenticated');
       }
     }
 
@@ -41,16 +39,13 @@ export class OptionalAuthGuard implements CanActivate {
       try {
         const org = await this.authService.validateApiKey(apiKey);
         request.user = org;
-        console.log('✅ Optional auth: API key authenticated');
         return true;
       } catch (error) {
         // API key invalid, continue as unauthenticated
-        console.log('⚠️  Optional auth: Invalid API key, proceeding as unauthenticated');
       }
     }
 
     // No authentication provided or invalid - allow through as unauthenticated
-    console.log('ℹ️  Optional auth: No authentication provided, proceeding as unauthenticated');
     return true;
   }
 }

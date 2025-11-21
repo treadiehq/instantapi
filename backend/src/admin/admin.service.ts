@@ -154,8 +154,6 @@ export class AdminService {
     await this.prisma.endpoint.delete({
       where: { id: endpointId },
     });
-
-    console.log(`🗑️  Admin ${adminEmail} deleted endpoint ${endpointId}`);
   }
 
   async bulkDeleteEndpoints(endpointIds: string[], adminEmail: string): Promise<number> {
@@ -165,7 +163,6 @@ export class AdminService {
       },
     });
 
-    console.log(`🗑️  Admin ${adminEmail} bulk deleted ${result.count} endpoints`);
 
     return result.count;
   }

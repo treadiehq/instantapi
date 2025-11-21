@@ -2,28 +2,34 @@ export const useAuth = () => {
   const config = useRuntimeConfig();
   const router = useRouter();
   
-  const user = useState<any>('user', () => null);
-  const token = useState<string | null>('token', () => null);
-  const loading = useState<boolean>('auth-loading', () => false);
-  const initialized = useState<boolean>('auth-initialized', () => false);
-
-  // Initialize auth state from localStorage
-  const initAuth = () => {
-    if (process.client && !initialized.value) {
-      const storedToken = localStorage.getItem('instant_api_token');
+  // Initialize auth state synchronously from localStorage on first access
+  const user = useState<any>('user', () => {
+    if (process.client) {
       const storedUser = localStorage.getItem('instant_api_user');
-      
-      if (storedToken && storedUser) {
-        token.value = storedToken;
+      if (storedUser) {
         try {
-          user.value = JSON.parse(storedUser);
+          return JSON.parse(storedUser);
         } catch (e) {
-          // Invalid stored user
-          clearAuth();
+          localStorage.removeItem('instant_api_user');
         }
       }
-      initialized.value = true;
     }
+    return null;
+  });
+  
+  const token = useState<string | null>('token', () => {
+    if (process.client) {
+      return localStorage.getItem('instant_api_token');
+        }
+    return null;
+  });
+  
+  const loading = useState<boolean>('auth-loading', () => false);
+  const initialized = useState<boolean>('auth-initialized', () => true);
+
+  // Initialize auth state from localStorage (now happens automatically in useState)
+  const initAuth = () => {
+    // Already initialized in useState above
   };
 
   // Clear auth state

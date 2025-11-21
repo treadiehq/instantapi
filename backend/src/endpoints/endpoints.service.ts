@@ -25,7 +25,6 @@ export class EndpointsService {
       },
     });
 
-    console.log(`✅ Created endpoint ${endpoint.id} (${endpoint.language}, ${kind}, TTL: ${ttlHours}h)`);
 
     const backendUrl = process.env.BACKEND_URL || 'http://localhost:3001';
 
@@ -60,7 +59,6 @@ export class EndpointsService {
       },
     });
 
-    console.log(`✅ Created file endpoint ${endpoint.id} (${endpoint.language}, ${kind}, TTL: ${ttlHours}h)`);
 
     const backendUrl = process.env.BACKEND_URL || 'http://localhost:3001';
 
@@ -97,7 +95,6 @@ export class EndpointsService {
 
   // List all endpoints for an organization
   async listEndpoints(organizationId: string) {
-    console.log(`📋 Listing endpoints for organization: ${organizationId}`);
     
     const endpoints = await this.prisma.endpoint.findMany({
       where: {
@@ -121,7 +118,6 @@ export class EndpointsService {
       },
     });
 
-    console.log(`📋 Found ${endpoints.length} endpoints for organization ${organizationId}`);
 
     const backendUrl = process.env.BACKEND_URL || 'http://localhost:3001';
 
@@ -151,7 +147,6 @@ export class EndpointsService {
       where: { id },
     });
 
-    console.log(`🗑️  Deleted endpoint ${id}`);
   }
 
   // Cleanup expired endpoints (can be called periodically)
@@ -164,7 +159,6 @@ export class EndpointsService {
       },
     });
 
-    console.log(`🧹 Cleaned up ${result.count} expired endpoints`);
     return result.count;
   }
 }

@@ -271,7 +271,7 @@ const loadApiKeys = async () => {
     const response: any = await apiCall('/api/auth/api-keys');
     apiKeys.value = response || [];
   } catch (e) {
-    console.error('Failed to load API keys:', e);
+    // Failed to load API keys
   } finally {
     loadingKeys.value = false;
   }

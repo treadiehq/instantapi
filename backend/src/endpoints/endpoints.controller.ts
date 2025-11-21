@@ -67,7 +67,6 @@ export class EndpointsController {
 
     const organizationId = req.user?.organizationId || null;
 
-    console.log('🔑 Creating endpoint with organizationId:', organizationId, 'from user:', req.user?.email || 'Anonymous');
 
     return this.endpointsService.createEndpoint(
       createEndpointDto,
@@ -183,7 +182,6 @@ export class EndpointsController {
   @Get('api/endpoints')
   @UseGuards(AuthGuard)
   async listEndpoints(@Req() req: any) {
-    console.log('🔍 Listing endpoints for user:', req.user?.email, 'org:', req.user?.organizationId);
     return this.endpointsService.listEndpoints(req.user.organizationId);
   }
 

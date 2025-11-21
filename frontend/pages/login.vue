@@ -1,8 +1,8 @@
 <template>
-  <!-- Show skeleton while checking auth -->
-  <AuthPageSkeleton v-if="!authInitialized" :show-second-field="false" />
+  <!-- Show skeleton while checking/redirecting -->
+  <AuthPageSkeleton v-if="checkingAuth" :show-second-field="false" />
 
-  <!-- Show login form once auth is checked -->
+  <!-- Show login form once auth is confirmed as logged out -->
   <div v-else class="min-h-screen relative bg-black flex items-center justify-center p-4">
     <div class="radial-gradient absolute top-0 md:right-14 right-5"></div>
     <div class="max-w-md w-full relative z-10">
@@ -96,19 +96,35 @@ const handleLogin = async () => {
   }
 };
 
-// Redirect if already authenticated
-const { isAuthenticated, initialized: authInitialized } = useAuth();
+// Check auth and redirect if already authenticated
+const { isAuthenticated } = useAuth();
 const router = useRouter();
+const checkingAuth = ref(true);
+
+// Check immediately - before page renders
+if (process.client) {
+  const hasToken = localStorage.getItem('instant_api_token');
+  if (hasToken) {
+    // User is logged in, redirect immediately to dashboard
+    router.push('/dashboard');
+  } else {
+    // User is logged out, show form
+    checkingAuth.value = false;
+  }
+}
 
 onMounted(() => {
+  // Double-check with auth state
   if (isAuthenticated.value) {
-    router.push('/');
+    router.push('/dashboard');
+  } else {
+    checkingAuth.value = false;
   }
 });
 
 watch(isAuthenticated, (authenticated) => {
   if (authenticated) {
-    router.push('/');
+    router.push('/dashboard');
   }
 });
 

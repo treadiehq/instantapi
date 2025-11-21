@@ -23,7 +23,6 @@ export class TunnelsService {
 
     const publicUrl = `${process.env.BACKEND_URL || 'http://localhost:3001'}/t/${tunnel.id}`;
 
-    console.log(`[Tunnel] Registered new tunnel: ${tunnel.id} -> ${dto.targetUrl}`);
 
     return {
       id: tunnel.id,
@@ -131,7 +130,6 @@ export class TunnelsService {
       },
     });
 
-    console.log(`[Tunnel] Response received for request ${dto.requestId}: ${dto.statusCode}`);
   }
 
   async createRequest(
@@ -159,10 +157,6 @@ export class TunnelsService {
         isStreaming,
       },
     });
-
-    console.log(
-      `[Tunnel] New ${isStreaming ? 'streaming' : 'standard'} request created: ${request.id} for tunnel ${tunnelId}`,
-    );
 
     return { id: request.id, isStreaming };
   }
@@ -326,7 +320,6 @@ export class TunnelsService {
       data: { isActive: false },
     });
 
-    console.log(`[Tunnel] Deactivated tunnel: ${tunnelId}`);
   }
 }
 

@@ -1,12 +1,7 @@
 <template>
   <div class="min-h-screen relative">
-    <!-- Skeleton loader while auth initializes -->
-    <SkeletonLoader v-if="!authInitialized" :show-dashboard="false" />
-
-    <!-- Main content after auth is initialized -->
-    <div v-else>
-      <div class="radial-gradient absolute top-0 md:right-14 right-5"></div>
-      
+    <div class="radial-gradient absolute top-0 md:right-14 right-5"></div>
+    
     <!-- Public Header -->
     <header class="border-b border-gray-500/20 bg-black/80 backdrop-blur-sm sticky top-0 z-50">
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-0">
@@ -65,18 +60,6 @@
                         Snippet
                       </button>
                       <button
-                        v-if="isAuthenticated"
-                        @click="switchToFileMode"
-                        :class="[
-                          'px-6 py-3 text-sm font-medium transition-colors',
-                          mode === 'file'
-                            ? 'text-white border-b-2 border-blue-300'
-                            : 'text-gray-400 hover:text-white'
-                        ]"
-                      >
-                        File Upload
-                      </button>
-                      <button
                         @click="switchToFrameworkMode"
                         :class="[
                           'px-6 py-3 text-sm font-medium transition-colors',
@@ -87,49 +70,14 @@
                       >
                         Framework
                       </button>
-                      <button
-                        v-if="isAuthenticated"
-                        @click="switchToFunctionMode"
-                        :class="[
-                          'px-6 py-3 text-sm font-medium transition-colors',
-                          mode === 'function'
-                            ? 'text-white border-b-2 border-blue-300'
-                            : 'text-gray-400 hover:text-white'
-                        ]"
-                      >
-                        Function
-                      </button>
-                      <button
-                        v-if="isAuthenticated"
-                        @click="switchToStreamMode"
-                        :class="[
-                          'px-6 py-3 text-sm font-medium transition-colors',
-                          mode === 'stream'
-                            ? 'text-white border-b-2 border-blue-300'
-                            : 'text-gray-400 hover:text-white'
-                        ]"
-                      >
-                        Stream
-                      </button>
                     </div>
                   </div>
 
-                  <!-- Configuration Panel (hidden for Framework, Function, and Stream modes) -->
-                  <div v-if="mode !== 'framework' && mode !== 'function' && mode !== 'stream'" class="p-4 border-b border-gray-500/10">
-                    <!-- Optional Fields -->
-                    <div :class="isAuthenticated ? 'grid grid-cols-1 md:grid-cols-2 gap-4' : ''">
-                      <!-- Name field (only for authenticated users) -->
-                      <div v-if="isAuthenticated">
-                        <input
-                          v-model="endpointName"
-                          :disabled="loading.create"
-                          type="text"
-                          placeholder="Enter a name for your API"
-                          class="block w-full rounded-lg bg-gray-500/5 py-2.5 px-4 text-sm font-medium text-white placeholder:text-gray-500 border border-gray-500/10 hover:bg-gray-500/10 focus:outline-none focus:ring-2 focus:ring-gray-500/10 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150"
-                        />
-                      </div>
-                      <!-- Example Buttons (for snippet mode) -->
-                      <div v-if="mode === 'snippet'" class="relative flex items-end">
+                  <!-- Configuration Panel (hidden for Framework mode) -->
+                  <div v-if="mode !== 'framework'" class="p-4 border-b border-gray-500/10">
+                    <!-- Example Buttons (for snippet mode) -->
+                    <div v-if="mode === 'snippet'">
+                      <div class="relative">
                         <select
                           @change="loadExample(($event.target as HTMLSelectElement).value)"
                           :disabled="loading.create"
@@ -184,54 +132,6 @@
                       ]">
                         {{ codePercentage }}% used
                       </span>
-                    </div>
-                  </div>
-
-                  <!-- File Upload Mode -->
-                  <div v-else-if="mode === 'file'" class="p-8 bg-black">
-                    <div class="max-w-xl mx-auto">
-                      <label class="block">
-                        <div 
-                          @dragenter="handleDragEnter"
-                          @dragleave="handleDragLeave"
-                          @dragover="handleDragOver"
-                          @drop="handleDrop"
-                          :class="[
-                            'border-2 border-dashed rounded-lg p-8 text-center transition-all cursor-pointer',
-                            isDragging 
-                              ? 'border-blue-400 bg-blue-500/10 scale-105' 
-                              : 'border-gray-500/30 hover:border-gray-500/50'
-                          ]"
-                        >
-                          <input
-                            type="file"
-                            ref="fileInput"
-                            @change="handleFileSelect"
-                            accept=".js,.ts,.py"
-                            class="hidden"
-                            :disabled="loading.create"
-                          />
-                          <svg 
-                            :class="[
-                              'w-12 h-12 mx-auto mb-4 transition-colors',
-                              isDragging ? 'text-blue-400' : 'text-gray-400'
-                            ]" 
-                            fill="none" 
-                            stroke="currentColor" 
-                            viewBox="0 0 24 24"
-                          >
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                          </svg>
-                          <div v-if="selectedFile" class="mb-2">
-                            <p class="text-white font-medium">{{ selectedFile.name }}</p>
-                            <p class="text-xs text-gray-400">{{ formatFileSize(selectedFile.size) }}</p>
-                          </div>
-                          <p v-else :class="['mb-1', isDragging ? 'text-blue-400 font-medium' : 'text-gray-400']">
-                            {{ isDragging ? 'Drop file to upload' : 'Drop your file here or click to browse' }}
-                          </p>
-                          <p class="text-xs text-gray-500">Supports .js, .ts, .py (max 64KB)</p>
-                        </div>
-                      </label>
                     </div>
                   </div>
 
@@ -303,148 +203,6 @@
                     </div>
                   </div>
 
-                  <!-- Function Mode -->
-                  <div v-else-if="mode === 'function'" class="p-8 bg-black">
-                    <div class="max-w-2xl mx-auto">
-                      <div class="flex items-start space-x-3 mb-6">
-                        <svg class="w-8 h-8 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
-                        </svg>
-                        <div>
-                          <h3 class="text-lg font-semibold text-white mb-2">Function SDK</h3>
-                          <p class="text-gray-400 text-sm leading-relaxed mb-4">
-                            Expose single functions without setting up a full server.
-                          </p>
-                        </div>
-                      </div>
-                      
-                      <div class="space-y-4">
-                        <!-- Install SDK -->
-                        <div class="bg-gray-500/5 border border-gray-500/10 rounded-lg p-6">
-                          <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Install SDK</p>
-                          <div class="flex items-center justify-between bg-black rounded-lg p-3 font-mono text-sm">
-                            <code class="text-green-300">npm install @instantapihq/sdk</code>
-                            <button 
-                              @click="copyInstallCommand"
-                              class="ml-3 text-gray-400 hover:text-white transition-colors"
-                              title="Copy command"
-                            >
-                              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                              </svg>
-                            </button>
-                          </div>
-                        </div>
-                        
-                        <!-- Create functions -->
-                        <div class="bg-gray-500/5 border border-gray-500/10 rounded-lg p-6">
-                          <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">functions.ts</p>
-                          <pre class="bg-black rounded-lg p-4 text-sm overflow-x-auto"><code class="text-gray-300"><span class="text-purple-300">import</span> { <span class="text-blue-300">expose</span> } <span class="text-purple-300">from</span> <span class="text-green-300">'@instantapihq/sdk'</span>;
-
-<span class="text-blue-300">expose</span>(<span class="text-green-300">'hello'</span>, (<span class="text-orange-300">input</span>) => {
-  <span class="text-purple-300">return</span> {
-    message: <span class="text-green-300">`Hello \${<span class="text-orange-300">input</span>.name}!`</span>
-  };
-});</code></pre>
-                        </div>
-                        
-                        <!-- Expose by function name -->
-                        <div class="bg-gray-500/5 border border-gray-500/10 rounded-lg p-6">
-                          <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Expose by function name</p>
-                          <div class="flex items-center justify-between bg-black rounded-lg p-3 font-mono text-sm">
-                            <code class="text-green-300">npx @instantapihq/cli expose hello</code>
-                            <button 
-                              @click="copyExposeCommand"
-                              class="ml-3 text-gray-400 hover:text-white transition-colors"
-                              title="Copy command"
-                            >
-                              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                              </svg>
-                            </button>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- Stream Mode -->
-                  <div v-else-if="mode === 'stream'" class="p-8 bg-black">
-                    <div class="max-w-2xl mx-auto">
-                      <div class="flex items-start space-x-3 mb-6">
-                        <svg class="w-8 h-8 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
-                        </svg>
-                        <div>
-                          <h3 class="text-lg font-semibold text-white mb-2">Streaming</h3>
-                          <p class="text-gray-400 text-sm leading-relaxed mb-4">
-                            Expose streaming endpoints (SSE, WebSockets) from your local server to the internet instantly.
-                          </p>
-                        </div>
-                      </div>
-                      
-                      <div class="space-y-4">
-                        <!-- Framework with Streaming -->
-                        <div class="bg-gray-500/5 border border-gray-500/10 rounded-lg p-6">
-                          <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Expose Streaming Endpoint</p>
-                          <div class="flex items-center justify-between bg-black rounded-lg p-3 font-mono text-sm mb-4">
-                            <code class="text-green-300">npx @instantapihq/cli expose http://localhost:3000/api/stream</code>
-                            <button 
-                              @click="copyStreamCommand"
-                              class="ml-3 text-gray-400 hover:text-white transition-colors"
-                              title="Copy command"
-                            >
-                              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                              </svg>
-                            </button>
-                          </div>
-                          <div class="bg-gray-500/10 border border-gray-500/10 rounded-lg p-4">
-                            <p class="text-sm text-gray-400 mb-2">
-                              <span class="font-semibold">How it works:</span>
-                            </p>
-                            <ul class="text-sm text-gray-400 space-y-1 list-disc list-inside">
-                              <li>Automatically detects SSE and WebSocket requests</li>
-                              <li>Forwards streaming responses in real-time</li>
-                              <li>Supports Server-Sent Events (text/event-stream)</li>
-                              <li>Supports WebSocket upgrades</li>
-                            </ul>
-                          </div>
-                        </div>
-
-                        <!-- SSE Example -->
-                        <div class="bg-gray-500/5 border border-gray-500/10 rounded-lg p-6">
-                          <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Server-Sent Events Example (Express)</p>
-                          <pre class="bg-black rounded-lg p-4 text-sm overflow-x-auto"><code class="text-gray-300"><span class="text-purple-300">app</span>.<span class="text-blue-300">get</span>(<span class="text-green-300">'/api/stream'</span>, (<span class="text-orange-300">req</span>, <span class="text-orange-300">res</span>) => {
-  <span class="text-orange-300">res</span>.<span class="text-blue-300">setHeader</span>(<span class="text-green-300">'Content-Type'</span>, <span class="text-green-300">'text/event-stream'</span>);
-  <span class="text-orange-300">res</span>.<span class="text-blue-300">setHeader</span>(<span class="text-green-300">'Cache-Control'</span>, <span class="text-green-300">'no-cache'</span>);
-  <span class="text-orange-300">res</span>.<span class="text-blue-300">setHeader</span>(<span class="text-green-300">'Connection'</span>, <span class="text-green-300">'keep-alive'</span>);
-
-  <span class="text-purple-300">let</span> count = <span class="text-yellow-300">0</span>;
-  <span class="text-purple-300">const</span> interval = <span class="text-blue-300">setInterval</span>(() => {
-    <span class="text-orange-300">res</span>.<span class="text-blue-300">write</span>(<span class="text-green-300">`data: </span><span class="text-yellow-300">\${</span>JSON.<span class="text-blue-300">stringify</span>({ count: count++ })<span class="text-yellow-300">}</span><span class="text-green-300">\n\n`</span>);
-  }, <span class="text-yellow-300">1000</span>);
-
-  <span class="text-orange-300">req</span>.<span class="text-blue-300">on</span>(<span class="text-green-300">'close'</span>, () => {
-    <span class="text-blue-300">clearInterval</span>(interval);
-  });
-});</code></pre>
-                        </div>
-
-                        <!-- Client Example -->
-                        <div class="bg-gray-500/5 border border-gray-500/10 rounded-lg p-6">
-                          <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Client Example</p>
-                          <pre class="bg-black rounded-lg p-4 text-sm overflow-x-auto"><code class="text-gray-300"><span class="text-purple-300">const</span> eventSource = <span class="text-purple-300">new</span> <span class="text-blue-300">EventSource</span>(<span class="text-green-300">'https://api.instantapi.dev/t/YOUR_TUNNEL_ID'</span>);
-
-eventSource.<span class="text-blue-300">onmessage</span> = (<span class="text-orange-300">event</span>) => {
-  <span class="text-purple-300">const</span> data = JSON.<span class="text-blue-300">parse</span>(<span class="text-orange-300">event</span>.data);
-  console.<span class="text-blue-300">log</span>(<span class="text-green-300">'Received:'</span>, data);
-};</code></pre>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
                   <!-- Error Display -->
                   <div v-if="error.create" class="mx-4 mt-4">
                     <div class="p-4 bg-red-500/10 border border-red-500/20 rounded-lg space-y-3">
@@ -482,8 +240,8 @@ eventSource.<span class="text-blue-300">onmessage</span> = (<span class="text-or
                     </div>
                   </div>
 
-                  <!-- Configuration and Create Button (hidden for Framework, Function, and Stream modes) -->
-                  <div v-if="mode !== 'framework' && mode !== 'function' && mode !== 'stream'" class="flex justify-between items-end p-4 border-t border-gray-500/10">
+                  <!-- Configuration and Create Button (hidden for Framework mode) -->
+                  <div v-if="mode !== 'framework'" class="flex justify-between items-end p-4 border-t border-gray-500/10">
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                       <!-- Language Select -->
                       <div class="relative">
@@ -503,23 +261,13 @@ eventSource.<span class="text-blue-300">onmessage</span> = (<span class="text-or
                         </div>
                       </div>
 
-                      <!-- TTL Select -->
+                      <!-- TTL Display (fixed at 1 hour for public users) -->
                       <div class="relative">
                         <label class="block text-xs font-semibold mb-2 text-gray-300">Expires In</label>
-                        <select
-                          v-model="ttlHours"
-                          :disabled="loading.create || !isAuthenticated"
-                          class="block w-full appearance-none rounded-lg bg-gray-500/5 py-2.5 pl-4 pr-10 text-sm font-medium text-white border border-gray-500/10 hover:bg-gray-500/10 focus:outline-none focus:ring-2 focus:ring-gray-500/10 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150"
-                        >
-                          <option :value="1">1 hour</option>
-                          <option v-if="isAuthenticated" :value="24">24 hours</option>
-                          <option v-if="isAuthenticated" :value="168">7 days</option>
-                        </select>
-                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2 pt-6">
-                          <svg class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M10 3a.75.75 0 01.55.24l3.25 3.5a.75.75 0 11-1.1 1.02L10 4.852 7.3 7.76a.75.75 0 01-1.1-1.02l3.25-3.5A.75.75 0 0110 3zm-3.76 9.2a.75.75 0 011.06.04l2.7 2.908 2.7-2.908a.75.75 0 111.1 1.02l-3.25 3.5a.75.75 0 01-1.1 0l-3.25-3.5a.75.75 0 01.04-1.06z" clip-rule="evenodd" />
-                          </svg>
+                        <div class="block w-full rounded-lg bg-gray-500/5 py-2.5 px-4 text-sm font-medium text-gray-400 border border-gray-500/10">
+                          1 hour
                         </div>
+                        <!-- <p class="text-xs text-gray-500 mt-1">Sign in for more options</p> -->
                       </div>
 
                       <!-- Kind Select -->
@@ -800,125 +548,6 @@ eventSource.<span class="text-blue-300">onmessage</span> = (<span class="text-or
                   <pre class="code-block text-xs overflow-x-auto" v-html="highlightedPython"></pre>
                 </div>
               </div>
-
-              <!-- Test Request Section -->
-              <div class="border-t border-gray-500/20 pt-8">
-                <h3 class="text-lg font-medium mb-4 text-white">Test it now</h3>
-
-                <!-- Request Body -->
-                <div class="mb-4">
-                  <label class="block text-sm font-medium mb-2 text-gray-300">
-                    Request Body (JSON)
-                    <span v-if="!jsonValidationError" class="text-green-300 text-xs ml-2">✓ Valid</span>
-                  </label>
-                  <textarea
-                    v-model="requestBody"
-                    :class="[
-                      'input-field font-mono text-sm',
-                      jsonValidationError ? 'border-red-400/10 focus:ring-red-400/10' : ''
-                    ]"
-                    rows="6"
-                    :disabled="loading.test"
-                  ></textarea>
-                  <!-- JSON Validation Error -->
-                  <div v-if="jsonValidationError" class="mt-2 p-2 bg-yellow-300/10 border border-yellow-300/10 rounded text-yellow-300 text-xs flex items-start gap-2">
-                    <svg class="w-4 h-4 shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                      <path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
-                    </svg>
-                    <span>{{ jsonValidationError }}</span>
-                  </div>
-                </div>
-
-                <!-- Error Display -->
-                <div v-if="error.test" class="mb-4">
-                  <div class="p-4 bg-red-500/10 border border-red-500/20 rounded-lg space-y-3">
-                    <div class="flex items-start justify-between gap-3">
-                      <div class="flex items-start gap-2 flex-1">
-                        <svg class="w-5 h-5 text-red-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        <div class="flex-1">
-                          <p class="text-red-400 text-sm font-medium">{{ error.test }}</p>
-                          <div v-if="errorDetails.test" class="mt-2">
-                            <button
-                              @click="showTestErrorDetails = !showTestErrorDetails"
-                              class="text-xs text-red-300 hover:text-red-200 flex items-center gap-1"
-                            >
-                              <svg class="w-3 h-3" :class="showTestErrorDetails ? 'rotate-90' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                              </svg>
-                              {{ showTestErrorDetails ? 'Hide' : 'Show' }} details
-                            </button>
-                            <pre v-if="showTestErrorDetails" class="mt-2 p-3 bg-black/30 rounded text-xs text-red-300 overflow-x-auto">{{ errorDetails.test }}</pre>
-                          </div>
-                        </div>
-                      </div>
-                      <button
-                        @click="retryTestEndpoint"
-                        class="shrink-0 px-3 py-1.5 bg-red-500/20 hover:bg-red-500/30 text-red-300 hover:text-red-200 rounded text-xs font-medium transition-colors flex items-center gap-1.5"
-                      >
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                        </svg>
-                        Retry
-                      </button>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Send Button -->
-                <button
-                  @click="testEndpoint"
-                  :disabled="loading.test"
-                  class="btn-primary w-full mb-6 flex items-center justify-center gap-2"
-                >
-                  <!-- Loading Spinner -->
-                  <svg v-if="loading.test" class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  <span v-if="loading.test">Sending...</span>
-                  <span v-else>Test Endpoint</span>
-                </button>
-
-                <!-- Response Display -->
-                <div v-if="responseBody !== null || executionError" class="space-y-4">
-                  <!-- Error -->
-                  <div v-if="executionError">
-                    <label class="block text-sm font-medium mb-2 text-gray-300">
-                      Error
-                    </label>
-                    <div class="p-4 bg-red-400/10 border border-red-400/20 rounded text-red-400 text-sm">
-                      <div class="font-medium">{{ executionError.message }}</div>
-                      <div v-if="executionError.stack" class="mt-2 text-xs opacity-75 font-mono">{{ executionError.stack }}</div>
-                    </div>
-                  </div>
-
-                  <!-- Result -->
-                  <div v-if="responseBody !== null && !executionError">
-                    <label class="block text-sm font-medium mb-2 text-gray-300">
-                      Response
-                      <span v-if="executionTime" class="text-gray-500 text-xs ml-2">
-                        ({{ executionTime }}ms)
-                      </span>
-                    </label>
-                    <pre class="code-block text-green-300">{{ formatJson(responseBody) }}</pre>
-                  </div>
-
-                  <!-- Logs -->
-                  <div v-if="responseBody !== null || executionError">
-                    <label class="block text-sm font-medium mb-2 text-gray-300">
-                      Logs
-                    </label>
-                    <div v-if="logs && logs.length > 0" class="code-block text-gray-400 max-h-64 overflow-y-auto">
-                      <div v-for="(log, index) in logs" :key="index">{{ log }}</div>
-                    </div>
-                    <div v-else class="p-4 bg-gray-500/5 border border-gray-500/10 rounded text-gray-500 text-sm text-center italic">
-                      No console logs produced
-                  </div>
-                </div>
-              </div>
-              </div>
                     </div>
                   </Transition>
                 </div>
@@ -1028,12 +657,21 @@ eventSource.<span class="text-blue-300">onmessage</span> = (<span class="text-or
         </div>
       </div>
     </Teleport>
-    </div>
   </div>
 </template>
 
 <script setup lang="ts">
+// Redirect authenticated users to dashboard
+definePageMeta({
+  middleware: ['guest'],
+});
+
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
+
+// Set page title
+useHead({
+  title: 'Instant API - Turn code into APIs instantly',
+});
 
 const config = useRuntimeConfig()
 const API_BASE = config.public.apiBase
@@ -1157,7 +795,8 @@ watch([code, language, mode, kind, ttlHours, endpointName, endpointDescription],
 
 // Fetch user's endpoints
 async function fetchEndpoints() {
-  if (!isAuthenticated.value) return;
+  // Not used on public page - authenticated users are redirected to /dashboard
+  return;
   
   loading.value.dashboard = true;
   try {
@@ -1169,13 +808,10 @@ async function fetchEndpoints() {
     });
     if (response.ok) {
       const data = await response.json();
-      console.log('📋 Fetched endpoints:', data);
       endpoints.value = data;
-    } else {
-      console.error('Failed to fetch endpoints:', response.status, response.statusText);
     }
   } catch (error) {
-    console.error('Failed to fetch endpoints:', error);
+    // Failed to fetch endpoints
   } finally {
     loading.value.dashboard = false;
   }
@@ -1183,7 +819,8 @@ async function fetchEndpoints() {
 
 // Fetch user's tunnels
 async function fetchTunnels() {
-  if (!isAuthenticated.value) return;
+  // Not used on public page - authenticated users are redirected to /dashboard
+  return;
   
   try {
     const { token } = useAuth();
@@ -1196,14 +833,14 @@ async function fetchTunnels() {
       tunnels.value = await response.json();
     }
   } catch (error) {
-    console.error('Failed to fetch tunnels:', error);
+    // Failed to fetch tunnels
   }
 }
 
 // Fetch all dashboard data
 async function fetchDashboard() {
-  if (!isAuthenticated.value) return;
-  await Promise.all([fetchEndpoints(), fetchTunnels()]);
+  // Not used on public page - authenticated users are redirected to /dashboard
+  return;
 }
 
 // Show delete confirmation modal
@@ -1277,22 +914,18 @@ onMounted(() => {
         language.value = draft.language || 'javascript'
         mode.value = draft.mode || 'snippet'
         kind.value = draft.kind || 'snippet'
-        // Non-authenticated users can only use 1 hour TTL
-        const restoredTTL = draft.ttlHours || 1
-        ttlHours.value = isAuthenticated.value ? restoredTTL : 1
-        endpointName.value = draft.endpointName || ''
-        endpointDescription.value = draft.endpointDescription || ''
+        // Public page - always 1 hour TTL, no name/description
+        ttlHours.value = 1
+        endpointName.value = ''
+        endpointDescription.value = ''
         // Draft restored silently - no need to notify
       }
     } catch (e) {
-      console.error('Failed to load draft:', e)
+      // Failed to load draft
     }
   }
   
-  // Fetch dashboard data on mount if authenticated
-  if (isAuthenticated.value) {
-    fetchDashboard()
-  }
+  // No dashboard data to fetch on public page - authenticated users redirected to /dashboard
   
   // Handle Escape key for fullscreen editor
   const handleKeydown = (e: KeyboardEvent) => {
@@ -1790,8 +1423,6 @@ async function createEndpoint() {
       return
     }
 
-    console.log('✅ Created endpoint:', data);
-
     endpointId.value = data.id
     endpointUrl.value = data.url
     expiresAt.value = new Date(data.expiresAt).toLocaleString()
@@ -1809,11 +1440,7 @@ async function createEndpoint() {
     // Show success toast
     showToast('🎉 API endpoint created successfully!', 'success', 3000)
     
-    // Refresh dashboard if authenticated
-    if (isAuthenticated.value) {
-      console.log('🔄 Refreshing dashboard after endpoint creation...');
-      await fetchDashboard()
-    }
+    // No dashboard refresh needed on public page
   } catch (err: any) {
     const errorMessage = err.message || 'Failed to create endpoint'
     error.value.create = errorMessage
@@ -2010,30 +1637,5 @@ function formatJson(obj: any): string {
   }
 }
 
-// No auth middleware - page is public but shows different content based on auth state
-definePageMeta({
-  middleware: [],
-});
-
-// Set page title
-useHead({
-  title: 'Instant API - Turn code into APIs instantly',
-});
-
-// Check auth state (auth is initialized by plugin)
-const { isAuthenticated, initialized: authInitialized } = useAuth();
-
-// Redirect authenticated users to dashboard
-watch(isAuthenticated, (authenticated) => {
-  if (authenticated && authInitialized.value) {
-    router.push('/dashboard')
-  }
-})
-
-// Check on mount as well
-onMounted(() => {
-  if (isAuthenticated.value && authInitialized.value) {
-    router.push('/dashboard')
-  }
-})
+// Auth state is now initialized synchronously, no need to track initialization
 </script>

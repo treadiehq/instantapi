@@ -127,7 +127,6 @@ export class TunnelsController {
         body = req.body;
       }
 
-      console.log(`[Tunnel] Incoming ${method} request to tunnel ${tunnelId}${path}`);
 
       // Create tunnel request
       const { id: requestId, isStreaming } =
@@ -170,7 +169,6 @@ export class TunnelsController {
               res.end();
             }
           } catch (error) {
-            console.error('[Tunnel] Stream error:', error);
             clearInterval(streamInterval);
             res.end();
           }
@@ -215,7 +213,6 @@ export class TunnelsController {
         }
       }
     } catch (error: any) {
-      console.error('[Tunnel] Error handling request:', error);
       return res.status(500).json({
         error: 'Internal Server Error',
         message: error.message,

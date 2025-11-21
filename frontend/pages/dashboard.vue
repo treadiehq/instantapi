@@ -1,10 +1,11 @@
 <template>
   <div class="min-h-screen relative">
-    <!-- User Header -->
-    <UserHeader />
+    <div>
+      <!-- User Header -->
+      <UserHeader />
 
-    <!-- Main Content -->
-    <div class="py-12 px-4 sm:px-6 lg:px-0 antialiased">
+      <!-- Main Content -->
+      <div class="py-12 px-4 sm:px-6 lg:px-0 antialiased">
       <div class="max-w-7xl mx-auto">
         <!-- Two Column Layout (authenticated dashboard) -->
         <div class="grid grid-cols-1 lg:grid-cols-5 gap-6">
@@ -838,7 +839,7 @@ eventSource.<span class="text-blue-300">onmessage</span> = (<span class="text-or
                     <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
                   <span v-if="loading.test">Sending...</span>
-                  <span v-else>Test Endpoint</span>
+                  <span v-else>Test endpoint</span>
                 </button>
 
                 <!-- Response Display -->
@@ -1010,6 +1011,7 @@ eventSource.<span class="text-blue-300">onmessage</span> = (<span class="text-or
           </div>
         </div>
       </div>
+    </div>
     
     <!-- Toast Notifications -->
     <Toast ref="toastComponent" />
@@ -1120,9 +1122,20 @@ definePageMeta({
 
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 
+// Set page title
+useHead({
+  title: 'Dashboard - Instant API',
+});
+
 const config = useRuntimeConfig()
 const API_BASE = config.public.apiBase
 const router = useRouter()
+
+// Auth is now handled by middleware and ClientOnly wrapper in app.vue
+onMounted(() => {
+  // Fetch dashboard data when mounted
+  fetchDashboard()
+})
 
 // Toast notification system
 const toastComponent = ref<any>(null)
@@ -1254,13 +1267,10 @@ async function fetchEndpoints() {
     });
     if (response.ok) {
       const data = await response.json();
-      console.log('📋 Fetched endpoints:', data);
       endpoints.value = data;
-    } else {
-      console.error('Failed to fetch endpoints:', response.status, response.statusText);
     }
   } catch (error) {
-    console.error('Failed to fetch endpoints:', error);
+    // Failed to fetch endpoints
   } finally {
     loading.value.dashboard = false;
   }
@@ -1281,7 +1291,7 @@ async function fetchTunnels() {
       tunnels.value = await response.json();
     }
   } catch (error) {
-    console.error('Failed to fetch tunnels:', error);
+    // Failed to fetch tunnels
   }
 }
 
@@ -1370,7 +1380,7 @@ onMounted(() => {
         // Draft restored silently - no need to notify
       }
     } catch (e) {
-      console.error('Failed to load draft:', e)
+      // Failed to load draft
     }
   }
   
@@ -1875,8 +1885,6 @@ async function createEndpoint() {
       return
     }
 
-    console.log('✅ Created endpoint:', data);
-
     endpointId.value = data.id
     endpointUrl.value = data.url
     expiresAt.value = new Date(data.expiresAt).toLocaleString()
@@ -1896,7 +1904,6 @@ async function createEndpoint() {
     
     // Refresh dashboard if authenticated
     if (isAuthenticated.value) {
-      console.log('🔄 Refreshing dashboard after endpoint creation...');
       await fetchDashboard()
     }
   } catch (err: any) {
@@ -2095,18 +2102,8 @@ function formatJson(obj: any): string {
   }
 }
 
-// No auth middleware - page is public but shows different content based on auth state
-definePageMeta({
-  middleware: [],
-});
-
-// Set page title
-useHead({
-  title: 'Instant API - Turn code into APIs instantly',
-});
-
-// Check auth state (auth is initialized by plugin)
-const { isAuthenticated, initialized: authInitialized } = useAuth();
+// Auth state is now initialized synchronously
+const { isAuthenticated } = useAuth();
 
 // Ensure non-authenticated users can only use 1 hour TTL and clear name/description
 watch(isAuthenticated, (authenticated) => {

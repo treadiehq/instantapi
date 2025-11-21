@@ -29,7 +29,6 @@ export class AdminGuard implements CanActivate {
     if (this.adminEmails.size === 0) {
       console.warn('⚠️  No admin emails configured. Set ADMIN_EMAILS environment variable.');
     } else {
-      console.log(`🔐 Admin guard initialized with ${this.adminEmails.size} admin(s)`);
     }
   }
 
@@ -44,11 +43,9 @@ export class AdminGuard implements CanActivate {
     const isAdmin = this.adminEmails.has(user.email.toLowerCase());
 
     if (!isAdmin) {
-      console.log(`🚫 Admin access denied for: ${user.email}`);
       throw new ForbiddenException('Admin access required');
     }
 
-    console.log(`✅ Admin access granted: ${user.email}`);
     return true;
   }
 }
