@@ -518,15 +518,19 @@ eventSource.<span class="text-blue-300">onmessage</span> = (<span class="text-or
                     <button
                       @click="createEndpoint"
                       :disabled="loading.create || (!code.trim() && !selectedFile)"
-                      class="btn-primary w-auto h-10 text-sm py-2 font-medium flex items-center gap-2 min-w-[140px] justify-center"
+                      class="btn-primary w-auto h-10 text-sm py-2 font-semibold flex items-center gap-2 min-w-[140px] justify-center hover:shadow-lg hover:shadow-blue-500/20 transition-all duration-200"
+                      :title="(!code.trim() && !selectedFile) ? 'Please add some code first' : 'Create your API endpoint'"
                     >
                       <!-- Loading Spinner -->
                       <svg v-if="loading.create" class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                       </svg>
-                      <span v-if="loading.create">Creating...</span>
-                      <span v-else>Create an API</span>
+                      <svg v-else class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                      </svg>
+                      <span v-if="loading.create">{{ loadingMessage }}</span>
+                      <span v-else>Create API</span>
                     </button>
                   </div>
                 </div>
@@ -891,67 +895,135 @@ eventSource.<span class="text-blue-300">onmessage</span> = (<span class="text-or
           <div v-if="isAuthenticated" class="lg:col-span-2 lg:sticky lg:top-6 lg:self-start">
             <h2 class="text-lg font-bold text-white mb-4">My APIs</h2>
             
-            <div v-if="loading.dashboard" class="text-center py-8">
-              <svg class="animate-spin h-6 w-6 text-blue-300 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <div v-if="loading.dashboard" class="text-center py-12">
+              <svg class="animate-spin h-8 w-8 text-blue-300 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
-              <p class="text-gray-400 mt-3 text-sm">Loading...</p>
+              <p class="text-gray-300 mt-4 text-sm font-medium">Loading your APIs...</p>
+              <p class="text-gray-500 mt-1 text-xs">This will only take a moment</p>
             </div>
 
-            <div v-else-if="!endpoints.length && !tunnels.length" class="border border-gray-500/15 rounded-lg p-8 text-center bg-gray-500/5">
-              <div class="flex flex-col items-center space-y-4">
-                <svg class="w-12 h-12 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
-                </svg>
-                <div class="space-y-1">
-                  <p class="text-white text-sm font-medium">No APIs yet</p>
-                  <p class="text-gray-400 text-xs">Create your first API to get started</p>
+            <div v-else-if="!endpoints.length && !tunnels.length" class="border border-gray-500/15 rounded-lg p-10 text-center bg-gradient-to-br from-gray-500/5 to-transparent">
+              <div class="flex flex-col items-center space-y-5">
+                <!-- Animated illustration -->
+                <div class="relative">
+                  <svg class="w-16 h-16 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                  </svg>
+                  <div class="absolute inset-0 animate-ping opacity-20">
+                    <svg class="w-16 h-16 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                    </svg>
+                  </div>
                 </div>
-                <button 
-                  @click="switchToSnippetMode"
-                  class="mt-2 px-4 py-2 bg-blue-300/10 hover:bg-blue-300/20 text-blue-300 text-xs font-medium rounded-lg transition-colors"
-                >
-                  Create Your First API →
-                </button>
+                <div class="space-y-2">
+                  <p class="text-white text-base font-semibold">No APIs yet</p>
+                  <p class="text-gray-400 text-sm max-w-xs">Create your first API endpoint in seconds. Choose from code snippets, file uploads, or framework tunnels.</p>
+                </div>
+                <div class="flex flex-col gap-2 w-full max-w-xs">
+                  <button 
+                    @click="switchToSnippetMode"
+                    class="btn-primary py-2.5 text-sm flex items-center justify-center gap-2 group"
+                    title="Create a new API endpoint"
+                  >
+                    <svg class="w-4 h-4 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                    </svg>
+                    Create Your First API
+                  </button>
+                  <a href="https://github.com/treadiehq/instantapi#readme" target="_blank" rel="noopener" class="text-xs text-gray-400 hover:text-blue-300 transition-colors">
+                    View documentation →
+                  </a>
+                </div>
               </div>
             </div>
 
             <div v-else class="space-y-3 max-h-[calc(100vh-200px)] overflow-y-auto">
               <!-- Endpoints Section -->
               <div v-if="endpoints.length > 0">
-                <h3 class="text-xs font-semibold text-gray-400 mb-2 uppercase tracking-wide">Endpoints ({{ endpoints.length }})</h3>
-                <div class="space-y-2">
-                  <div v-for="endpoint in paginatedEndpoints" :key="endpoint.id" class="border border-gray-500/15 rounded-lg p-3 bg-gray-500/5 hover:bg-gray-500/10 transition-colors">
-                    <div class="space-y-2">
-                      <div class="flex items-center gap-1.5 flex-wrap">
-                        <span class="text-xs px-1.5 py-0.5 rounded bg-blue-300/10 text-blue-300">{{ endpoint.kind }}</span>
-                        <span class="text-xs px-1.5 py-0.5 rounded bg-gray-500/20 text-gray-400">{{ endpoint.language }}</span>
-                        <span v-if="endpoint.name" class="text-xs font-medium text-white truncate">{{ endpoint.name }}</span>
-                      </div>
-                      <p v-if="endpoint.description" class="text-xs text-gray-400 line-clamp-2">{{ endpoint.description }}</p>
-                      <div class="flex items-center justify-between">
-                        <span class="text-xs text-gray-500">{{ formatDate(endpoint.createdAt) }}</span>
-                        <div class="flex gap-2">
-                          <button 
-                            @click="copyToClipboard(endpoint.url, `endpoint-${endpoint.id}`)" 
-                            :class="[
-                              'text-xs px-2 py-1 rounded transition-colors',
-                              isCopied(`endpoint-${endpoint.id}`)
-                                ? 'bg-green-300/10 text-green-300'
-                                : 'bg-gray-500/10 text-gray-300 hover:bg-gray-500/20'
-                            ]"
+                <div class="flex items-center justify-between mb-3">
+                  <h3 class="text-xs font-semibold text-gray-300 uppercase tracking-wide">Endpoints</h3>
+                  <span class="text-xs text-gray-500 bg-gray-500/10 px-2 py-0.5 rounded-full">{{ endpoints.length }}</span>
+                </div>
+                <div class="space-y-2.5">
+                  <div v-for="endpoint in paginatedEndpoints" :key="endpoint.id" class="group border border-gray-500/15 rounded-xl p-4 bg-gray-500/5 hover:bg-gray-500/10 hover:border-gray-500/25 transition-all duration-200 hover:shadow-lg hover:shadow-black/20">
+                    <div class="space-y-3">
+                      <!-- Header with language icon and status -->
+                      <div class="flex items-start justify-between gap-3">
+                        <div class="flex items-center gap-2.5 flex-1 min-w-0">
+                          <!-- Language Icon -->
+                          <div 
+                            class="shrink-0 w-8 h-8 rounded-lg flex items-center justify-center"
+                            :class="endpoint.language === 'javascript' ? 'bg-yellow-300/10' : 'bg-blue-300/10'"
+                            :title="endpoint.language"
                           >
-                            {{ isCopied(`endpoint-${endpoint.id}`) ? '✓ Copied' : 'Copy' }}
-                          </button>
-                          <button 
-                            @click="confirmDeleteEndpoint(endpoint)" 
-                            :disabled="deletingEndpointId === endpoint.id"
-                            class="text-xs px-2 py-1 rounded bg-red-400/10 text-red-400 hover:bg-red-500/20 transition-colors disabled:opacity-50"
-                          >
-                            {{ deletingEndpointId === endpoint.id ? '...' : 'Delete' }}
-                          </button>
+                            <!-- JavaScript Icon -->
+                            <svg v-if="endpoint.language === 'javascript'" class="w-5 h-5 text-yellow-300" viewBox="0 0 24 24" fill="currentColor">
+                              <path d="M0 0h24v24H0V0zm22.034 18.276c-.175-1.095-.888-2.015-3.003-2.873-.736-.345-1.554-.585-1.797-1.14-.091-.33-.105-.51-.046-.705.15-.646.915-.84 1.515-.66.39.12.75.42.976.9 1.034-.676 1.034-.676 1.755-1.125-.27-.42-.404-.601-.586-.78-.63-.705-1.469-1.065-2.834-1.034l-.705.089c-.676.165-1.32.525-1.71 1.005-1.14 1.291-.811 3.541.569 4.471 1.365 1.02 3.361 1.244 3.616 2.205.24 1.17-.87 1.545-1.966 1.41-.811-.18-1.26-.586-1.755-1.336l-1.83 1.051c.21.48.45.689.81 1.109 1.74 1.756 6.09 1.666 6.871-1.004.029-.09.24-.705.074-1.65l.046.067zm-8.983-7.245h-2.248c0 1.938-.009 3.864-.009 5.805 0 1.232.063 2.363-.138 2.711-.33.689-1.18.601-1.566.48-.396-.196-.597-.466-.83-.855-.063-.105-.11-.196-.127-.196l-1.825 1.125c.305.63.75 1.172 1.324 1.517.855.51 2.004.675 3.207.405.783-.226 1.458-.691 1.811-1.411.51-.93.402-2.07.397-3.346.012-2.054 0-4.109 0-6.179l.004-.056z"/>
+                            </svg>
+                            <!-- Python Icon -->
+                            <svg v-else class="w-5 h-5 text-blue-300" viewBox="0 0 24 24" fill="currentColor">
+                              <path d="M14.25.18l.9.2.73.26.59.3.45.32.34.34.25.34.16.33.1.3.04.26.02.2-.01.13V8.5l-.05.63-.13.55-.21.46-.26.38-.3.31-.33.25-.35.19-.35.14-.33.1-.3.07-.26.04-.21.02H8.77l-.69.05-.59.14-.5.22-.41.27-.33.32-.27.35-.2.36-.15.37-.1.35-.07.32-.04.27-.02.21v3.06H3.17l-.21-.03-.28-.07-.32-.12-.35-.18-.36-.26-.36-.36-.35-.46-.32-.59-.28-.73-.21-.88-.14-1.05-.05-1.23.06-1.22.16-1.04.24-.87.32-.71.36-.57.4-.44.42-.33.42-.24.4-.16.36-.1.32-.05.24-.01h.16l.06.01h8.16v-.83H6.18l-.01-2.75-.02-.37.05-.34.11-.31.17-.28.25-.26.31-.23.38-.2.44-.18.51-.15.58-.12.64-.1.71-.06.77-.04.84-.02 1.27.05zm-6.3 1.98l-.23.33-.08.41.08.41.23.34.33.22.41.09.41-.09.33-.22.23-.34.08-.41-.08-.41-.23-.33-.33-.22-.41-.09-.41.09zm13.09 3.95l.28.06.32.12.35.18.36.27.36.35.35.47.32.59.28.73.21.88.14 1.04.05 1.23-.06 1.23-.16 1.04-.24.86-.32.71-.36.57-.4.45-.42.33-.42.24-.4.16-.36.09-.32.05-.24.02-.16-.01h-8.22v.82h5.84l.01 2.76.02.36-.05.34-.11.31-.17.29-.25.25-.31.24-.38.2-.44.17-.51.15-.58.13-.64.09-.71.07-.77.04-.84.01-1.27-.04-1.07-.14-.9-.2-.73-.25-.59-.3-.45-.33-.34-.34-.25-.34-.16-.33-.1-.3-.04-.25-.02-.2.01-.13v-5.34l.05-.64.13-.54.21-.46.26-.38.3-.32.33-.24.35-.2.35-.14.33-.1.3-.06.26-.04.21-.02.13-.01h5.84l.69-.05.59-.14.5-.21.41-.28.33-.32.27-.35.2-.36.15-.36.1-.35.07-.32.04-.28.02-.21V6.07h2.09l.14.01zm-6.47 14.25l-.23.33-.08.41.08.41.23.33.33.23.41.08.41-.08.33-.23.23-.33.08-.41-.08-.41-.23-.33-.33-.23-.41-.08-.41.08z"/>
+                            </svg>
+                          </div>
+                          
+                          <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-2 mb-1">
+                              <span v-if="endpoint.name" class="text-sm font-semibold text-white truncate" :title="endpoint.name">{{ endpoint.name }}</span>
+                              <span v-else class="text-sm text-gray-400 truncate">Unnamed API</span>
+                            </div>
+                            <div class="flex items-center gap-1.5 flex-wrap">
+                              <span class="text-xs px-1.5 py-0.5 rounded-md font-medium" :class="endpoint.kind === 'webhook' ? 'bg-purple-400/10 text-purple-300' : 'bg-blue-300/10 text-blue-300'">{{ endpoint.kind }}</span>
+                              <span class="text-xs text-gray-500">•</span>
+                              <span class="text-xs text-gray-400">{{ formatDate(endpoint.createdAt) }}</span>
+                            </div>
+                          </div>
                         </div>
+                        
+                        <!-- Status Indicator -->
+                        <div 
+                          class="shrink-0 flex items-center gap-1.5 text-xs px-2 py-1 rounded-full bg-green-300/10 text-green-300 border border-green-300/10"
+                          title="API is active and ready to receive requests"
+                        >
+                          <span class="w-1.5 h-1.5 rounded-full bg-green-300 animate-pulse"></span>
+                          <span class="font-medium">Active</span>
+                        </div>
+                      </div>
+                      
+                      <p v-if="endpoint.description" class="text-xs text-gray-400 leading-relaxed line-clamp-2" :title="endpoint.description">{{ endpoint.description }}</p>
+                      
+                      <!-- Actions -->
+                      <div class="flex items-center gap-2 pt-1">
+                        <button 
+                          @click="copyToClipboard(endpoint.url, `endpoint-${endpoint.id}`)" 
+                          :class="[
+                            'flex-1 text-xs px-3 py-2 rounded-lg font-medium transition-all duration-200 flex items-center justify-center gap-1.5',
+                            isCopied(`endpoint-${endpoint.id}`)
+                              ? 'bg-green-300/20 text-green-300 border border-green-300/30'
+                              : 'bg-gray-500/10 text-gray-300 hover:bg-gray-500/20 border border-transparent'
+                          ]"
+                          :title="isCopied(`endpoint-${endpoint.id}`) ? 'URL copied!' : 'Copy API URL'"
+                        >
+                          <svg v-if="isCopied(`endpoint-${endpoint.id}`)" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                          </svg>
+                          <svg v-else class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                          </svg>
+                          {{ isCopied(`endpoint-${endpoint.id}`) ? 'Copied!' : 'Copy URL' }}
+                        </button>
+                        <button 
+                          @click="confirmDeleteEndpoint(endpoint)" 
+                          :disabled="deletingEndpointId === endpoint.id"
+                          class="shrink-0 text-xs px-3 py-2 rounded-lg font-medium bg-red-400/10 text-red-400 hover:bg-red-500/20 border border-transparent hover:border-red-500/30 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5"
+                          title="Delete this API endpoint"
+                        >
+                          <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                          {{ deletingEndpointId === endpoint.id ? 'Deleting...' : 'Delete' }}
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -960,39 +1032,88 @@ eventSource.<span class="text-blue-300">onmessage</span> = (<span class="text-or
                 <button 
                   v-if="hasMoreEndpoints"
                   @click="endpointsPage++"
-                  class="mt-2 w-full text-xs py-2 px-3 rounded bg-gray-500/5 hover:bg-gray-500/10 text-gray-400 hover:text-gray-300 transition-colors"
+                  class="mt-3 w-full text-xs py-2.5 px-3 rounded-lg bg-gray-500/10 hover:bg-gray-500/15 text-gray-300 hover:text-white transition-all duration-200 font-medium border border-gray-500/20 hover:border-gray-500/30 flex items-center justify-center gap-2"
+                  title="Load more endpoints"
                 >
-                  Show More ({{ endpoints.length - paginatedEndpoints.length }} more)
+                  <span>Show {{ endpoints.length - paginatedEndpoints.length }} more</span>
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                  </svg>
                 </button>
               </div>
 
               <!-- Tunnels Section -->
-              <div v-if="tunnels.length > 0" class="mt-4">
-                <h3 class="text-xs font-semibold text-gray-400 mb-2 uppercase tracking-wide">Tunnels ({{ tunnels.length }})</h3>
-                <div class="space-y-2">
-                  <div v-for="tunnel in paginatedTunnels" :key="tunnel.id" class="border border-gray-500/15 rounded-lg p-3 bg-gray-500/5 hover:bg-gray-500/10 transition-colors">
-                    <div class="space-y-2">
-                      <div class="flex items-center gap-1.5 flex-wrap">
-                        <span class="text-xs px-1.5 py-0.5 rounded bg-green-300/10 text-green-300">
-                          {{ tunnel.targetUrl.includes('/fn/') ? 'function' : 'framework' }}
-                        </span>
-                        <span class="text-xs px-1.5 py-0.5 rounded" :class="tunnel.isActive ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'">
-                          {{ tunnel.isActive ? 'active' : 'inactive' }}
-                        </span>
+              <div v-if="tunnels.length > 0" class="mt-6">
+                <div class="flex items-center justify-between mb-3">
+                  <h3 class="text-xs font-semibold text-gray-300 uppercase tracking-wide">Tunnels</h3>
+                  <span class="text-xs text-gray-500 bg-gray-500/10 px-2 py-0.5 rounded-full">{{ tunnels.length }}</span>
+                </div>
+                <div class="space-y-2.5">
+                  <div v-for="tunnel in paginatedTunnels" :key="tunnel.id" class="group border border-gray-500/15 rounded-xl p-4 bg-gray-500/5 hover:bg-gray-500/10 hover:border-gray-500/25 transition-all duration-200 hover:shadow-lg hover:shadow-black/20">
+                    <div class="space-y-3">
+                      <!-- Header -->
+                      <div class="flex items-start justify-between gap-3">
+                        <div class="flex items-center gap-2.5 flex-1 min-w-0">
+                          <!-- Tunnel Icon -->
+                          <div class="shrink-0 w-8 h-8 rounded-lg bg-green-400/10 flex items-center justify-center">
+                            <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                            </svg>
+                          </div>
+                          
+                          <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-2 mb-1">
+                              <span class="text-xs px-1.5 py-0.5 rounded-md font-medium bg-green-300/10 text-green-300">
+                                {{ tunnel.targetUrl.includes('/fn/') ? 'function' : 'framework' }}
+                              </span>
+                              <span class="text-xs text-gray-500">•</span>
+                              <span class="text-xs text-gray-400">{{ formatDate(tunnel.lastSeenAt) }}</span>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <!-- Status Indicator -->
+                        <div 
+                          :class="[
+                            'shrink-0 flex items-center gap-1.5 text-xs px-2 py-1 rounded-full border',
+                            tunnel.isActive 
+                              ? 'bg-green-500/10 text-green-400 border-green-500/20' 
+                              : 'bg-red-500/10 text-red-400 border-red-500/20'
+                          ]"
+                          :title="tunnel.isActive ? 'Tunnel is active' : 'Tunnel is inactive'"
+                        >
+                          <span :class="['w-1.5 h-1.5 rounded-full', tunnel.isActive ? 'bg-green-400 animate-pulse' : 'bg-red-400']"></span>
+                          <span class="font-medium">{{ tunnel.isActive ? 'Active' : 'Inactive' }}</span>
+                        </div>
                       </div>
-                      <p class="text-xs text-gray-400 font-mono truncate">→ {{ tunnel.targetUrl }}</p>
-                      <div class="flex items-center justify-between">
-                        <span class="text-xs text-gray-500">{{ formatDate(tunnel.lastSeenAt) }}</span>
+                      
+                      <!-- Target URL -->
+                      <div class="flex items-center gap-2 text-xs">
+                        <svg class="w-3.5 h-3.5 text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                        </svg>
+                        <span class="text-gray-400 font-mono truncate" :title="tunnel.targetUrl">{{ tunnel.targetUrl }}</span>
+                      </div>
+                      
+                      <!-- Actions -->
+                      <div class="pt-1">
                         <button 
                           @click="copyToClipboard(`${API_BASE}/t/${tunnel.id}`, `tunnel-${tunnel.id}`)"
                           :class="[
-                            'text-xs px-2 py-1 rounded transition-colors',
+                            'w-full text-xs px-3 py-2 rounded-lg font-medium transition-all duration-200 flex items-center justify-center gap-1.5',
                             isCopied(`tunnel-${tunnel.id}`)
-                              ? 'bg-green-500/10 text-green-400'
-                              : 'bg-gray-500/10 text-gray-300 hover:bg-gray-500/20'
+                              ? 'bg-green-300/20 text-green-300 border border-green-300/30'
+                              : 'bg-gray-500/10 text-gray-300 hover:bg-gray-500/20 border border-transparent'
                           ]"
+                          :title="isCopied(`tunnel-${tunnel.id}`) ? 'URL copied!' : 'Copy tunnel URL'"
                         >
-                          {{ isCopied(`tunnel-${tunnel.id}`) ? '✓ Copied' : 'Copy' }}
+                          <svg v-if="isCopied(`tunnel-${tunnel.id}`)" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                          </svg>
+                          <svg v-else class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                          </svg>
+                          {{ isCopied(`tunnel-${tunnel.id}`) ? 'Copied!' : 'Copy URL' }}
                         </button>
                       </div>
                     </div>
@@ -1002,9 +1123,13 @@ eventSource.<span class="text-blue-300">onmessage</span> = (<span class="text-or
                 <button 
                   v-if="hasMoreTunnels"
                   @click="tunnelsPage++"
-                  class="mt-2 w-full text-xs py-2 px-3 rounded bg-gray-500/5 hover:bg-gray-500/10 text-gray-400 hover:text-gray-300 transition-colors"
+                  class="mt-3 w-full text-xs py-2.5 px-3 rounded-lg bg-gray-500/10 hover:bg-gray-500/15 text-gray-300 hover:text-white transition-all duration-200 font-medium border border-gray-500/20 hover:border-gray-500/30 flex items-center justify-center gap-2"
+                  title="Load more tunnels"
                 >
-                  Show More ({{ tunnels.length - paginatedTunnels.length }} more)
+                  <span>Show {{ tunnels.length - paginatedTunnels.length }} more</span>
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                  </svg>
                 </button>
               </div>
             </div>
@@ -1071,44 +1196,69 @@ eventSource.<span class="text-blue-300">onmessage</span> = (<span class="text-or
 
     <!-- Delete Confirmation Modal -->
     <Teleport to="body">
-      <div v-if="deleteConfirmation.show" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" @click.self="deleteConfirmation.show = false">
-        <div class="bg-black border border-gray-500/30 rounded-lg p-6 max-w-md w-full">
-          <div class="flex items-start gap-4 mb-4">
-            <div class="flex-shrink-0 w-10 h-10 bg-red-400/10 rounded-full flex items-center justify-center">
-              <svg class="w-5 h-5 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-              </svg>
-            </div>
-            <div class="flex-1">
-              <h3 class="text-lg font-semibold text-white mb-2">Delete API Endpoint?</h3>
-              <p class="text-sm text-gray-400">
-                This endpoint will be permanently deleted. This action cannot be undone.
-              </p>
-              <div v-if="deleteConfirmation.endpointData" class="mt-3 p-2 bg-gray-500/5 border border-gray-500/10 rounded text-xs">
-                <p class="text-gray-500">ID: <span class="text-blue-300 font-mono">{{ deleteConfirmation.endpointData.id.substring(0, 12) }}...</span></p>
-                <p class="text-gray-500">Language: <span class="text-white">{{ deleteConfirmation.endpointData.language }}</span></p>
-                <p class="text-gray-500" v-if="deleteConfirmation.endpointData.name">Name: <span class="text-white">{{ deleteConfirmation.endpointData.name }}</span></p>
+      <Transition
+        enter-active-class="transition-opacity duration-200"
+        enter-from-class="opacity-0"
+        enter-to-class="opacity-100"
+        leave-active-class="transition-opacity duration-200"
+        leave-from-class="opacity-100"
+        leave-to-class="opacity-0"
+      >
+        <div v-if="deleteConfirmation.show" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" @click.self="deleteConfirmation.show = false">
+          <Transition
+            enter-active-class="transition-all duration-200"
+            enter-from-class="opacity-0 scale-95"
+            enter-to-class="opacity-100 scale-100"
+            leave-active-class="transition-all duration-150"
+            leave-from-class="opacity-100 scale-100"
+            leave-to-class="opacity-0 scale-95"
+          >
+            <div v-if="deleteConfirmation.show" class="bg-black border border-red-500/30 rounded-xl p-6 max-w-md w-full shadow-2xl shadow-red-500/10">
+              <div class="flex items-start gap-4 mb-6">
+                <div class="shrink-0 w-12 h-12 bg-red-400/10 rounded-xl flex items-center justify-center border border-red-500/20">
+                  <svg class="w-6 h-6 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  </svg>
+                </div>
+                <div class="flex-1 min-w-0">
+                  <h3 class="text-xl font-bold text-white mb-2">Delete API Endpoint?</h3>
+                  <p class="text-sm text-gray-400 leading-relaxed mb-3">
+                    This will permanently delete your API endpoint. All requests to this endpoint will fail immediately.
+                  </p>
+                  <div v-if="deleteConfirmation.endpointData" class="p-3 bg-red-500/5 border border-red-500/10 rounded-lg">
+                    <p class="text-sm font-medium text-white mb-1">{{ deleteConfirmation.endpointData.name || 'Unnamed API' }}</p>
+                    <p class="text-xs text-gray-500 font-mono truncate">{{ deleteConfirmation.endpointData.id.substring(0, 20) }}...</p>
+                  </div>
+                </div>
               </div>
+              
+              <div class="flex gap-3">
+                <button
+                  @click="deleteConfirmation.show = false"
+                  class="flex-1 px-4 py-2.5 bg-gray-500/10 hover:bg-gray-500/20 text-white rounded-lg transition-all duration-200 text-sm font-semibold border border-gray-500/20 hover:border-gray-500/30"
+                  title="Cancel and keep the endpoint"
+                >
+                  Cancel
+                </button>
+                <button
+                  @click="executeDeleteEndpoint"
+                  :disabled="deletingEndpointId !== null"
+                  class="flex-1 px-4 py-2.5 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-all duration-200 text-sm font-semibold disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg hover:shadow-red-500/30 flex items-center justify-center gap-2"
+                  title="Permanently delete this endpoint"
+                >
+                  <svg v-if="deletingEndpointId" class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  {{ deletingEndpointId ? 'Deleting...' : 'Yes, Delete' }}
+                </button>
+              </div>
+              
+              <p class="text-xs text-gray-500 mt-4 text-center">This action cannot be undone</p>
             </div>
-          </div>
-          
-          <div class="flex gap-3">
-            <button
-              @click="deleteConfirmation.show = false"
-              class="flex-1 px-4 py-2 bg-gray-500/10 hover:bg-gray-500/20 text-white rounded-lg transition-colors text-sm font-medium"
-            >
-              Cancel
-            </button>
-            <button
-              @click="executeDeleteEndpoint"
-              :disabled="deletingEndpointId !== null"
-              class="flex-1 px-4 py-2 bg-red-400 hover:bg-red-500 text-white rounded-lg transition-colors text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {{ deletingEndpointId ? 'Deleting...' : 'Delete' }}
-            </button>
-          </div>
+          </Transition>
         </div>
-      </div>
+      </Transition>
     </Teleport>
     </div>
   </div>
@@ -1187,6 +1337,7 @@ function formatBytes(bytes: number): string {
 const endpoints = ref<any[]>([])
 const tunnels = ref<any[]>([])
 const loading = ref({ create: false, test: false, health: false, dashboard: false })
+const loadingMessage = ref('Creating your API...')
 const deletingEndpointId = ref<string | null>(null)
 const deleteConfirmation = ref({
   show: false,
@@ -1828,6 +1979,15 @@ function formatFileSize(bytes: number): string {
 async function createEndpoint() {
   loading.value.create = true
   error.value.create = ''
+  
+  // Progressive loading messages
+  loadingMessage.value = 'Creating your API...'
+  setTimeout(() => {
+    if (loading.value.create) loadingMessage.value = 'Almost there...'
+  }, 1500)
+  setTimeout(() => {
+    if (loading.value.create) loadingMessage.value = 'Finalizing...'
+  }, 3000)
 
   try {
     const { token } = useAuth();
