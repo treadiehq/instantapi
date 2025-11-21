@@ -52,7 +52,7 @@ instant-api expose http://localhost:3000/api
 instant-api expose <targetUrl> [options]
 
 Options:
-  --backend, -b  Backend URL [default: "http://localhost:3001"]
+  --backend, -b  Backend URL [default: "https://api.instantapi.co"]
   --help, -h     Show help
   --version, -v  Show version
 ```
@@ -61,20 +61,22 @@ Options:
 
 #### Backend URL
 
+By default, the CLI connects to the hosted Instant API backend at `https://api.instantapi.co`.
+
 You can configure the backend URL in three ways (in order of precedence):
 
 1. **Command-line flag** (highest priority):
 ```bash
-instant-api expose http://localhost:3000/api --backend http://localhost:8080
+instant-api expose http://localhost:3000/api --backend http://localhost:3001
 ```
 
 2. **Environment variable**:
 ```bash
-export INSTANT_API_BACKEND_URL=http://localhost:8080
+export INSTANT_API_BACKEND_URL=http://localhost:3001
 instant-api expose http://localhost:3000/api
 ```
 
-3. **Default**: `http://localhost:3001`
+3. **Default**: `https://api.instantapi.co` (hosted production backend)
 
 #### API Key
 
@@ -182,11 +184,10 @@ node dist/index.js expose http://localhost:3000
 - Check the target URL is correct
 
 **Backend not responding:**
-- Verify backend is running at the correct URL
-- Check what port your backend is using
-- Use `--backend` flag: `instant-api expose <url> --backend http://localhost:PORT`
-- Or set environment variable: `export INSTANT_API_BACKEND_URL=http://localhost:PORT`
-- Default backend URL is `http://localhost:3001`
+- Default backend is `https://api.instantapi.co` (hosted)
+- For self-hosted backend, use `--backend` flag: `instant-api expose <url> --backend http://localhost:3001`
+- Or set environment variable: `export INSTANT_API_BACKEND_URL=http://localhost:3001`
+- Check backend is accessible: `curl https://api.instantapi.co/health`
 
 **Tunnel expired:**
 - Without auth, tunnels last 1 hour

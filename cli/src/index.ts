@@ -381,7 +381,7 @@ yargs(hideBin(process.argv))
           alias: 'b',
           describe: 'Instant API backend URL',
           type: 'string',
-          default: process.env.INSTANT_API_BACKEND_URL || 'http://localhost:3001',
+          default: process.env.INSTANT_API_BACKEND_URL || 'https://api.instantapi.co',
         });
     },
     (argv) => {
