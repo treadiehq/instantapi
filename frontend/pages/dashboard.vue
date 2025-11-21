@@ -1016,7 +1016,7 @@ eventSource.<span class="text-blue-300">onmessage</span> = (<span class="text-or
                         <button 
                           @click="confirmDeleteEndpoint(endpoint)" 
                           :disabled="deletingEndpointId === endpoint.id"
-                          class="shrink-0 text-xs px-3 py-2 rounded-lg font-medium bg-red-400/10 text-red-400 hover:bg-red-500/20 border border-transparent hover:border-red-500/30 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5"
+                          class="shrink-0 text-xs px-3 py-2 rounded-lg font-medium bg-red-400/10 text-red-400 hover:bg-red-400/20 border border-transparent hover:border-red-500/30 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5"
                           title="Delete this API endpoint"
                         >
                           <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -1077,12 +1077,12 @@ eventSource.<span class="text-blue-300">onmessage</span> = (<span class="text-or
                           :class="[
                             'shrink-0 flex items-center gap-1.5 text-xs px-2 py-1 rounded-full border',
                             tunnel.isActive 
-                              ? 'bg-green-500/10 text-green-400 border-green-500/20' 
-                              : 'bg-red-500/10 text-red-400 border-red-500/20'
+                              ? 'bg-green-300/10 text-green-300 border-green-300/20' 
+                              : 'bg-red-400/10 text-red-400 border-red-400/20'
                           ]"
                           :title="tunnel.isActive ? 'Tunnel is active' : 'Tunnel is inactive'"
                         >
-                          <span :class="['w-1.5 h-1.5 rounded-full', tunnel.isActive ? 'bg-green-400 animate-pulse' : 'bg-red-400']"></span>
+                          <span :class="['w-1.5 h-1.5 rounded-full', tunnel.isActive ? 'bg-green-300 animate-pulse' : 'bg-red-400']"></span>
                           <span class="font-medium">{{ tunnel.isActive ? 'Active' : 'Inactive' }}</span>
                         </div>
                       </div>
@@ -1102,7 +1102,7 @@ eventSource.<span class="text-blue-300">onmessage</span> = (<span class="text-or
                           :class="[
                             'w-full text-xs px-3 py-2 rounded-lg font-medium transition-all duration-200 flex items-center justify-center gap-1.5',
                             isCopied(`tunnel-${tunnel.id}`)
-                              ? 'bg-green-300/20 text-green-300 border border-green-300/30'
+                              ? 'bg-green-300/10 text-green-300 border border-green-300/10'
                               : 'bg-gray-500/10 text-gray-300 hover:bg-gray-500/20 border border-transparent'
                           ]"
                           :title="isCopied(`tunnel-${tunnel.id}`) ? 'URL copied!' : 'Copy tunnel URL'"
@@ -1174,12 +1174,12 @@ eventSource.<span class="text-blue-300">onmessage</span> = (<span class="text-or
           <div class="text-xs space-x-4">
             <span :class="[
               'font-medium',
-              codeBytes > MAX_CODE_SIZE ? 'text-red-400' : codeBytes > MAX_CODE_SIZE * 0.9 ? 'text-amber-400' : 'text-gray-400'
+              codeBytes > MAX_CODE_SIZE ? 'text-red-400' : codeBytes > MAX_CODE_SIZE * 0.9 ? 'text-amber-300' : 'text-gray-400'
             ]">
               {{ formatBytes(codeBytes) }} / {{ formatBytes(MAX_CODE_SIZE) }}
             </span>
             <span :class="[
-              codeBytes > MAX_CODE_SIZE ? 'text-red-400' : codeBytes > MAX_CODE_SIZE * 0.9 ? 'text-amber-400' : 'text-gray-500'
+              codeBytes > MAX_CODE_SIZE ? 'text-red-400' : codeBytes > MAX_CODE_SIZE * 0.9 ? 'text-amber-300' : 'text-gray-500'
             ]">
               {{ codePercentage }}% used
             </span>
@@ -1213,9 +1213,9 @@ eventSource.<span class="text-blue-300">onmessage</span> = (<span class="text-or
             leave-from-class="opacity-100 scale-100"
             leave-to-class="opacity-0 scale-95"
           >
-            <div v-if="deleteConfirmation.show" class="bg-black border border-red-500/30 rounded-xl p-6 max-w-md w-full shadow-2xl shadow-red-500/10">
+            <div v-if="deleteConfirmation.show" class="bg-black border border-gray-500/30 rounded-xl p-6 max-w-md w-full shadow-2xl shadow-gray-500/10">
               <div class="flex items-start gap-4 mb-6">
-                <div class="shrink-0 w-12 h-12 bg-red-400/10 rounded-xl flex items-center justify-center border border-red-500/20">
+                <div class="shrink-0 w-12 h-12 bg-red-400/10 rounded-xl flex items-center justify-center border border-red-400/10">
                   <svg class="w-6 h-6 text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                   </svg>
@@ -1243,7 +1243,7 @@ eventSource.<span class="text-blue-300">onmessage</span> = (<span class="text-or
                 <button
                   @click="executeDeleteEndpoint"
                   :disabled="deletingEndpointId !== null"
-                  class="flex-1 px-4 py-2.5 bg-red-500 hover:bg-red-600 text-white rounded-lg transition-all duration-200 text-sm font-semibold disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg hover:shadow-red-500/30 flex items-center justify-center gap-2"
+                  class="flex-1 px-4 py-2.5 bg-red-400 hover:bg-red-500 text-white rounded-lg transition-all duration-200 text-sm font-semibold disabled:opacity-50 disabled:cursor-not-allowed hover:shadow-lg hover:shadow-red-500/30 flex items-center justify-center gap-2"
                   title="Permanently delete this endpoint"
                 >
                   <svg v-if="deletingEndpointId" class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
