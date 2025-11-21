@@ -81,10 +81,10 @@
                         <select
                           @change="loadExample(($event.target as HTMLSelectElement).value)"
                           :disabled="loading.create"
-                          class="block w-full appearance-none rounded-lg bg-gray-500/5 py-2.5 pl-4 pr-10 text-sm font-medium text-white border border-gray-500/10 hover:bg-gray-500/15 focus:outline-none focus:ring-2 focus:ring-gray-500/10 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150"
+                          class="block w-full appearance-none rounded-lg bg-gray-500/5 py-2.5 pl-4 pr-10 text-sm font-medium text-white border border-gray-500/10 hover:bg-gray-500/15 focus:outline-none focus:ring-2 focus:ring-gray-500/10 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150 [&>option]:bg-black [&>option]:text-white [&>option:checked]:bg-blue-300 [&>option:checked]:text-white"
                         >
-                          <option value="">Select an example...</option>
-                          <option v-for="(example, idx) in examples" :key="idx" :value="idx">
+                          <option value="" class="bg-black text-white">Select an example...</option>
+                          <option v-for="(example, idx) in examples" :key="idx" :value="idx" class="bg-black text-white">
                         {{ example.name }}
                       </option>
                         </select>
