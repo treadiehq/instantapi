@@ -12,6 +12,16 @@ Create APIs in seconds without setting up servers, deploying code, or writing co
 2. **Framework Mode (CLI)** - Expose your local dev server (like ngrok)
 3. **Function Mode (SDK)** - Write functions, get serverless APIs
 
+## Live
+
+Try the product live at **https://instantapi.co**
+
+## Community & Support
+
+Join our Discord community for discussions, support, and updates:
+
+[![Discord](https://img.shields.io/badge/Discord-Join%20our%20community-7289DA?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/KqdBcqRk5E)
+
 ## Quick Start
 
 ```bash
@@ -34,7 +44,7 @@ npm install
 npm run dev
 ```
 
-Open **http://localhost:3000** 🚀
+Open **http://localhost:3000**
 
 ## How to Use
 
