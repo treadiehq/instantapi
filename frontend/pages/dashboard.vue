@@ -1099,11 +1099,11 @@ eventSource.<span class="text-blue-300">onmessage</span> = (<span class="text-or
                       </div>
                       
                       <!-- Actions -->
-                      <div class="pt-1">
+                      <div class="pt-1 grid grid-cols-2 gap-2">
                         <button 
                           @click="copyToClipboard(`${API_BASE}/t/${tunnel.id}`, `tunnel-${tunnel.id}`)"
                           :class="[
-                            'w-full text-xs px-3 py-2 rounded-lg font-medium transition-all duration-200 flex items-center justify-center gap-1.5',
+                            'text-xs px-3 py-2 rounded-lg font-medium transition-all duration-200 flex items-center justify-center gap-1.5',
                             isCopied(`tunnel-${tunnel.id}`)
                               ? 'bg-green-300/10 text-green-300 border border-green-300/10'
                               : 'bg-gray-500/10 text-gray-300 hover:bg-gray-500/20 border border-transparent'
@@ -1117,6 +1117,16 @@ eventSource.<span class="text-blue-300">onmessage</span> = (<span class="text-or
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
                           </svg>
                           {{ isCopied(`tunnel-${tunnel.id}`) ? 'Copied!' : 'Copy URL' }}
+                        </button>
+                        <button 
+                          @click="viewTunnelAnalytics(tunnel.id)"
+                          class="text-xs px-3 py-2 rounded-lg font-medium transition-all duration-200 flex items-center justify-center gap-1.5 bg-blue-400/10 text-blue-300 hover:bg-blue-400/20 border border-transparent"
+                          title="View Analytics"
+                        >
+                          <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                          </svg>
+                          Analytics
                         </button>
                       </div>
                     </div>
@@ -1143,6 +1153,29 @@ eventSource.<span class="text-blue-300">onmessage</span> = (<span class="text-or
     
     <!-- Toast Notifications -->
     <Toast ref="toastComponent" />
+    
+    <!-- Tunnel Analytics Modal -->
+    <Teleport to="body">
+      <div
+        v-if="selectedTunnelId"
+        @click="selectedTunnelId = null"
+        class="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4 overflow-y-auto"
+      >
+        <div @click.stop class="bg-gray-900 border border-gray-500/20 rounded-xl max-w-7xl w-full max-h-[90vh] overflow-y-auto">
+          <div class="sticky top-0 bg-gray-900 px-6 py-4 border-b border-gray-500/10 flex items-center justify-between">
+            <h3 class="text-lg font-semibold text-white">Tunnel Analytics</h3>
+            <button @click="selectedTunnelId = null" class="text-gray-400 hover:text-white transition-colors">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          <div class="p-6">
+            <TunnelAnalytics :tunnelId="selectedTunnelId" />
+          </div>
+        </div>
+      </div>
+    </Teleport>
     
     <!-- Fullscreen Editor Overlay -->
     <Teleport to="body">
@@ -1339,6 +1372,7 @@ function formatBytes(bytes: number): string {
 // Dashboard state
 const endpoints = ref<any[]>([])
 const tunnels = ref<any[]>([])
+const selectedTunnelId = ref<string | null>(null)
 const loading = ref({ create: false, test: false, health: false, dashboard: false })
 const loadingMessage = ref('Creating your API...')
 const deletingEndpointId = ref<string | null>(null)
@@ -2217,6 +2251,11 @@ function closeModal() {
   executionTime.value = null
   executionError.value = null
   error.value.test = ''
+}
+
+// View tunnel analytics
+function viewTunnelAnalytics(tunnelId: string) {
+  selectedTunnelId.value = tunnelId
 }
 
 // Copy to clipboard with feedback

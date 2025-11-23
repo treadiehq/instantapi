@@ -119,6 +119,7 @@ model TunnelRequest {
   id              String              @id @default(cuid())
   tunnelId        String
   createdAt       DateTime            @default(now())
+  completedAt     DateTime?           // when request was completed
   method          String
   path            String              // optional extension
   headers         Json
@@ -128,12 +129,16 @@ model TunnelRequest {
   responseStatus  Int?
   responseHeaders Json?
   responseBody    Json?
+  durationMs      Int?                // request processing time in milliseconds
+  requestSize     Int?                // size of request body in bytes
+  responseSize    Int?                // size of response body in bytes
   streamEvents    TunnelStreamEvent[]
   Tunnel          Tunnel              @relation(fields: [tunnelId], references: [id], onDelete: Cascade)
 
   @@index([tunnelId])
   @@index([status])
   @@index([createdAt])
+  @@index([tunnelId, createdAt])
 }
 
 model TunnelStreamEvent {

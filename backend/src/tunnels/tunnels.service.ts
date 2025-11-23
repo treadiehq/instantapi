@@ -120,13 +120,20 @@ export class TunnelsService {
       throw new NotFoundException('Request does not belong to this tunnel');
     }
 
+    // Calculate response size and duration
+    const responseSize = this.calculateSize(dto.headers || {}, dto.body);
+    const durationMs = Date.now() - request.createdAt.getTime();
+
     await this.prisma.tunnelRequest.update({
       where: { id: dto.requestId },
       data: {
         status: 'completed',
+        completedAt: new Date(),
         responseStatus: dto.statusCode,
         responseHeaders: dto.headers || {},
         responseBody: dto.body || null,
+        responseSize,
+        durationMs,
       },
     });
 
@@ -146,6 +153,9 @@ export class TunnelsService {
       acceptHeader.includes('text/event-stream') ||
       upgradeHeader.includes('websocket');
 
+    // Calculate request size (headers + body)
+    const requestSize = this.calculateSize(headers, body);
+
     const request = await this.prisma.tunnelRequest.create({
       data: {
         tunnelId,
@@ -155,10 +165,32 @@ export class TunnelsService {
         body,
         status: 'pending',
         isStreaming,
+        requestSize,
       },
     });
 
     return { id: request.id, isStreaming };
+  }
+
+  private calculateSize(headers: Record<string, any>, body: any): number {
+    // Calculate approximate size in bytes
+    let size = 0;
+    
+    // Headers size
+    if (headers) {
+      size += JSON.stringify(headers).length;
+    }
+    
+    // Body size
+    if (body) {
+      if (typeof body === 'string') {
+        size += body.length;
+      } else {
+        size += JSON.stringify(body).length;
+      }
+    }
+    
+    return size;
   }
 
   async addStreamChunk(
@@ -320,6 +352,146 @@ export class TunnelsService {
       data: { isActive: false },
     });
 
+  }
+
+  async getTunnelAnalytics(tunnelId: string, organizationId: string) {
+    // Validate tunnel belongs to org
+    const tunnel = await this.prisma.tunnel.findUnique({
+      where: { id: tunnelId },
+    });
+
+    if (!tunnel || tunnel.organizationId !== organizationId) {
+      throw new NotFoundException('Tunnel not found');
+    }
+
+    // Get aggregate stats
+    const stats = await this.prisma.tunnelRequest.aggregate({
+      where: {
+        tunnelId,
+        status: 'completed',
+      },
+      _count: {
+        id: true,
+      },
+      _sum: {
+        requestSize: true,
+        responseSize: true,
+        durationMs: true,
+      },
+      _avg: {
+        durationMs: true,
+      },
+    });
+
+    // Get status breakdown
+    const statusBreakdown = await this.prisma.tunnelRequest.groupBy({
+      by: ['status'],
+      where: { tunnelId },
+      _count: true,
+    });
+
+    // Get method breakdown
+    const methodBreakdown = await this.prisma.tunnelRequest.groupBy({
+      by: ['method'],
+      where: { tunnelId },
+      _count: true,
+    });
+
+    // Calculate total bandwidth (request + response)
+    const totalBandwidth = 
+      (stats._sum.requestSize || 0) + (stats._sum.responseSize || 0);
+
+    return {
+      tunnel: {
+        id: tunnel.id,
+        targetUrl: tunnel.targetUrl,
+        createdAt: tunnel.createdAt.toISOString(),
+        isActive: tunnel.isActive,
+      },
+      stats: {
+        totalRequests: stats._count.id,
+        totalBandwidthBytes: totalBandwidth,
+        totalRequestBytes: stats._sum.requestSize || 0,
+        totalResponseBytes: stats._sum.responseSize || 0,
+        averageDurationMs: Math.round(stats._avg.durationMs || 0),
+        totalDurationMs: stats._sum.durationMs || 0,
+      },
+      statusBreakdown: statusBreakdown.map(item => ({
+        status: item.status,
+        count: item._count,
+      })),
+      methodBreakdown: methodBreakdown.map(item => ({
+        method: item.method,
+        count: item._count,
+      })),
+    };
+  }
+
+  async getTunnelRequestLogs(
+    tunnelId: string,
+    organizationId: string,
+    options: {
+      limit?: number;
+      offset?: number;
+      status?: string;
+    } = {},
+  ) {
+    // Validate tunnel belongs to org
+    const tunnel = await this.prisma.tunnel.findUnique({
+      where: { id: tunnelId },
+    });
+
+    if (!tunnel || tunnel.organizationId !== organizationId) {
+      throw new NotFoundException('Tunnel not found');
+    }
+
+    const { limit = 50, offset = 0, status } = options;
+
+    const where: any = { tunnelId };
+    if (status) {
+      where.status = status;
+    }
+
+    const [requests, total] = await Promise.all([
+      this.prisma.tunnelRequest.findMany({
+        where,
+        orderBy: { createdAt: 'desc' },
+        take: limit,
+        skip: offset,
+        select: {
+          id: true,
+          createdAt: true,
+          completedAt: true,
+          method: true,
+          path: true,
+          status: true,
+          isStreaming: true,
+          responseStatus: true,
+          durationMs: true,
+          requestSize: true,
+          responseSize: true,
+          headers: true,
+          body: true,
+          responseHeaders: true,
+          responseBody: true,
+        },
+      }),
+      this.prisma.tunnelRequest.count({ where }),
+    ]);
+
+    return {
+      requests: requests.map(req => ({
+        ...req,
+        createdAt: req.createdAt.toISOString(),
+        completedAt: req.completedAt?.toISOString(),
+      })),
+      pagination: {
+        total,
+        limit,
+        offset,
+        hasMore: offset + limit < total,
+      },
+    };
   }
 }
 

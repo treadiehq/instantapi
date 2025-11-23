@@ -7,6 +7,7 @@ import {
   Param,
   Req,
   Res,
+  Query,
   HttpStatus,
   HttpException,
   All,
@@ -65,6 +66,32 @@ export class TunnelsController {
   async deactivate(@Param('id') tunnelId: string, @Req() req: any) {
     await this.tunnelsService.deactivateTunnel(tunnelId, req.user.organizationId);
     return { success: true };
+  }
+
+  @Get('api/tunnels/:id/analytics')
+  @UseGuards(AuthGuard)
+  async getAnalytics(@Param('id') tunnelId: string, @Req() req: any) {
+    return this.tunnelsService.getTunnelAnalytics(tunnelId, req.user.organizationId);
+  }
+
+  @Get('api/tunnels/:id/logs')
+  @UseGuards(AuthGuard)
+  async getLogs(
+    @Param('id') tunnelId: string,
+    @Req() req: any,
+    @Query('limit') limit?: string,
+    @Query('offset') offset?: string,
+    @Query('status') status?: string,
+  ) {
+    return this.tunnelsService.getTunnelRequestLogs(
+      tunnelId,
+      req.user.organizationId,
+      {
+        limit: limit ? parseInt(limit, 10) : undefined,
+        offset: offset ? parseInt(offset, 10) : undefined,
+        status,
+      },
+    );
   }
 
   @Post('api/tunnels/:id/stream')
