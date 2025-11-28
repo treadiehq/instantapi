@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException, PayloadTooLargeException } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import {
   RegisterTunnelDto,
@@ -8,11 +8,38 @@ import {
   TunnelListItemDto,
 } from './dto/tunnel.dto';
 
+// Security constants
+const MAX_ACTIVE_TUNNELS_AUTHENTICATED = 10;
+const MAX_ACTIVE_TUNNELS_UNAUTHENTICATED = 1;
+const MAX_REQUESTS_PER_MINUTE_PER_TUNNEL = 100;
+const MAX_REQUEST_SIZE_BYTES = 1_000_000; // 1MB
+const MAX_RESPONSE_SIZE_BYTES = 1_000_000; // 1MB
+const MAX_BODY_STORAGE_SIZE = 10_000; // 10KB - store only small bodies in DB
+
 @Injectable()
 export class TunnelsService {
   constructor(private prisma: PrismaService) {}
 
   async register(dto: RegisterTunnelDto, organizationId: string | null): Promise<RegisterTunnelResponseDto> {
+    // Security: Limit active tunnels per organization
+    const activeTunnels = await this.prisma.tunnel.count({
+      where: {
+        organizationId,
+        isActive: true,
+      },
+    });
+
+    const maxTunnels = organizationId 
+      ? MAX_ACTIVE_TUNNELS_AUTHENTICATED 
+      : MAX_ACTIVE_TUNNELS_UNAUTHENTICATED;
+
+    if (activeTunnels >= maxTunnels) {
+      throw new ForbiddenException(
+        `Maximum ${maxTunnels} active tunnel${maxTunnels > 1 ? 's' : ''} allowed. ` +
+        (organizationId ? 'Please deactivate an existing tunnel first.' : 'Please sign up for more tunnels.')
+      );
+    }
+
     const tunnel = await this.prisma.tunnel.create({
       data: {
         organizationId,
@@ -124,6 +151,23 @@ export class TunnelsService {
     const responseSize = this.calculateSize(dto.headers || {}, dto.body);
     const durationMs = Date.now() - request.createdAt.getTime();
 
+    // Security: Validate response size
+    if (responseSize > MAX_RESPONSE_SIZE_BYTES) {
+      throw new PayloadTooLargeException(
+        `Response too large: ${this.formatBytes(responseSize)} (max ${this.formatBytes(MAX_RESPONSE_SIZE_BYTES)})`
+      );
+    }
+
+    // Truncate large response bodies to avoid database bloat
+    let storedResponseBody = dto.body;
+    if (responseSize > MAX_BODY_STORAGE_SIZE) {
+      storedResponseBody = {
+        _truncated: true,
+        _originalSize: responseSize,
+        _message: 'Response body too large to store in database',
+      };
+    }
+
     await this.prisma.tunnelRequest.update({
       where: { id: dto.requestId },
       data: {
@@ -131,7 +175,7 @@ export class TunnelsService {
         completedAt: new Date(),
         responseStatus: dto.statusCode,
         responseHeaders: dto.headers || {},
-        responseBody: dto.body || null,
+        responseBody: storedResponseBody || null,
         responseSize,
         durationMs,
       },
@@ -146,6 +190,33 @@ export class TunnelsService {
     headers: Record<string, any>,
     body: any,
   ): Promise<{ id: string; isStreaming: boolean }> {
+    // Security: Rate limit requests per tunnel
+    const oneMinuteAgo = new Date(Date.now() - 60000);
+    const recentRequestCount = await this.prisma.tunnelRequest.count({
+      where: {
+        tunnelId,
+        createdAt: {
+          gte: oneMinuteAgo,
+        },
+      },
+    });
+
+    if (recentRequestCount >= MAX_REQUESTS_PER_MINUTE_PER_TUNNEL) {
+      throw new ForbiddenException(
+        `Rate limit exceeded: Maximum ${MAX_REQUESTS_PER_MINUTE_PER_TUNNEL} requests per minute per tunnel`
+      );
+    }
+
+    // Calculate request size (headers + body)
+    const requestSize = this.calculateSize(headers, body);
+
+    // Security: Reject oversized requests
+    if (requestSize > MAX_REQUEST_SIZE_BYTES) {
+      throw new PayloadTooLargeException(
+        `Request too large: ${this.formatBytes(requestSize)} (max ${this.formatBytes(MAX_REQUEST_SIZE_BYTES)})`
+      );
+    }
+
     // Detect SSE or WebSocket requests
     const acceptHeader = (headers['accept'] || '').toLowerCase();
     const upgradeHeader = (headers['upgrade'] || '').toLowerCase();
@@ -153,8 +224,15 @@ export class TunnelsService {
       acceptHeader.includes('text/event-stream') ||
       upgradeHeader.includes('websocket');
 
-    // Calculate request size (headers + body)
-    const requestSize = this.calculateSize(headers, body);
+    // Truncate large bodies to avoid database bloat
+    let storedBody = body;
+    if (requestSize > MAX_BODY_STORAGE_SIZE) {
+      storedBody = {
+        _truncated: true,
+        _originalSize: requestSize,
+        _message: 'Body too large to store in database',
+      };
+    }
 
     const request = await this.prisma.tunnelRequest.create({
       data: {
@@ -162,7 +240,7 @@ export class TunnelsService {
         method,
         path,
         headers,
-        body,
+        body: storedBody,
         status: 'pending',
         isStreaming,
         requestSize,
@@ -191,6 +269,12 @@ export class TunnelsService {
     }
     
     return size;
+  }
+
+  private formatBytes(bytes: number): string {
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
   }
 
   async addStreamChunk(

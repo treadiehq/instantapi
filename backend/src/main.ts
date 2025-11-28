@@ -1,8 +1,13 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import { json, urlencoded } from 'express';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  
+  // Security: Limit request body size to prevent DoS attacks
+  app.use(json({ limit: '1mb' })); // Max 1MB for JSON bodies
+  app.use(urlencoded({ extended: true, limit: '1mb' })); // Max 1MB for URL-encoded bodies
   
   // Enable CORS for frontend
   const allowedOrigins = process.env.FRONTEND_URL 

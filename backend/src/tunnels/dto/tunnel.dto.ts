@@ -1,7 +1,15 @@
-import { IsString, IsNumber, IsOptional, IsObject } from 'class-validator';
+import { IsString, IsNumber, IsOptional, IsObject, IsUrl, Matches } from 'class-validator';
 
 export class RegisterTunnelDto {
-  @IsString()
+  @IsUrl({
+    protocols: ['http', 'https'],
+    require_protocol: true,
+  }, {
+    message: 'targetUrl must be a valid URL with http:// or https:// protocol',
+  })
+  @Matches(/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?(\/.*)?$/, {
+    message: 'targetUrl must be localhost or 127.0.0.1 only (e.g., http://localhost:3000/api)',
+  })
   targetUrl: string;
 }
 
