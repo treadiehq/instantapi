@@ -1,0 +1,20 @@
+# Nixpacks configuration for Railway deployment
+
+[phases.setup]
+nixPkgs = ["nodejs-20_x", "npm-10_x"]
+
+[phases.build]
+cmds = [
+  "npm install",
+  "npx prisma generate",
+  "npm run build"
+]
+
+[start]
+# Run as non-root user for security
+cmd = "node dist/main"
+
+[variables]
+# Ensure we're not running as root
+NODE_ENV = "production"
+

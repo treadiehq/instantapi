@@ -9,6 +9,17 @@ async function bootstrap() {
   app.use(json({ limit: '1mb' })); // Max 1MB for JSON bodies
   app.use(urlencoded({ extended: true, limit: '1mb' })); // Max 1MB for URL-encoded bodies
   
+  // Security: Global request timeout (30 seconds)
+  app.use((req: any, res: any, next: any) => {
+    req.setTimeout(30000, () => {
+      res.status(408).json({ error: 'Request timeout' });
+    });
+    res.setTimeout(30000, () => {
+      res.status(504).json({ error: 'Response timeout' });
+    });
+    next();
+  });
+  
   // Enable CORS for frontend
   const allowedOrigins = process.env.FRONTEND_URL 
     ? [process.env.FRONTEND_URL, 'http://localhost:3000']
