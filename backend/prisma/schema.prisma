@@ -113,6 +113,9 @@ model Tunnel {
   @@index([isActive])
   @@index([lastSeenAt])
   @@index([organizationId])
+  // Compound indexes for common query patterns
+  @@index([organizationId, isActive]) // List active tunnels by org
+  @@index([isActive, lastSeenAt])     // Cleanup job for abandoned tunnels
 }
 
 model TunnelRequest {
@@ -138,7 +141,12 @@ model TunnelRequest {
   @@index([tunnelId])
   @@index([status])
   @@index([createdAt])
-  @@index([tunnelId, createdAt])
+  @@index([method])                   // Analytics groupBy method
+  @@index([tunnelId, createdAt])      // Rate limiting check
+  // Compound indexes for critical queries
+  @@index([tunnelId, status])         // Poll for pending requests
+  @@index([status, createdAt])        // Cleanup job by status and age
+  @@index([tunnelId, status, createdAt]) // Combined query optimization
 }
 
 model TunnelStreamEvent {

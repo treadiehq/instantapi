@@ -8,6 +8,7 @@ import { TunnelsModule } from './tunnels/tunnels.module';
 import { AuthModule } from './auth/auth.module';
 import { AdminModule } from './admin/admin.module';
 import { PrismaService } from './prisma.service';
+import { DatabaseMaintenanceService } from './database-maintenance.service';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { PrismaService } from './prisma.service';
   ],
   providers: [
     PrismaService,
+    DatabaseMaintenanceService,
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard,
