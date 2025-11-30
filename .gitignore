@@ -15,3 +15,4 @@ logs/*
 # PID files for process management
 .pids/
 quick-test-server.js
+DEPLOYMENT.md

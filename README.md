@@ -119,7 +119,7 @@ npx @instantapihq/cli expose http://localhost:3000/events
 curl -N http://localhost:3001/t/abc123
 ```
 
-> **💡 Tip:** If your backend is running on a different port, configure the CLI:
+> **Tip:** If your backend is running on a different port, configure the CLI:
 > ```bash
 > # Option 1: Use --backend flag
 > npx @instantapihq/cli expose http://localhost:3000/api --backend http://localhost:PORT
@@ -220,42 +220,6 @@ createdb instantapi
 # Run migrations
 cd backend
 npx prisma migrate dev
-```
-
-## Production Deployment
-
-The app is production-ready and can be deployed to:
-- **Frontend & Backend**: Railway or any Node.js host
-- **Code Execution**: Cloudflare Workers with Sandbox SDK
-- **Database**: PostgreSQL (Railway, Plantscale, etc.)
-
-See **[DEPLOYMENT.md](./DEPLOYMENT.md)** for detailed deployment instructions.
-
-## Troubleshooting
-
-**Backend won't start:**
-```bash
-cd backend
-npm install
-npx prisma generate
-npx prisma migrate dev
-npm run dev
-```
-
-**Database connection issues:**
-- Make sure PostgreSQL is running: `psql -U postgres`
-- Check your `DATABASE_URL` in `backend/.env`
-- Create the database: `createdb instantapi`
-
-**Frontend won't load:**
-- Check `NUXT_PUBLIC_API_BASE` in `frontend/.env`
-- Make sure backend is running on the correct port
-- Clear Nuxt cache: `rm -rf frontend/.nuxt`
-
-**Check if services are running:**
-```bash
-curl http://localhost:3001/health  # Backend
-curl http://localhost:3000  # Frontend
 ```
 
 ---
