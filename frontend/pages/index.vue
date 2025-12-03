@@ -146,7 +146,7 @@
 
                   <!-- Configuration and Create Button -->
                   <div class="flex justify-between items-end p-4 border-t border-gray-500/10">
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2">
                       <!-- Language Select -->
                       <div class="relative">
                         <label class="block text-xs font-semibold mb-2 text-gray-300">Language</label>
