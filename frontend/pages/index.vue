@@ -38,7 +38,7 @@
         </div>
         
         <!-- Split Screen Layout -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-0">
           <!-- Main Card -->
           <div>
             <div class="border bg-gray-500/5 border-gray-500/15 relative inner-container -mb-px -ml-px">
@@ -49,12 +49,13 @@
                     <div>
                       <div class="relative">
                         <select
+                          v-model="selectedExampleValue"
                           @change="loadExample(($event.target as HTMLSelectElement).value)"
                           :disabled="loading.create"
                           class="block w-full appearance-none rounded-lg bg-gray-500/5 py-2.5 pl-4 pr-10 text-sm font-medium text-white border border-gray-500/10 hover:bg-gray-500/15 focus:outline-none focus:ring-2 focus:ring-gray-500/10 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150 [&>option]:bg-black [&>option]:text-white [&>option:checked]:bg-blue-300 [&>option:checked]:text-white"
                         >
                           <option value="" class="bg-black text-white">Select an example...</option>
-                          <option v-for="(example, idx) in examples" :key="idx" :value="idx" class="bg-black text-white">
+                          <option v-for="(example, idx) in examples" :key="idx" :value="String(idx)" class="bg-black text-white">
                         {{ example.name }}
                       </option>
                         </select>
@@ -474,12 +475,9 @@
             </Teleport>
           </div>
         
-          <!-- My APIs Dashboard moved to /dashboard -->
-        </div>
-        
           <!-- Output Preview Panel (Right Side) -->
-          <div class="hidden lg:block">
-            <div class="border bg-gray-500/5 border-gray-500/15 rounded-lg overflow-hidden sticky top-20">
+          <div class="hidden lg:block mt-[75px]">
+            <div class="border bg-gray-500/5 border-l-0 border-gray-500/15 overflow-hidden sticky top-20">
               <!-- Preview Header -->
               <div class="p-4 border-b border-gray-500/10 flex items-center justify-between">
                 <div class="flex items-center gap-2">
@@ -490,7 +488,7 @@
               </div>
               
               <!-- Preview Content -->
-              <div class="min-h-[400px] flex flex-col">
+              <div class="min-h-[380px] flex flex-col">
                 <!-- No Example Selected -->
                 <div v-if="selectedExampleIndex === null" class="flex-1 flex flex-col items-center justify-center p-8 text-center">
                   <div class="w-16 h-16 rounded-full bg-gray-500/10 flex items-center justify-center mb-4">
@@ -504,7 +502,7 @@
                 
                 <!-- Image Output (for DALL-E) -->
                 <div v-else-if="currentExampleOutput?.type === 'image'" class="flex-1 flex flex-col">
-                  <div class="flex-1 bg-gradient-to-br from-orange-500/20 via-pink-500/20 to-purple-500/20 p-6 flex items-center justify-center">
+                  <div class="flex-1 bg-gradient-to-br from-orange-300/20 via-pink-300/20 to-purple-300/20 p-6 flex items-center justify-center">
                     <img 
                       :src="currentExampleOutput.preview" 
                       :alt="currentExampleOutput.description"
@@ -522,8 +520,8 @@
                   <div class="flex-1 p-4 space-y-4 overflow-y-auto">
                     <!-- User Message -->
                     <div class="flex gap-3">
-                      <div class="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center shrink-0">
-                        <svg class="w-4 h-4 text-blue-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                      <div class="w-8 h-8 rounded-full bg-blue-300/20 flex items-center justify-center shrink-0">
+                        <svg class="w-4 h-4 text-blue-300" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                           <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
                         </svg>
                       </div>
@@ -534,8 +532,8 @@
                     </div>
                     <!-- AI Response -->
                     <div class="flex gap-3">
-                      <div class="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center shrink-0">
-                        <svg class="w-4 h-4 text-green-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                      <div class="w-8 h-8 rounded-full bg-green-300/20 flex items-center justify-center shrink-0">
+                        <svg class="w-4 h-4 text-green-300" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
                           <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
                         </svg>
                       </div>
@@ -545,9 +543,9 @@
                       </div>
                     </div>
                   </div>
-                  <div class="p-3 border-t border-gray-500/10 bg-black/50 flex items-center justify-between">
-                    <span class="text-xs text-gray-500">{{ currentExampleOutput.tokens }} tokens</span>
-                    <span class="text-xs text-green-400">{{ currentExampleOutput.latency }}</span>
+                  <div class="p-3 py-2 border-t border-gray-500/10 bg-black/50 flex items-center justify-between">
+                    <span class="text-xs text-gray-500">{{ currentExampleOutput.tokens }}</span>
+                    <span class="text-xs text-green-300">{{ currentExampleOutput.latency }}</span>
                   </div>
                 </div>
                 
@@ -558,7 +556,7 @@
                   </div>
                   <div class="p-3 border-t border-gray-500/10 bg-black/50 flex items-center justify-between">
                     <span class="text-xs text-gray-500">{{ currentExampleOutput.description }}</span>
-                    <span class="text-xs text-green-400">{{ currentExampleOutput.latency }}</span>
+                    <span class="text-xs text-green-300">{{ currentExampleOutput.latency }}</span>
                   </div>
                 </div>
               </div>
@@ -962,27 +960,17 @@ function formatDate(dateString: string) {
 
 // Load draft on mount
 onMounted(() => {
-  const savedDraft = localStorage.getItem(DRAFT_KEY)
-  if (savedDraft) {
-    try {
-      const draft = JSON.parse(savedDraft)
-      const savedTime = new Date(draft.timestamp)
-      const hoursSince = (Date.now() - savedTime.getTime()) / (1000 * 60 * 60)
-      
-      // Only restore if saved within last 24 hours
-      if (hoursSince < 24) {
-        code.value = draft.code || ''
-        language.value = draft.language || 'javascript'
-        mode.value = draft.mode || 'snippet'
-        kind.value = draft.kind || 'snippet'
-        // Public page - always 1 hour TTL, no name/description
-        ttlHours.value = 1
-        endpointName.value = ''
-        endpointDescription.value = ''
-        // Draft restored silently - no need to notify
-      }
-    } catch (e) {
-      // Failed to load draft
+  // Clear any old drafts and always start fresh with a good example
+  localStorage.removeItem(DRAFT_KEY)
+  
+  // Load default example (AI Agent OpenAI)
+  if (examples.value.length > 1) {
+    const defaultIndex = 1 // AI Agent (OpenAI)
+    selectedExampleIndex.value = defaultIndex
+    const example = examples.value[defaultIndex]
+    if (example) {
+      code.value = example.code
+      requestBody.value = example.testInput
     }
   }
   
@@ -1546,6 +1534,12 @@ async function copyStreamCommand() {
 
 // Load example code
 const selectedExampleIndex = ref<number | null>(null)
+const selectedExampleValue = computed({
+  get: () => selectedExampleIndex.value !== null ? String(selectedExampleIndex.value) : '',
+  set: (val: string) => {
+    selectedExampleIndex.value = val ? parseInt(val) : null
+  }
+})
 
 // Example output previews
 const exampleOutputs = computed(() => {
