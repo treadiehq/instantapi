@@ -230,7 +230,7 @@ console.log(result.response);
 - Python 3.11
 
 **Pre-installed AI Packages:**
-- **Python:** `openai`, `anthropic`, `requests`, `httpx`, `aiohttp`, `pydantic`
+- **Python:** `openai`, `anthropic`, `requests`, `httpx`, `aiohttp`, `pydantic`, `beautifulsoup4`
 - **JavaScript:** `openai`, `@anthropic-ai/sdk`, `axios`, `node-fetch`
 
 **What you can do:**
