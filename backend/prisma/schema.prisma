@@ -76,6 +76,9 @@ model Endpoint {
   name           String?        // optional friendly label
   description    String?        // optional description
   ttlHours       Int            @default(24) // time-to-live in hours
+  // Rate limiting
+  rateLimit      Int            @default(100)  // max requests per window
+  rateLimitWindow Int           @default(60)   // window size in seconds (default: 1 minute)
   createdAt      DateTime       @default(now())
   expiresAt      DateTime
   organization   Organization?  @relation(fields: [organizationId], references: [id], onDelete: Cascade)
@@ -94,10 +97,16 @@ model ExecutionLog {
   error        String?  // short error summary
   requestBody  Json?
   responseBody Json?
+  // Additional metadata for analytics
+  statusCode   Int?     @default(200)
+  ipAddress    String?
+  userAgent    String?
   Endpoint     Endpoint @relation(fields: [endpointId], references: [id], onDelete: Cascade)
 
   @@index([endpointId])
   @@index([createdAt])
+  @@index([endpointId, createdAt]) // For rate limiting queries
+  @@index([success])               // For error rate queries
 }
 
 model Tunnel {

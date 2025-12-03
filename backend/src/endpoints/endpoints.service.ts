@@ -11,6 +11,8 @@ export class EndpointsService {
     const ttlHours = dto.ttlHours ?? 24;
     const expiresAt = new Date(now.getTime() + ttlHours * 60 * 60 * 1000);
     const kind = dto.kind ?? 'snippet';
+    const rateLimit = dto.rateLimit ?? 100;
+    const rateLimitWindow = dto.rateLimitWindow ?? 60;
 
     const endpoint = await this.prisma.endpoint.create({
       data: {
@@ -22,6 +24,8 @@ export class EndpointsService {
         description: dto.description,
         ttlHours,
         expiresAt,
+        rateLimit,
+        rateLimitWindow,
       },
     });
 
@@ -37,6 +41,8 @@ export class EndpointsService {
       kind,
       name: endpoint.name,
       description: endpoint.description,
+      rateLimit: endpoint.rateLimit,
+      rateLimitWindow: endpoint.rateLimitWindow,
     };
   }
 
@@ -113,6 +119,8 @@ export class EndpointsService {
         language: true,
         kind: true,
         ttlHours: true,
+        rateLimit: true,
+        rateLimitWindow: true,
         createdAt: true,
         expiresAt: true,
       },

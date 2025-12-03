@@ -1,10 +1,10 @@
 # Instant API
 
-**Run AI agents with an API.** Deploy any agent, function, or script as a secure, sandboxed API endpoint instantly.
+**Run AI agents with an API.** Deploy any agent, function, or script as a secure, sandboxed, rate-limited API endpoint instantly.
 
 ## What is it?
 
-The fastest way to turn your AI agents, functions, and scripts into APIs. No servers, no infrastructure, no DevOps.
+The fastest way to turn your AI agents, functions, and scripts into APIs with sandboxing, rate limits, and usage tracking built-in. No servers, no infrastructure, no DevOps.
 
 Paste your code → Get an API endpoint → Call it from anywhere.
 
@@ -228,7 +228,9 @@ console.log(result.response);
 
 **Sign up for:**
 - Manage and edit your APIs
-- View API analytics
+- **Usage dashboard** — View call counts, errors, latency per endpoint
+- **Request logs** — Full audit trail of all API calls
+- **Custom rate limits** — Configure limits per endpoint
 - Longer API lifetimes (up to 30 days)
 - Premium features (coming soon)
 
@@ -249,20 +251,52 @@ console.log(result.response);
 - **JavaScript:** `openai`, `@anthropic-ai/sdk`, `axios`, `node-fetch`
 
 **What you can do:**
-- 🤖 Deploy AI agents that call OpenAI, Anthropic, and other LLM APIs
-- 🔒 Secure sandboxed execution (isolated containers)
-- 🌐 Make outbound HTTP requests to any API
-- ⚡ Handle async operations (async/await fully supported)
-- 📨 Access request headers (webhook mode)
-- 📡 Streaming support (SSE/Server-Sent Events)
-- 🚀 Expose local servers (ngrok-style tunnels)
-- 🧪 Quick testing with built-in playground
+- Deploy AI agents that call OpenAI, Anthropic, and other LLM APIs
+- Secure sandboxed execution (isolated containers)
+- **Rate limiting** — Configurable per-endpoint (10/min to unlimited)
+- **Usage tracking** — Call counts, error rates, latency metrics
+- **Request logging** — Full audit trail of all API calls
+- Make outbound HTTP requests to any API
+- Handle async operations (async/await fully supported)
+- Access request headers (webhook mode)
+- Streaming support (SSE/Server-Sent Events)
+- Expose local servers (ngrok-style tunnels)
+- Quick testing with built-in playground
+
+**Rate Limiting:**
+Configure rate limits when creating an endpoint:
+- 10 / min — For testing
+- 60 / min — Low traffic
+- 100 / min — Default
+- 500 / min — Medium traffic
+- 1000 / min — High traffic
+- Unlimited — No restrictions
+
+```bash
+# Rate limit info returned with every response
+{
+  "result": { ... },
+  "rateLimitInfo": {
+    "limit": 100,
+    "remaining": 95,
+    "resetAt": "2025-12-03T08:00:00Z"
+  }
+}
+```
+
+**Usage Dashboard:**
+View stats for any endpoint:
+- Total calls, success rate, error rate
+- Average and P95 latency
+- Last 24h and 7-day trends
+- Recent request logs with status codes
 
 **Current Limits:**
 - Free tier: APIs active for 24 hours
 - Signed-in users: APIs active for up to 30 days
 - Max code size: 3MB
 - Execution timeout: 30 seconds (enough for most LLM calls)
+- Default rate limit: 100 requests/minute (configurable)
 
 ## Local Development Setup
 

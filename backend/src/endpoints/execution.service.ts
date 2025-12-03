@@ -1,4 +1,4 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, HttpException, HttpStatus } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
 import { ExecutionResultDto } from './dto/create-endpoint.dto';
 
@@ -21,6 +21,13 @@ interface CloudflareSandboxResponse {
   } | null;
 }
 
+export interface RateLimitInfo {
+  allowed: boolean;
+  limit: number;
+  remaining: number;
+  resetAt: Date;
+}
+
 @Injectable()
 export class ExecutionService {
   private readonly sandboxUrl: string;
@@ -31,23 +38,74 @@ export class ExecutionService {
   }
 
   /**
+   * Check rate limit for an endpoint
+   * Returns rate limit info and whether the request is allowed
+   */
+  async checkRateLimit(endpointId: string, rateLimit: number, rateLimitWindow: number): Promise<RateLimitInfo> {
+    const windowStart = new Date(Date.now() - rateLimitWindow * 1000);
+    
+    // Count requests in the current window
+    const requestCount = await this.prisma.executionLog.count({
+      where: {
+        endpointId,
+        createdAt: {
+          gte: windowStart,
+        },
+      },
+    });
+
+    const remaining = Math.max(0, rateLimit - requestCount);
+    const resetAt = new Date(Date.now() + rateLimitWindow * 1000);
+
+    return {
+      allowed: requestCount < rateLimit,
+      limit: rateLimit,
+      remaining,
+      resetAt,
+    };
+  }
+
+  /**
    * Execute user code via Cloudflare Sandbox Worker
    * 
    * This service proxies execution requests to a Cloudflare Sandbox Worker
    * which safely executes JS or Python code in an isolated VM.
-   * 
-   * Security considerations for future hardening:
-   * - Add rate limiting per endpoint ID
-   * - Add memory and CPU usage monitoring
-   * - Implement execution quotas
-   * - Add authentication for the sandbox worker
    */
   async execute(
-    endpoint: { id: string; language: string; code: string; kind?: string },
+    endpoint: { id: string; language: string; code: string; kind?: string; rateLimit?: number; rateLimitWindow?: number },
     input: any,
     headers?: Record<string, string>,
-  ): Promise<ExecutionResultDto> {
+    metadata?: { ipAddress?: string; userAgent?: string },
+  ): Promise<ExecutionResultDto & { rateLimitInfo?: RateLimitInfo }> {
     const startTime = Date.now();
+
+    // Check rate limit
+    const rateLimit = endpoint.rateLimit ?? 100;
+    const rateLimitWindow = endpoint.rateLimitWindow ?? 60;
+    const rateLimitInfo = await this.checkRateLimit(endpoint.id, rateLimit, rateLimitWindow);
+
+    if (!rateLimitInfo.allowed) {
+      // Log the rate-limited request
+      await this.logExecution(
+        endpoint.id,
+        0,
+        false,
+        { message: 'Rate limit exceeded' },
+        input,
+        null,
+        429,
+        metadata?.ipAddress,
+        metadata?.userAgent,
+      );
+
+      return {
+        error: { 
+          message: `Rate limit exceeded. Limit: ${rateLimitInfo.limit} requests per ${rateLimitWindow} seconds. Try again in ${Math.ceil((rateLimitInfo.resetAt.getTime() - Date.now()) / 1000)} seconds.` 
+        },
+        durationMs: 0,
+        rateLimitInfo,
+      };
+    }
 
     try {
 
@@ -97,6 +155,9 @@ export class ExecutionService {
         sandboxResult.error,
         input,
         sandboxResult.result,
+        sandboxResult.error ? 500 : 200,
+        metadata?.ipAddress,
+        metadata?.userAgent,
       );
 
       return {
@@ -104,6 +165,7 @@ export class ExecutionService {
         logs: sandboxResult.logs || [],
         error: sandboxResult.error || undefined,
         durationMs,
+        rateLimitInfo,
       };
     } catch (error) {
       const durationMs = Date.now() - startTime;
@@ -116,6 +178,9 @@ export class ExecutionService {
         { message: error.message },
         input,
         null,
+        500,
+        metadata?.ipAddress,
+        metadata?.userAgent,
       );
 
       // Check if it's a network error (sandbox worker not available)
@@ -143,6 +208,9 @@ export class ExecutionService {
     error: any,
     requestBody: any,
     responseBody: any,
+    statusCode: number = 200,
+    ipAddress?: string,
+    userAgent?: string,
   ): Promise<void> {
     try {
       // Truncate large bodies to prevent database bloat
@@ -162,6 +230,9 @@ export class ExecutionService {
           error: error ? (typeof error === 'string' ? error : error.message) : null,
           requestBody: requestBody ? truncateJson(requestBody) : null,
           responseBody: responseBody ? truncateJson(responseBody) : null,
+          statusCode,
+          ipAddress,
+          userAgent,
         },
       });
     } catch (err) {

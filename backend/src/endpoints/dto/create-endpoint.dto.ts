@@ -5,6 +5,8 @@ export class CreateEndpointDto {
   description?: string;
   ttlHours?: number; // default 24
   kind?: 'snippet' | 'webhook'; // "file" handled by CreateFileEndpointDto
+  rateLimit?: number; // max requests per window (default 100)
+  rateLimitWindow?: number; // window size in seconds (default 60)
 }
 
 export class CreateFileEndpointDto {
@@ -13,6 +15,8 @@ export class CreateFileEndpointDto {
   description?: string;
   ttlHours?: number; // default 24
   kind?: 'snippet' | 'webhook' | 'file'; // default "file"
+  rateLimit?: number;
+  rateLimitWindow?: number;
 }
 
 export class CreateEndpointResponseDto {
@@ -24,6 +28,8 @@ export class CreateEndpointResponseDto {
   kind: string;
   name?: string;
   description?: string;
+  rateLimit?: number;
+  rateLimitWindow?: number;
 }
 
 export class ExecutionResultDto {

@@ -546,7 +546,7 @@
 
                       <!-- Configuration and Create Button (hidden for Framework, Function, and Stream modes) -->
                       <div v-if="mode !== 'framework' && mode !== 'function' && mode !== 'stream'" class="flex justify-between items-end p-4 border-t border-gray-500/10">
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
                           <!-- Language Select -->
                           <div class="relative">
                             <label class="block text-xs font-semibold mb-2 text-gray-300">Language</label>
@@ -614,12 +614,32 @@
                               </svg>
                             </div>
                           </div>
+
+                          <!-- Rate Limit Select -->
+                          <div class="relative">
+                            <label class="block text-xs font-semibold mb-2 text-gray-300">Rate Limit</label>
+                            <select
+                              v-model="selectedRateLimitPreset"
+                              @change="applyRateLimitPreset"
+                              :disabled="loading.create"
+                              class="block w-full appearance-none rounded-lg bg-gray-500/5 py-2.5 pl-4 pr-10 text-sm font-medium text-white border border-gray-500/10 hover:bg-gray-500/10 focus:outline-none focus:ring-2 focus:ring-gray-500/10 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150"
+                            >
+                              <option v-for="preset in rateLimitPresets" :key="preset.label" :value="preset.label">
+                                {{ preset.label }}
+                              </option>
+                            </select>
+                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2 pt-6">
+                              <svg class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 3a.75.75 0 01.55.24l3.25 3.5a.75.75 0 11-1.1 1.02L10 4.852 7.3 7.76a.75.75 0 01-1.1-1.02l3.25-3.5A.75.75 0 0110 3zm-3.76 9.2a.75.75 0 011.06.04l2.7 2.908 2.7-2.908a.75.75 0 111.1 1.02l-3.25 3.5a.75.75 0 01-1.1 0l-3.25-3.5a.75.75 0 01.04-1.06z" clip-rule="evenodd" />
+                              </svg>
+                            </div>
+                          </div>
                         </div>
                         <!-- Create Button -->
                         <button
                           @click="createEndpoint"
                           :disabled="loading.create || (!code.trim() && !selectedFile)"
-                          class="btn-primary w-auto h-10 text-sm py-2 font-semibold flex items-center gap-2 min-w-[140px] justify-center hover:shadow-lg hover:shadow-blue-500/20 transition-all duration-200"
+                          class="btn-primary w-auto ml-2 truncate h-10 text-sm py-2 font-semibold flex items-center gap-2 min-w-[140px] justify-center hover:shadow-lg hover:shadow-blue-500/20 transition-all duration-200"
                           :title="(!code.trim() && !selectedFile) ? 'Please add some code first' : 'Create your API endpoint'"
                         >
                           <!-- Loading Spinner -->
@@ -1148,6 +1168,9 @@
                               </div>
                               <div class="flex items-center gap-1.5 flex-wrap">
                                 <span class="text-xs px-1.5 py-0.5 rounded-md font-medium" :class="endpoint.kind === 'webhook' ? 'bg-purple-400/10 text-purple-300' : 'bg-blue-300/10 text-blue-300'">{{ endpoint.kind }}</span>
+                                <span v-if="endpoint.rateLimit" class="text-xs px-1.5 py-0.5 rounded-md font-medium bg-orange-400/10 text-orange-300" :title="`${endpoint.rateLimit} requests per ${endpoint.rateLimitWindow || 60}s`">
+                                  {{ endpoint.rateLimit >= 999999 ? '∞' : endpoint.rateLimit }}/min
+                                </span>
                                 <span class="text-xs text-gray-500">•</span>
                                 <span class="text-xs text-gray-400">{{ formatDate(endpoint.createdAt) }}</span>
                               </div>
@@ -1185,6 +1208,16 @@
                               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
                             </svg>
                             {{ isCopied(`endpoint-${endpoint.id}`) ? 'Copied!' : 'Copy URL' }}
+                          </button>
+                          <button 
+                            @click="fetchEndpointStats(endpoint.id)"
+                            class="shrink-0 text-xs px-3 py-2 rounded-lg font-medium bg-blue-400/10 text-blue-300 hover:bg-blue-400/20 border border-transparent transition-all duration-200 flex items-center gap-1.5"
+                            title="View usage stats"
+                          >
+                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                            </svg>
+                            Stats
                           </button>
                           <button 
                             @click="confirmDeleteEndpoint(endpoint)" 
@@ -1342,6 +1375,100 @@
           </div>
           <div class="p-6">
             <TunnelAnalytics :tunnelId="selectedTunnelId" />
+          </div>
+        </div>
+      </div>
+    </Teleport>
+
+    <!-- Endpoint Stats Modal -->
+    <Teleport to="body">
+      <div
+        v-if="showStatsModal"
+        @click="closeStatsModal"
+        class="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4 overflow-y-auto"
+      >
+        <div @click.stop class="bg-gray-900 border border-gray-500/20 rounded-xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+          <div class="sticky top-0 bg-gray-900 px-6 py-4 border-b border-gray-500/10 flex items-center justify-between">
+            <h3 class="text-lg font-semibold text-white">Endpoint Usage Stats</h3>
+            <button @click="closeStatsModal" class="text-gray-400 hover:text-white transition-colors">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          <div class="p-6">
+            <!-- Stats Overview Cards -->
+            <div v-if="selectedEndpointStats" class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+              <div class="bg-gray-500/10 rounded-lg p-4 border border-gray-500/10">
+                <p class="text-xs text-gray-400 uppercase tracking-wide mb-1">Total Calls</p>
+                <p class="text-2xl font-bold text-white">{{ selectedEndpointStats.totalCalls?.toLocaleString() || 0 }}</p>
+              </div>
+              <div class="bg-gray-500/10 rounded-lg p-4 border border-gray-500/10">
+                <p class="text-xs text-gray-400 uppercase tracking-wide mb-1">Success Rate</p>
+                <p class="text-2xl font-bold" :class="selectedEndpointStats.errorRate < 5 ? 'text-green-400' : selectedEndpointStats.errorRate < 20 ? 'text-yellow-400' : 'text-red-400'">
+                  {{ (100 - (selectedEndpointStats.errorRate || 0)).toFixed(1) }}%
+                </p>
+              </div>
+              <div class="bg-gray-500/10 rounded-lg p-4 border border-gray-500/10">
+                <p class="text-xs text-gray-400 uppercase tracking-wide mb-1">Avg Latency</p>
+                <p class="text-2xl font-bold text-white">{{ selectedEndpointStats.avgLatencyMs || 0 }}ms</p>
+              </div>
+              <div class="bg-gray-500/10 rounded-lg p-4 border border-gray-500/10">
+                <p class="text-xs text-gray-400 uppercase tracking-wide mb-1">P95 Latency</p>
+                <p class="text-2xl font-bold text-white">{{ selectedEndpointStats.p95LatencyMs || 0 }}ms</p>
+              </div>
+            </div>
+
+            <!-- Time-based Stats -->
+            <div v-if="selectedEndpointStats" class="grid grid-cols-3 gap-4 mb-6">
+              <div class="bg-gray-500/10 rounded-lg p-4 border border-gray-500/10">
+                <p class="text-xs text-gray-400 uppercase tracking-wide mb-1">Last 24 Hours</p>
+                <p class="text-xl font-bold text-white">{{ selectedEndpointStats.callsLast24h?.toLocaleString() || 0 }} calls</p>
+              </div>
+              <div class="bg-gray-500/10 rounded-lg p-4 border border-gray-500/10">
+                <p class="text-xs text-gray-400 uppercase tracking-wide mb-1">Last 7 Days</p>
+                <p class="text-xl font-bold text-white">{{ selectedEndpointStats.callsLast7d?.toLocaleString() || 0 }} calls</p>
+              </div>
+              <div class="bg-orange-400/10 rounded-lg p-4 border border-orange-400/20">
+                <p class="text-xs text-orange-300 uppercase tracking-wide mb-1">Rate Limit</p>
+                <p class="text-xl font-bold text-orange-300">
+                  {{ getEndpointRateLimit() }}
+                </p>
+              </div>
+            </div>
+
+            <!-- Recent Logs -->
+            <div class="mb-4">
+              <h4 class="text-sm font-semibold text-white mb-3">Recent Requests</h4>
+              <div v-if="selectedEndpointLogs.length === 0" class="text-center py-8 text-gray-400">
+                No requests yet
+              </div>
+              <div v-else class="space-y-2 max-h-64 overflow-y-auto">
+                <div 
+                  v-for="log in selectedEndpointLogs.slice(0, 20)" 
+                  :key="log.id"
+                  class="flex items-center justify-between p-3 bg-gray-500/5 rounded-lg border border-gray-500/10"
+                >
+                  <div class="flex items-center gap-3">
+                    <div 
+                      class="w-2 h-2 rounded-full"
+                      :class="log.success ? 'bg-green-400' : 'bg-red-400'"
+                    ></div>
+                    <div>
+                      <p class="text-xs text-white font-medium">
+                        {{ log.success ? 'Success' : 'Error' }}
+                        <span v-if="log.error" class="text-red-400 ml-2">{{ log.error }}</span>
+                      </p>
+                      <p class="text-xs text-gray-500">{{ new Date(log.createdAt).toLocaleString() }}</p>
+                    </div>
+                  </div>
+                  <div class="text-right">
+                    <p class="text-xs font-mono text-gray-300">{{ log.durationMs }}ms</p>
+                    <p v-if="log.statusCode" class="text-xs text-gray-500">{{ log.statusCode }}</p>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -1508,8 +1635,30 @@ const language = ref<'javascript' | 'python'>('javascript')
 const code = ref('')
 const ttlHours = ref(1)
 const kind = ref<'snippet' | 'webhook'>('snippet')
+const rateLimit = ref(100) // requests per window
+const rateLimitWindow = ref(60) // window in seconds
 const endpointName = ref('')
 const endpointDescription = ref('')
+
+// Rate limit presets
+const rateLimitPresets = [
+  { label: '10 / min', limit: 10, window: 60 },
+  { label: '60 / min', limit: 60, window: 60 },
+  { label: '100 / min (default)', limit: 100, window: 60 },
+  { label: '500 / min', limit: 500, window: 60 },
+  { label: '1000 / min', limit: 1000, window: 60 },
+  { label: 'Unlimited', limit: 999999, window: 60 },
+]
+const selectedRateLimitPreset = ref('100 / min (default)')
+
+// Apply rate limit preset
+function applyRateLimitPreset() {
+  const preset = rateLimitPresets.find(p => p.label === selectedRateLimitPreset.value)
+  if (preset) {
+    rateLimit.value = preset.limit
+    rateLimitWindow.value = preset.window
+  }
+}
 const selectedFile = ref<File | null>(null)
 const fileInput = ref<HTMLInputElement | null>(null)
 
@@ -1544,8 +1693,15 @@ function formatBytes(bytes: number): string {
 const endpoints = ref<any[]>([])
 const tunnels = ref<any[]>([])
 const selectedTunnelId = ref<string | null>(null)
-const loading = ref({ create: false, test: false, health: false, dashboard: false })
+const loading = ref({ create: false, test: false, health: false, dashboard: false, stats: false })
 const loadingMessage = ref('Creating your API...')
+
+// Stats state
+const organizationStats = ref<any>(null)
+const selectedEndpointStats = ref<any>(null)
+const selectedEndpointLogs = ref<any[]>([])
+const showStatsModal = ref(false)
+const statsEndpointId = ref<string | null>(null)
 const deletingEndpointId = ref<string | null>(null)
 const deleteConfirmation = ref({
   show: false,
@@ -1657,7 +1813,75 @@ async function fetchTunnels() {
 // Fetch all dashboard data
 async function fetchDashboard() {
   if (!isAuthenticated.value) return;
-  await Promise.all([fetchEndpoints(), fetchTunnels()]);
+  await Promise.all([fetchEndpoints(), fetchTunnels(), fetchOrganizationStats()]);
+}
+
+// Fetch organization-wide stats
+async function fetchOrganizationStats() {
+  if (!isAuthenticated.value) return;
+  
+  loading.value.stats = true;
+  try {
+    const { token } = useAuth();
+    const response = await fetch(`${API_BASE}/api/stats`, {
+      headers: {
+        'Authorization': `Bearer ${token.value}`,
+      },
+    });
+    if (response.ok) {
+      organizationStats.value = await response.json();
+    }
+  } catch (error) {
+    // Failed to fetch stats
+  } finally {
+    loading.value.stats = false;
+  }
+}
+
+// Fetch stats for a specific endpoint
+async function fetchEndpointStats(endpointId: string) {
+  if (!isAuthenticated.value) return;
+  
+  statsEndpointId.value = endpointId;
+  showStatsModal.value = true;
+  
+  try {
+    const { token } = useAuth();
+    const [statsRes, logsRes] = await Promise.all([
+      fetch(`${API_BASE}/api/endpoints/${endpointId}/stats`, {
+        headers: { 'Authorization': `Bearer ${token.value}` },
+      }),
+      fetch(`${API_BASE}/api/endpoints/${endpointId}/logs`, {
+        headers: { 'Authorization': `Bearer ${token.value}` },
+      }),
+    ]);
+    
+    if (statsRes.ok) {
+      selectedEndpointStats.value = await statsRes.json();
+    }
+    if (logsRes.ok) {
+      selectedEndpointLogs.value = await logsRes.json();
+    }
+  } catch (error) {
+    // Failed to fetch endpoint stats
+  }
+}
+
+// Close stats modal
+function closeStatsModal() {
+  showStatsModal.value = false;
+  statsEndpointId.value = null;
+  selectedEndpointStats.value = null;
+  selectedEndpointLogs.value = [];
+}
+
+// Get rate limit display for stats modal
+function getEndpointRateLimit() {
+  if (!statsEndpointId.value) return 'N/A';
+  const endpoint = endpoints.value.find(e => e.id === statsEndpointId.value);
+  if (!endpoint) return 'N/A';
+  if (endpoint.rateLimit >= 999999) return 'Unlimited';
+  return `${endpoint.rateLimit || 100}/min`;
 }
 
 // Show delete confirmation modal
@@ -2495,6 +2719,8 @@ async function createEndpoint() {
           description: endpointDescription.value || undefined,
           ttlHours: ttlHours.value,
           kind: kind.value,
+          rateLimit: rateLimit.value,
+          rateLimitWindow: rateLimitWindow.value,
       }),
     })
     } else {

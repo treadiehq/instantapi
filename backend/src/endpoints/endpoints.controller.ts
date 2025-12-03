@@ -16,6 +16,7 @@ import {
 import { FileInterceptor } from '@nestjs/platform-express';
 import { EndpointsService } from './endpoints.service';
 import { ExecutionService } from './execution.service';
+import { StatsService } from './stats.service';
 import { CreateEndpointDto, CreateFileEndpointDto } from './dto/create-endpoint.dto';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { OptionalAuthGuard } from '../auth/guards/optional-auth.guard';
@@ -25,6 +26,7 @@ export class EndpointsController {
   constructor(
     private readonly endpointsService: EndpointsService,
     private readonly executionService: ExecutionService,
+    private readonly statsService: StatsService,
   ) {}
 
   /**
@@ -146,26 +148,40 @@ export class EndpointsController {
   async executeEndpoint(
     @Param('id') id: string,
     @Body() input: any,
-    @Param() headers: any,
+    @Req() req: any,
   ) {
     try {
       // Get endpoint from database
       const endpoint = await this.endpointsService.getEndpoint(id);
 
       // Extract relevant headers for webhook mode
-      const requestHeaders = headers ? Object.keys(headers).reduce((acc, key) => {
+      const headers = req.headers || {};
+      const requestHeaders = Object.keys(headers).reduce((acc, key) => {
         if (key.toLowerCase().startsWith('x-') || ['content-type', 'user-agent'].includes(key.toLowerCase())) {
           acc[key] = headers[key];
         }
         return acc;
-      }, {} as Record<string, string>) : {};
+      }, {} as Record<string, string>);
+
+      // Extract metadata for logging
+      const metadata = {
+        ipAddress: req.ip || req.connection?.remoteAddress || headers['x-forwarded-for'],
+        userAgent: headers['user-agent'],
+      };
 
       // Execute via Cloudflare Sandbox
       const result = await this.executionService.execute(
         endpoint,
         input,
         requestHeaders,
+        metadata,
       );
+
+      // Add rate limit headers to response (handled by NestJS response)
+      if (result.rateLimitInfo) {
+        // These will be returned in the JSON response
+        // For proper HTTP headers, we'd need to inject @Res() but that complicates things
+      }
 
       return result;
     } catch (error) {
@@ -198,6 +214,61 @@ export class EndpointsController {
       success: true,
       message: 'Endpoint deleted successfully',
     };
+  }
+
+  /**
+   * Get stats for all endpoints in the organization
+   * GET /api/stats
+   */
+  @Get('api/stats')
+  @UseGuards(AuthGuard)
+  async getOrganizationStats(@Req() req: any) {
+    return this.statsService.getOrganizationStats(req.user.organizationId);
+  }
+
+  /**
+   * Get stats for a specific endpoint
+   * GET /api/endpoints/:id/stats
+   */
+  @Get('api/endpoints/:id/stats')
+  @UseGuards(AuthGuard)
+  async getEndpointStats(@Param('id') id: string, @Req() req: any) {
+    // Verify endpoint belongs to user's organization
+    const endpoint = await this.endpointsService.getEndpoint(id);
+    if (endpoint.organizationId !== req.user.organizationId) {
+      return { error: 'Endpoint not found' };
+    }
+    return this.statsService.getEndpointStats(id);
+  }
+
+  /**
+   * Get hourly call history for an endpoint
+   * GET /api/endpoints/:id/history
+   */
+  @Get('api/endpoints/:id/history')
+  @UseGuards(AuthGuard)
+  async getEndpointHistory(@Param('id') id: string, @Req() req: any) {
+    // Verify endpoint belongs to user's organization
+    const endpoint = await this.endpointsService.getEndpoint(id);
+    if (endpoint.organizationId !== req.user.organizationId) {
+      return { error: 'Endpoint not found' };
+    }
+    return this.statsService.getEndpointCallHistory(id);
+  }
+
+  /**
+   * Get recent logs for an endpoint
+   * GET /api/endpoints/:id/logs
+   */
+  @Get('api/endpoints/:id/logs')
+  @UseGuards(AuthGuard)
+  async getEndpointLogs(@Param('id') id: string, @Req() req: any) {
+    // Verify endpoint belongs to user's organization
+    const endpoint = await this.endpointsService.getEndpoint(id);
+    if (endpoint.organizationId !== req.user.organizationId) {
+      return { error: 'Endpoint not found' };
+    }
+    return this.statsService.getRecentLogs(id);
   }
 
   /**
