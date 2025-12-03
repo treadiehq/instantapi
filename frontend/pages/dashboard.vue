@@ -270,62 +270,158 @@
                   <!-- Function Mode -->
                   <div v-else-if="mode === 'function'" class="p-8 bg-black">
                     <div class="max-w-2xl mx-auto">
-                      <div class="flex items-start space-x-3 mb-6">
-                        <svg class="w-8 h-8 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
-                        </svg>
-                        <div>
-                          <h3 class="text-lg font-semibold text-white mb-2">Function SDK</h3>
-                          <p class="text-gray-400 text-sm leading-relaxed mb-4">
-                            Expose single functions without setting up a full server.
-                          </p>
-                        </div>
+                      <!-- Tab selector for Server SDK vs Client SDK -->
+                      <div class="flex space-x-2 mb-6 bg-gray-500/10 rounded-lg p-1">
+                        <button
+                          @click="functionSubMode = 'client'"
+                          :class="[
+                            'flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors',
+                            functionSubMode === 'client'
+                              ? 'bg-blue-300/10 text-blue-300'
+                              : 'text-gray-400 hover:text-white'
+                          ]"
+                        >
+                          Client (Call Agents)
+                        </button>
+                        <button
+                          @click="functionSubMode = 'server'"
+                          :class="[
+                            'flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors',
+                            functionSubMode === 'server'
+                              ? 'bg-blue-300/10 text-blue-300'
+                              : 'text-gray-400 hover:text-white'
+                          ]"
+                        >
+                          Server (Expose Functions)
+                        </button>
                       </div>
-                      
-                      <div class="space-y-4">
-                        <!-- Install SDK -->
-                        <div class="bg-gray-500/5 border border-gray-500/10 rounded-lg p-6">
-                          <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Install SDK</p>
-                          <div class="flex items-center justify-between bg-black rounded-lg p-3 font-mono text-sm">
-                            <code class="text-green-300">npm install @instantapihq/sdk</code>
-                            <button 
-                              @click="copyInstallCommand"
-                              class="ml-3 text-gray-400 hover:text-white transition-colors"
-                              title="Copy command"
-                            >
-                              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                              </svg>
-                            </button>
+
+                      <!-- Client SDK Section -->
+                      <div v-if="functionSubMode === 'client'">
+                        <div class="flex items-start space-x-3 mb-6">
+                          <svg class="w-8 h-8 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                          </svg>
+                          <div>
+                            <h3 class="text-lg font-semibold text-white mb-2">Client SDK</h3>
+                            <p class="text-gray-400 text-sm leading-relaxed mb-4">
+                              Call any deployed agent with one line of code. Like Replicate, but for your custom agents.
+                            </p>
                           </div>
                         </div>
                         
-                        <!-- Create functions -->
-                        <div class="bg-gray-500/5 border border-gray-500/10 rounded-lg p-6">
-                          <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">functions.ts</p>
-                          <pre class="bg-black rounded-lg p-4 text-sm overflow-x-auto"><code class="text-gray-300"><span class="text-purple-300">import</span> { <span class="text-blue-300">expose</span> } <span class="text-purple-300">from</span> <span class="text-green-300">'@instantapihq/sdk'</span>;
+                        <div class="space-y-4">
+                          <!-- Install Client SDK -->
+                          <div class="bg-gray-500/5 border border-gray-500/10 rounded-lg p-6">
+                            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Install</p>
+                            <div class="flex items-center justify-between bg-black rounded-lg p-3 font-mono text-sm">
+                              <code class="text-green-300">npm install @instantapihq/client</code>
+                              <button 
+                                @click="copyClientInstallCommand"
+                                class="ml-3 text-gray-400 hover:text-white transition-colors"
+                                title="Copy command"
+                              >
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                </svg>
+                              </button>
+                            </div>
+                          </div>
+                          
+                          <!-- Usage Example -->
+                          <div class="bg-gray-500/5 border border-gray-500/10 rounded-lg p-6">
+                            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Run any agent</p>
+                            <pre class="bg-black rounded-lg p-4 text-sm overflow-x-auto"><code class="text-gray-300"><span class="text-purple-300">import</span> <span class="text-blue-300">InstantAPI</span> <span class="text-purple-300">from</span> <span class="text-green-300">'@instantapihq/client'</span>;
+
+<span class="text-purple-300">const</span> api = <span class="text-purple-300">new</span> <span class="text-blue-300">InstantAPI</span>({ 
+  apiKey: <span class="text-green-300">'ik_your_key'</span> 
+});
+
+<span class="text-gray-500">// Run any deployed agent with one line</span>
+<span class="text-purple-300">const</span> { result } = <span class="text-purple-300">await</span> api.<span class="text-blue-300">run</span>(<span class="text-green-300">'agent-id'</span>, { 
+  prompt: <span class="text-green-300">'What is AI?'</span> 
+});
+
+console.<span class="text-blue-300">log</span>(result.response);</code></pre>
+                          </div>
+                          
+                          <!-- More Methods -->
+                          <div class="bg-gray-500/5 border border-gray-500/10 rounded-lg p-6">
+                            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">More Methods</p>
+                            <pre class="bg-black rounded-lg p-4 text-sm overflow-x-auto"><code class="text-gray-300"><span class="text-gray-500">// Create an agent programmatically</span>
+<span class="text-purple-300">const</span> endpoint = <span class="text-purple-300">await</span> api.<span class="text-blue-300">create</span>({
+  code: <span class="text-green-300">'function handler(input) { return { hi: input.name }; }'</span>,
+  language: <span class="text-green-300">'javascript'</span>
+});
+
+<span class="text-gray-500">// List all your agents</span>
+<span class="text-purple-300">const</span> agents = <span class="text-purple-300">await</span> api.<span class="text-blue-300">list</span>();
+
+<span class="text-gray-500">// Delete an agent</span>
+<span class="text-purple-300">await</span> api.<span class="text-blue-300">delete</span>(<span class="text-green-300">'agent-id'</span>);</code></pre>
+                          </div>
+                        </div>
+                      </div>
+
+                      <!-- Server SDK Section -->
+                      <div v-else>
+                        <div class="flex items-start space-x-3 mb-6">
+                          <svg class="w-8 h-8 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                          </svg>
+                          <div>
+                            <h3 class="text-lg font-semibold text-white mb-2">Server SDK</h3>
+                            <p class="text-gray-400 text-sm leading-relaxed mb-4">
+                              Expose single functions without setting up a full server.
+                            </p>
+                          </div>
+                        </div>
+                        
+                        <div class="space-y-4">
+                          <!-- Install SDK -->
+                          <div class="bg-gray-500/5 border border-gray-500/10 rounded-lg p-6">
+                            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Install SDK</p>
+                            <div class="flex items-center justify-between bg-black rounded-lg p-3 font-mono text-sm">
+                              <code class="text-green-300">npm install @instantapihq/sdk</code>
+                              <button 
+                                @click="copyInstallCommand"
+                                class="ml-3 text-gray-400 hover:text-white transition-colors"
+                                title="Copy command"
+                              >
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                </svg>
+                              </button>
+                            </div>
+                          </div>
+                          
+                          <!-- Create functions -->
+                          <div class="bg-gray-500/5 border border-gray-500/10 rounded-lg p-6">
+                            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">functions.ts</p>
+                            <pre class="bg-black rounded-lg p-4 text-sm overflow-x-auto"><code class="text-gray-300"><span class="text-purple-300">import</span> { <span class="text-blue-300">expose</span> } <span class="text-purple-300">from</span> <span class="text-green-300">'@instantapihq/sdk'</span>;
 
 <span class="text-blue-300">expose</span>(<span class="text-green-300">'hello'</span>, (<span class="text-orange-300">input</span>) => {
   <span class="text-purple-300">return</span> {
     message: <span class="text-green-300">`Hello \${<span class="text-orange-300">input</span>.name}!`</span>
   };
 });</code></pre>
-                        </div>
-                        
-                        <!-- Expose by function name -->
-                        <div class="bg-gray-500/5 border border-gray-500/10 rounded-lg p-6">
-                          <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Expose by function name</p>
-                          <div class="flex items-center justify-between bg-black rounded-lg p-3 font-mono text-sm">
-                            <code class="text-green-300">npx @instantapihq/cli expose hello</code>
-                            <button 
-                              @click="copyExposeCommand"
-                              class="ml-3 text-gray-400 hover:text-white transition-colors"
-                              title="Copy command"
-                            >
-                              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                              </svg>
-                            </button>
+                          </div>
+                          
+                          <!-- Expose by function name -->
+                          <div class="bg-gray-500/5 border border-gray-500/10 rounded-lg p-6">
+                            <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Expose by function name</p>
+                            <div class="flex items-center justify-between bg-black rounded-lg p-3 font-mono text-sm">
+                              <code class="text-green-300">npx @instantapihq/cli expose hello</code>
+                              <button 
+                                @click="copyExposeCommand"
+                                class="ml-3 text-gray-400 hover:text-white transition-colors"
+                                title="Copy command"
+                              >
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                </svg>
+                              </button>
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -1333,6 +1429,7 @@ function showToast(message: string, type: 'success' | 'error' | 'info' = 'info',
 
 // Form state
 const mode = ref<'snippet' | 'file' | 'framework' | 'function' | 'stream'>('snippet')
+const functionSubMode = ref<'client' | 'server'>('client')
 const language = ref<'javascript' | 'python'>('javascript')
 const code = ref('')
 const ttlHours = ref(1)
@@ -1770,6 +1867,119 @@ const result = {
         testInput: '{\n  "name": "Dante"\n}'
       },
       {
+        name: 'AI Agent (OpenAI)',
+        code: `// AI Agent using OpenAI API
+async function handler(input) {
+  const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Authorization': \`Bearer \${input.apiKey}\`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      model: input.model || 'gpt-4o-mini',
+      messages: [{ role: 'user', content: input.prompt }],
+      max_tokens: input.maxTokens || 500
+    })
+  });
+  
+  const data = await response.json();
+  return {
+    response: data.choices?.[0]?.message?.content,
+    model: input.model || 'gpt-4o-mini',
+    usage: data.usage
+  };
+}`,
+        testInput: '{\n  "apiKey": "sk-your-openai-key",\n  "prompt": "What is the capital of France?",\n  "model": "gpt-4o-mini"\n}'
+      },
+      {
+        name: 'AI Agent (Anthropic)',
+        code: `// AI Agent using Anthropic Claude API
+async function handler(input) {
+  const response = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'x-api-key': input.apiKey,
+      'anthropic-version': '2023-06-01',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      model: input.model || 'claude-3-5-sonnet-20241022',
+      max_tokens: input.maxTokens || 1024,
+      messages: [{ role: 'user', content: input.prompt }]
+    })
+  });
+  
+  const data = await response.json();
+  return {
+    response: data.content?.[0]?.text,
+    model: data.model,
+    usage: data.usage
+  };
+}`,
+        testInput: '{\n  "apiKey": "sk-ant-your-anthropic-key",\n  "prompt": "Explain quantum computing in simple terms",\n  "model": "claude-3-5-sonnet-20241022"\n}'
+      },
+      {
+        name: 'Image Generator (DALL-E)',
+        code: `// Generate images using OpenAI DALL-E
+async function handler(input) {
+  const response = await fetch('https://api.openai.com/v1/images/generations', {
+    method: 'POST',
+    headers: {
+      'Authorization': \`Bearer \${input.apiKey}\`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      model: 'dall-e-3',
+      prompt: input.prompt,
+      n: 1,
+      size: input.size || '1024x1024',
+      quality: input.quality || 'standard'
+    })
+  });
+  
+  const data = await response.json();
+  return {
+    imageUrl: data.data?.[0]?.url,
+    revisedPrompt: data.data?.[0]?.revised_prompt
+  };
+}`,
+        testInput: '{\n  "apiKey": "sk-your-openai-key",\n  "prompt": "A futuristic city with flying cars at sunset",\n  "size": "1024x1024"\n}'
+      },
+      {
+        name: 'Web Scraper',
+        code: `// Simple web scraper - fetches and extracts data from URLs
+async function handler(input) {
+  const url = input.url;
+  if (!url) throw new Error('URL is required');
+  
+  const response = await fetch(url);
+  const html = await response.text();
+  
+  // Extract title
+  const titleMatch = html.match(/<title[^>]*>([^<]+)<\\/title>/i);
+  const title = titleMatch ? titleMatch[1].trim() : null;
+  
+  // Extract meta description
+  const descMatch = html.match(/<meta[^>]*name=["']description["'][^>]*content=["']([^"']+)["']/i);
+  const description = descMatch ? descMatch[1].trim() : null;
+  
+  // Extract all links
+  const linkMatches = html.matchAll(/<a[^>]*href=["']([^"']+)["'][^>]*>/gi);
+  const links = [...linkMatches].map(m => m[1]).slice(0, 20);
+  
+  return {
+    url,
+    title,
+    description,
+    linkCount: links.length,
+    links,
+    contentLength: html.length
+  };
+}`,
+        testInput: '{\n  "url": "https://example.com"\n}'
+      },
+      {
         name: 'Fetch API',
         code: `// Outbound HTTP example using fetch
 async function handler(input) {
@@ -1816,18 +2026,126 @@ result = {
         testInput: '{\n  "name": "Dante"\n}'
       },
       {
-        name: 'HTTP Request',
-        code: `# Outbound HTTP example using http_get/http_post helpers
+        name: 'AI Agent (OpenAI)',
+        code: `# AI Agent using OpenAI SDK
+from openai import OpenAI
+
 def handler(input):
-    url = input.get('url', 'https://api.github.com/zen')
+    client = OpenAI(api_key=input['apiKey'])
     
-    # Simple GET request
-    data = http_get(url)
+    response = client.chat.completions.create(
+        model=input.get('model', 'gpt-4o-mini'),
+        messages=[{"role": "user", "content": input['prompt']}],
+        max_tokens=input.get('maxTokens', 500)
+    )
+    
+    return {
+        "response": response.choices[0].message.content,
+        "model": response.model,
+        "usage": {
+            "prompt_tokens": response.usage.prompt_tokens,
+            "completion_tokens": response.usage.completion_tokens
+        }
+    }`,
+        testInput: '{\n  "apiKey": "sk-your-openai-key",\n  "prompt": "What is the capital of France?",\n  "model": "gpt-4o-mini"\n}'
+      },
+      {
+        name: 'AI Agent (Anthropic)',
+        code: `# AI Agent using Anthropic Claude SDK
+from anthropic import Anthropic
+
+def handler(input):
+    client = Anthropic(api_key=input['apiKey'])
+    
+    message = client.messages.create(
+        model=input.get('model', 'claude-3-5-sonnet-20241022'),
+        max_tokens=input.get('maxTokens', 1024),
+        messages=[{"role": "user", "content": input['prompt']}]
+    )
+    
+    return {
+        "response": message.content[0].text,
+        "model": message.model,
+        "usage": {
+            "input_tokens": message.usage.input_tokens,
+            "output_tokens": message.usage.output_tokens
+        }
+    }`,
+        testInput: '{\n  "apiKey": "sk-ant-your-anthropic-key",\n  "prompt": "Explain quantum computing in simple terms",\n  "model": "claude-3-5-sonnet-20241022"\n}'
+      },
+      {
+        name: 'Image Generator (DALL-E)',
+        code: `# Generate images using OpenAI DALL-E
+from openai import OpenAI
+
+def handler(input):
+    client = OpenAI(api_key=input['apiKey'])
+    
+    response = client.images.generate(
+        model="dall-e-3",
+        prompt=input['prompt'],
+        size=input.get('size', '1024x1024'),
+        quality=input.get('quality', 'standard'),
+        n=1
+    )
+    
+    return {
+        "imageUrl": response.data[0].url,
+        "revisedPrompt": response.data[0].revised_prompt
+    }`,
+        testInput: '{\n  "apiKey": "sk-your-openai-key",\n  "prompt": "A futuristic city with flying cars at sunset",\n  "size": "1024x1024"\n}'
+      },
+      {
+        name: 'Web Scraper',
+        code: `# Simple web scraper using requests and BeautifulSoup
+import requests
+from bs4 import BeautifulSoup
+
+def handler(input):
+    url = input.get('url')
+    if not url:
+        raise ValueError('URL is required')
+    
+    response = requests.get(url, headers={
+        'User-Agent': 'Mozilla/5.0 (compatible; InstantAPI/1.0)'
+    })
+    
+    soup = BeautifulSoup(response.text, 'html.parser')
+    
+    # Extract title
+    title = soup.title.string if soup.title else None
+    
+    # Extract meta description
+    meta_desc = soup.find('meta', attrs={'name': 'description'})
+    description = meta_desc['content'] if meta_desc else None
+    
+    # Extract all links
+    links = [a.get('href') for a in soup.find_all('a', href=True)][:20]
     
     return {
         "url": url,
-        "data": data,
-        "timestamp": str(datetime.now())
+        "title": title,
+        "description": description,
+        "linkCount": len(links),
+        "links": links,
+        "status": response.status_code
+    }`,
+        testInput: '{\n  "url": "https://example.com"\n}'
+      },
+      {
+        name: 'HTTP Request',
+        code: `# Outbound HTTP example using requests
+import requests
+
+def handler(input):
+    url = input.get('url', 'https://api.github.com/zen')
+    
+    response = requests.get(url)
+    
+    return {
+        "url": url,
+        "data": response.text,
+        "status": response.status_code
     }`,
         testInput: '{\n  "url": "https://api.github.com/zen"\n}'
       },
@@ -1902,6 +2220,11 @@ async function copyFrameworkCommand() {
 
 async function copyInstallCommand() {
   const cmd = 'npm install @instantapihq/sdk'
+  await copyToClipboard(cmd)
+}
+
+async function copyClientInstallCommand() {
+  const cmd = 'npm install @instantapihq/client'
   await copyToClipboard(cmd)
 }
 

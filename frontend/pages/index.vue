@@ -30,12 +30,14 @@
         <!-- Hero Section -->
         <div class="mt-6 md:mt-12 max-w-4xl mb-20">
           <h1 class="mb-5 text-3xl font-bold sm:mb-6 sm:text-5xl leading-tight text-white">
-            Turn your <span class="bg-blue-300 px-1 text-black">code</span> into <span class="bg-amber-300 px-1 text-black">API</span> instantly
+            Run <span class="bg-blue-300 px-1 text-black">  AI agents</span> with an API.
+            <!-- Turn your <span class="bg-blue-300 px-1 text-black">code</span> into <span class="bg-amber-300 px-1 text-black">API</span> instantly -->
           </h1>
           <p class="text-gray-400 text-sm leading-[1.6] sm:text-base">
-            Paste your code or upload a file, and get a 
+            The fastest way to turn your AI agents, functions, code, and scripts into APIs. No servers, no infrastructure, no DevOps.
+            <!-- Paste your code or upload a file, and get a 
             secure endpoint you can call from anywhere. 
-            No servers, no deploy, no config.
+            No servers, no deploy, no config. -->
           </p>
         </div>
         <!-- Single Column Layout (public) -->
@@ -1176,6 +1178,119 @@ const result = {
         testInput: '{\n  "name": "Dante"\n}'
       },
       {
+        name: 'AI Agent (OpenAI)',
+        code: `// AI Agent using OpenAI API
+async function handler(input) {
+  const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Authorization': \`Bearer \${input.apiKey}\`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      model: input.model || 'gpt-4o-mini',
+      messages: [{ role: 'user', content: input.prompt }],
+      max_tokens: input.maxTokens || 500
+    })
+  });
+  
+  const data = await response.json();
+  return {
+    response: data.choices?.[0]?.message?.content,
+    model: input.model || 'gpt-4o-mini',
+    usage: data.usage
+  };
+}`,
+        testInput: '{\n  "apiKey": "sk-your-openai-key",\n  "prompt": "What is the capital of France?",\n  "model": "gpt-4o-mini"\n}'
+      },
+      {
+        name: 'AI Agent (Anthropic)',
+        code: `// AI Agent using Anthropic Claude API
+async function handler(input) {
+  const response = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'x-api-key': input.apiKey,
+      'anthropic-version': '2023-06-01',
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      model: input.model || 'claude-3-5-sonnet-20241022',
+      max_tokens: input.maxTokens || 1024,
+      messages: [{ role: 'user', content: input.prompt }]
+    })
+  });
+  
+  const data = await response.json();
+  return {
+    response: data.content?.[0]?.text,
+    model: data.model,
+    usage: data.usage
+  };
+}`,
+        testInput: '{\n  "apiKey": "sk-ant-your-anthropic-key",\n  "prompt": "Explain quantum computing in simple terms",\n  "model": "claude-3-5-sonnet-20241022"\n}'
+      },
+      {
+        name: 'Image Generator (DALL-E)',
+        code: `// Generate images using OpenAI DALL-E
+async function handler(input) {
+  const response = await fetch('https://api.openai.com/v1/images/generations', {
+    method: 'POST',
+    headers: {
+      'Authorization': \`Bearer \${input.apiKey}\`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      model: 'dall-e-3',
+      prompt: input.prompt,
+      n: 1,
+      size: input.size || '1024x1024',
+      quality: input.quality || 'standard'
+    })
+  });
+  
+  const data = await response.json();
+  return {
+    imageUrl: data.data?.[0]?.url,
+    revisedPrompt: data.data?.[0]?.revised_prompt
+  };
+}`,
+        testInput: '{\n  "apiKey": "sk-your-openai-key",\n  "prompt": "A futuristic city with flying cars at sunset",\n  "size": "1024x1024"\n}'
+      },
+      {
+        name: 'Web Scraper',
+        code: `// Simple web scraper - fetches and extracts data from URLs
+async function handler(input) {
+  const url = input.url;
+  if (!url) throw new Error('URL is required');
+  
+  const response = await fetch(url);
+  const html = await response.text();
+  
+  // Extract title
+  const titleMatch = html.match(/<title[^>]*>([^<]+)<\\/title>/i);
+  const title = titleMatch ? titleMatch[1].trim() : null;
+  
+  // Extract meta description
+  const descMatch = html.match(/<meta[^>]*name=["']description["'][^>]*content=["']([^"']+)["']/i);
+  const description = descMatch ? descMatch[1].trim() : null;
+  
+  // Extract all links
+  const linkMatches = html.matchAll(/<a[^>]*href=["']([^"']+)["'][^>]*>/gi);
+  const links = [...linkMatches].map(m => m[1]).slice(0, 20);
+  
+  return {
+    url,
+    title,
+    description,
+    linkCount: links.length,
+    links,
+    contentLength: html.length
+  };
+}`,
+        testInput: '{\n  "url": "https://example.com"\n}'
+      },
+      {
         name: 'Fetch API',
         code: `// Outbound HTTP example using fetch
 async function handler(input) {
@@ -1222,18 +1337,126 @@ result = {
         testInput: '{\n  "name": "Dante"\n}'
       },
       {
-        name: 'HTTP Request',
-        code: `# Outbound HTTP example using http_get/http_post helpers
+        name: 'AI Agent (OpenAI)',
+        code: `# AI Agent using OpenAI SDK
+from openai import OpenAI
+
 def handler(input):
-    url = input.get('url', 'https://api.github.com/zen')
+    client = OpenAI(api_key=input['apiKey'])
     
-    # Simple GET request
-    data = http_get(url)
+    response = client.chat.completions.create(
+        model=input.get('model', 'gpt-4o-mini'),
+        messages=[{"role": "user", "content": input['prompt']}],
+        max_tokens=input.get('maxTokens', 500)
+    )
+    
+    return {
+        "response": response.choices[0].message.content,
+        "model": response.model,
+        "usage": {
+            "prompt_tokens": response.usage.prompt_tokens,
+            "completion_tokens": response.usage.completion_tokens
+        }
+    }`,
+        testInput: '{\n  "apiKey": "sk-your-openai-key",\n  "prompt": "What is the capital of France?",\n  "model": "gpt-4o-mini"\n}'
+      },
+      {
+        name: 'AI Agent (Anthropic)',
+        code: `# AI Agent using Anthropic Claude SDK
+from anthropic import Anthropic
+
+def handler(input):
+    client = Anthropic(api_key=input['apiKey'])
+    
+    message = client.messages.create(
+        model=input.get('model', 'claude-3-5-sonnet-20241022'),
+        max_tokens=input.get('maxTokens', 1024),
+        messages=[{"role": "user", "content": input['prompt']}]
+    )
+    
+    return {
+        "response": message.content[0].text,
+        "model": message.model,
+        "usage": {
+            "input_tokens": message.usage.input_tokens,
+            "output_tokens": message.usage.output_tokens
+        }
+    }`,
+        testInput: '{\n  "apiKey": "sk-ant-your-anthropic-key",\n  "prompt": "Explain quantum computing in simple terms",\n  "model": "claude-3-5-sonnet-20241022"\n}'
+      },
+      {
+        name: 'Image Generator (DALL-E)',
+        code: `# Generate images using OpenAI DALL-E
+from openai import OpenAI
+
+def handler(input):
+    client = OpenAI(api_key=input['apiKey'])
+    
+    response = client.images.generate(
+        model="dall-e-3",
+        prompt=input['prompt'],
+        size=input.get('size', '1024x1024'),
+        quality=input.get('quality', 'standard'),
+        n=1
+    )
+    
+    return {
+        "imageUrl": response.data[0].url,
+        "revisedPrompt": response.data[0].revised_prompt
+    }`,
+        testInput: '{\n  "apiKey": "sk-your-openai-key",\n  "prompt": "A futuristic city with flying cars at sunset",\n  "size": "1024x1024"\n}'
+      },
+      {
+        name: 'Web Scraper',
+        code: `# Simple web scraper using requests and BeautifulSoup
+import requests
+from bs4 import BeautifulSoup
+
+def handler(input):
+    url = input.get('url')
+    if not url:
+        raise ValueError('URL is required')
+    
+    response = requests.get(url, headers={
+        'User-Agent': 'Mozilla/5.0 (compatible; InstantAPI/1.0)'
+    })
+    
+    soup = BeautifulSoup(response.text, 'html.parser')
+    
+    # Extract title
+    title = soup.title.string if soup.title else None
+    
+    # Extract meta description
+    meta_desc = soup.find('meta', attrs={'name': 'description'})
+    description = meta_desc['content'] if meta_desc else None
+    
+    # Extract all links
+    links = [a.get('href') for a in soup.find_all('a', href=True)][:20]
     
     return {
         "url": url,
-        "data": data,
-        "timestamp": str(datetime.now())
+        "title": title,
+        "description": description,
+        "linkCount": len(links),
+        "links": links,
+        "status": response.status_code
+    }`,
+        testInput: '{\n  "url": "https://example.com"\n}'
+      },
+      {
+        name: 'HTTP Request',
+        code: `# Outbound HTTP example using requests
+import requests
+
+def handler(input):
+    url = input.get('url', 'https://api.github.com/zen')
+    
+    response = requests.get(url)
+    
+    return {
+        "url": url,
+        "data": response.text,
+        "status": response.status_code
     }`,
         testInput: '{\n  "url": "https://api.github.com/zen"\n}'
       },

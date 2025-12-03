@@ -8,7 +8,9 @@ RUN pip3 install --no-cache-dir \
     httpx>=0.25.0 \
     aiohttp>=3.9.0 \
     python-dotenv>=1.0.0 \
-    pydantic>=2.0.0
+    pydantic>=2.0.0 \
+    beautifulsoup4>=4.12.0 \
+    lxml>=5.0.0
 
 # Install Node.js packages globally for JavaScript agents
 RUN npm install -g \
