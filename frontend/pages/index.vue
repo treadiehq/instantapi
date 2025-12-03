@@ -145,7 +145,7 @@
 
                   <!-- Configuration and Create Button -->
                   <div class="flex justify-between items-end p-4 border-t border-gray-500/10">
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
                       <!-- Language Select -->
                       <div class="relative">
                         <label class="block text-xs font-semibold mb-2 text-gray-300">Language</label>
@@ -208,7 +208,7 @@
                     <button
                       @click="createEndpoint"
                       :disabled="loading.create || (!code.trim() && !selectedFile)"
-                      class="btn-primary w-auto h-10 text-sm py-2 font-medium flex items-center gap-2 min-w-[140px] justify-center"
+                      class="btn-primary w-auto h-10 text-sm py-2 ml-2 font-medium flex items-center gap-2 min-w-[140px] justify-center"
                     >
                       <!-- Loading Spinner -->
                       <svg v-if="loading.create" class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
