@@ -1648,12 +1648,12 @@ const endpointDescription = ref('')
 const rateLimitPresets = [
   { label: '10 / min', limit: 10, window: 60 },
   { label: '60 / min', limit: 60, window: 60 },
-  { label: '100 / min (default)', limit: 100, window: 60 },
+  { label: '100 / min', limit: 100, window: 60 },
   { label: '500 / min', limit: 500, window: 60 },
   { label: '1000 / min', limit: 1000, window: 60 },
   { label: 'Unlimited', limit: 999999, window: 60 },
 ]
-const selectedRateLimitPreset = ref('100 / min (default)')
+const selectedRateLimitPreset = ref('100 / min')
 
 // Apply rate limit preset
 function applyRateLimitPreset() {
