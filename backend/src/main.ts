@@ -21,14 +21,23 @@ async function bootstrap() {
   });
   
   // Enable CORS for frontend
-  const allowedOrigins = process.env.FRONTEND_URL 
-    ? [process.env.FRONTEND_URL, 'http://localhost:3000']
-    : ['http://localhost:3000'];
+  const allowedOrigins = [
+    'https://instantapi.co',
+    'https://www.instantapi.co',
+    'http://localhost:3000',
+    'http://localhost:3001',
+  ];
+  
+  // Add custom FRONTEND_URL if set
+  if (process.env.FRONTEND_URL) {
+    allowedOrigins.push(process.env.FRONTEND_URL);
+  }
     
   app.enableCors({
     origin: allowedOrigins,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
     credentials: true,
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
   });
 
   const port = process.env.PORT || 3001;
