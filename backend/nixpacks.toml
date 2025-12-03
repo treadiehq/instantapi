@@ -1,0 +1,13 @@
+# Configure Nixpacks to install dev dependencies during build
+# This is needed because @nestjs/cli and typescript are in devDependencies
+# but required to build the NestJS application
+
+[phases.install]
+cmds = ["npm ci --include=dev"]
+
+[phases.build]
+cmds = ["npx prisma generate", "npm run build"]
+
+[start]
+cmd = "npx prisma migrate deploy && npm run start:prod"
+
