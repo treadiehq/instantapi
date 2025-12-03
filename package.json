@@ -1,7 +1,7 @@
 {
   "name": "instant-api",
   "version": "0.1.0",
-  "description": "Instant API - Turn code into APIs instantly",
+  "description": "Instant API - Run AI agents with an API",
   "private": true,
   "engines": {
     "node": ">=20.16.0",

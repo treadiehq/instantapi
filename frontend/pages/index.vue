@@ -730,7 +730,7 @@ import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 
 // Set page title
 useHead({
-  title: 'Instant API - Turn code into APIs instantly',
+  title: 'Instant API - Run AI agents with an API',
 });
 
 const config = useRuntimeConfig()
