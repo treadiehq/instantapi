@@ -1444,7 +1444,7 @@ eventSource.<span class="text-blue-300">onmessage</span> = (<span class="text-or
             <!-- Recent Logs with Console Output -->
             <div class="mb-4">
               <h4 class="text-sm font-semibold text-white mb-3 flex items-center gap-2">
-                <svg class="w-4 h-4 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg class="w-4 h-4 text-blue-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                 </svg>
                 Execution Logs
@@ -1470,16 +1470,16 @@ eventSource.<span class="text-blue-300">onmessage</span> = (<span class="text-or
                     <div class="flex items-center gap-3">
                       <div 
                         class="w-2 h-2 rounded-full flex-shrink-0"
-                        :class="log.success ? 'bg-green-400' : 'bg-red-400'"
+                        :class="log.success ? 'bg-green-300' : 'bg-red-400'"
                       ></div>
                       <div>
                         <p class="text-xs text-white font-medium flex items-center gap-2">
-                          <span :class="log.success ? 'text-green-400' : 'text-red-400'">
+                          <span :class="log.success ? 'text-green-300' : 'text-red-400'">
                             {{ log.statusCode || (log.success ? 200 : 500) }}
                           </span>
                           <span class="text-gray-400">•</span>
                           <span class="font-mono">{{ log.durationMs }}ms</span>
-                          <span v-if="log.consoleLogs?.length" class="text-xs px-1.5 py-0.5 bg-blue-500/20 text-blue-300 rounded">
+                          <span v-if="log.consoleLogs?.length" class="text-xs px-1.5 py-0.5 bg-blue-300/10 text-blue-300 rounded">
                             {{ log.consoleLogs.length }} logs
                           </span>
                         </p>
@@ -1518,12 +1518,12 @@ eventSource.<span class="text-blue-300">onmessage</span> = (<span class="text-or
                           class="py-0.5 text-gray-300 hover:bg-gray-800/50"
                           :class="{
                             'text-red-400': line.includes('❌') || line.toLowerCase().includes('error'),
-                            'text-yellow-400': line.includes('⚠️') || line.toLowerCase().includes('warn'),
-                            'text-green-400': line.includes('✅') || line.toLowerCase().includes('success'),
-                            'text-blue-400': line.includes('📤') || line.includes('📥'),
+                            'text-yellow-300': line.includes('⚠️') || line.toLowerCase().includes('warn'),
+                            'text-green-300': line.includes('✅') || line.toLowerCase().includes('success'),
+                            'text-blue-300': line.includes('📤') || line.includes('📥'),
                           }"
                         >
-                          <span class="text-gray-600 mr-2 select-none">{{ idx + 1 }}</span>{{ line }}
+                          <span class="text-gray-500 mr-2 select-none">{{ idx + 1 }}</span>{{ line }}
                         </div>
                       </div>
                     </div>
@@ -1532,11 +1532,11 @@ eventSource.<span class="text-blue-300">onmessage</span> = (<span class="text-or
                     <div class="grid grid-cols-2 gap-3 p-3">
                       <div v-if="log.requestBody">
                         <p class="text-xs font-semibold text-gray-400 mb-1">Request</p>
-                        <pre class="bg-gray-900 rounded p-2 font-mono text-xs text-gray-300 max-h-32 overflow-auto">{{ formatJson(log.requestBody) }}</pre>
+                        <pre class="bg-gray-500/10 border border-gray-500/10 rounded-lg p-2 font-mono text-xs text-gray-500 max-h-32 overflow-auto">{{ formatJson(log.requestBody) }}</pre>
                       </div>
                       <div v-if="log.responseBody">
                         <p class="text-xs font-semibold text-gray-400 mb-1">Response</p>
-                        <pre class="bg-gray-900 rounded p-2 font-mono text-xs text-gray-300 max-h-32 overflow-auto">{{ formatJson(log.responseBody) }}</pre>
+                        <pre class="bg-gray-500/10 border border-gray-500/10 rounded-lg p-2 font-mono text-xs text-gray-500 max-h-32 overflow-auto">{{ formatJson(log.responseBody) }}</pre>
                       </div>
                     </div>
                     
