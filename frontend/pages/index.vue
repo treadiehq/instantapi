@@ -30,7 +30,7 @@
       <div class="max-w-7xl mx-auto">
         <!-- Hero Section -->
         <div class="mt-6 md:mt-10 max-w-xl mb-20">
-          <h1 class="text-balance font-semibold tracking-tight text-white text-2xl !leading-[1.2] sm:text-4xl md:text-5xl">
+          <h1 class="text-balance font-semibold tracking-tight text-white text-2xl leading-[1.2]! sm:text-4xl md:text-5xl">
             Run <span class="text-blue-300">AI agents</span> with an API.
           </h1>
           <p class="font-normal text-gray-400 mb-1 sm:mt-4 text-pretty text-base sm:text-lg sm:leading-6">
