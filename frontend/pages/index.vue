@@ -25,23 +25,20 @@
     </header>
 
     <!-- Main Content -->
-    <div class="py-12 px-4 sm:px-6 lg:px-0 antialiased">
-      <div class="max-w-4xl mx-auto">
+    <div class="py-12 px-4 sm:px-6 lg:px-8 antialiased">
+      <div class="max-w-7xl mx-auto">
         <!-- Hero Section -->
-        <div class="mt-6 md:mt-12 max-w-4xl mb-20">
+        <div class="mt-6 md:mt-12 max-w-4xl mb-12">
           <h1 class="mb-5 text-3xl font-bold sm:mb-6 sm:text-5xl leading-tight text-white">
-            Run <span class="bg-blue-300 px-1 text-black">  AI agents</span> with an API.
-            <!-- Turn your <span class="bg-blue-300 px-1 text-black">code</span> into <span class="bg-amber-300 px-1 text-black">API</span> instantly -->
+            Run <span class="text-blue-300">AI agents</span> with an API.
           </h1>
           <p class="text-gray-400 text-sm leading-[1.6] sm:text-base">
             The fastest way to turn your AI agents, functions, code, and scripts into APIs. No servers, no infrastructure, no DevOps.
-            <!-- Paste your code or upload a file, and get a 
-            secure endpoint you can call from anywhere. 
-            No servers, no deploy, no config. -->
           </p>
         </div>
-        <!-- Single Column Layout (public) -->
-        <div>
+        
+        <!-- Split Screen Layout -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <!-- Main Card -->
           <div>
             <div class="border bg-gray-500/5 border-gray-500/15 relative inner-container -mb-px -ml-px">
@@ -478,6 +475,95 @@
           </div>
         
           <!-- My APIs Dashboard moved to /dashboard -->
+        </div>
+        
+          <!-- Output Preview Panel (Right Side) -->
+          <div class="hidden lg:block">
+            <div class="border bg-gray-500/5 border-gray-500/15 rounded-lg overflow-hidden sticky top-20">
+              <!-- Preview Header -->
+              <div class="p-4 border-b border-gray-500/10 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <div class="w-2 h-2 rounded-full" :class="selectedExampleIndex !== null ? 'bg-green-400 animate-pulse' : 'bg-gray-500'"></div>
+                  <span class="text-sm font-medium text-white">Output Preview</span>
+                </div>
+                <span class="text-xs text-gray-500">{{ currentExampleOutput?.type || 'Select an example' }}</span>
+              </div>
+              
+              <!-- Preview Content -->
+              <div class="min-h-[400px] flex flex-col">
+                <!-- No Example Selected -->
+                <div v-if="selectedExampleIndex === null" class="flex-1 flex flex-col items-center justify-center p-8 text-center">
+                  <div class="w-16 h-16 rounded-full bg-gray-500/10 flex items-center justify-center mb-4">
+                    <svg class="w-8 h-8 text-gray-500" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 002.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 00-2.456 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z" />
+                    </svg>
+                  </div>
+                  <p class="text-gray-400 text-sm mb-2">Select an example to see output</p>
+                  <p class="text-gray-600 text-xs">Choose from AI agents, image generators, web scrapers & more</p>
+                </div>
+                
+                <!-- Image Output (for DALL-E) -->
+                <div v-else-if="currentExampleOutput?.type === 'image'" class="flex-1 flex flex-col">
+                  <div class="flex-1 bg-gradient-to-br from-orange-500/20 via-pink-500/20 to-purple-500/20 p-6 flex items-center justify-center">
+                    <img 
+                      :src="currentExampleOutput.preview" 
+                      :alt="currentExampleOutput.description"
+                      class="max-w-full max-h-[280px] rounded-lg shadow-2xl object-cover"
+                    />
+                  </div>
+                  <div class="p-4 border-t border-gray-500/10 bg-black/50">
+                    <p class="text-white text-sm font-medium mb-1">{{ currentExampleOutput.description }}</p>
+                    <p class="text-gray-500 text-xs font-mono">{{ currentExampleOutput.model }}</p>
+                  </div>
+                </div>
+                
+                <!-- Text/Chat Output (for OpenAI/Anthropic) -->
+                <div v-else-if="currentExampleOutput?.type === 'chat'" class="flex-1 flex flex-col">
+                  <div class="flex-1 p-4 space-y-4 overflow-y-auto">
+                    <!-- User Message -->
+                    <div class="flex gap-3">
+                      <div class="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center shrink-0">
+                        <svg class="w-4 h-4 text-blue-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                        </svg>
+                      </div>
+                      <div class="flex-1">
+                        <p class="text-xs text-gray-500 mb-1">You</p>
+                        <p class="text-sm text-gray-300">{{ currentExampleOutput.prompt }}</p>
+                      </div>
+                    </div>
+                    <!-- AI Response -->
+                    <div class="flex gap-3">
+                      <div class="w-8 h-8 rounded-full bg-green-500/20 flex items-center justify-center shrink-0">
+                        <svg class="w-4 h-4 text-green-400" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z" />
+                        </svg>
+                      </div>
+                      <div class="flex-1">
+                        <p class="text-xs text-gray-500 mb-1">{{ currentExampleOutput.model }}</p>
+                        <p class="text-sm text-gray-200 leading-relaxed">{{ currentExampleOutput.response }}</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="p-3 border-t border-gray-500/10 bg-black/50 flex items-center justify-between">
+                    <span class="text-xs text-gray-500">{{ currentExampleOutput.tokens }} tokens</span>
+                    <span class="text-xs text-green-400">{{ currentExampleOutput.latency }}</span>
+                  </div>
+                </div>
+                
+                <!-- JSON Output (for Web Scraper, Hello, etc.) -->
+                <div v-else-if="currentExampleOutput?.type === 'json'" class="flex-1 flex flex-col">
+                  <div class="flex-1 p-4 overflow-auto">
+                    <pre class="text-xs text-gray-300 font-mono whitespace-pre-wrap">{{ currentExampleOutput.data }}</pre>
+                  </div>
+                  <div class="p-3 border-t border-gray-500/10 bg-black/50 flex items-center justify-between">
+                    <span class="text-xs text-gray-500">{{ currentExampleOutput.description }}</span>
+                    <span class="text-xs text-green-400">{{ currentExampleOutput.latency }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -1459,12 +1545,201 @@ async function copyStreamCommand() {
 }
 
 // Load example code
+const selectedExampleIndex = ref<number | null>(null)
+
+// Example output previews
+const exampleOutputs = computed(() => {
+  const jsOutputs = [
+    // Hello
+    {
+      type: 'json',
+      description: 'Simple greeting response',
+      latency: '23ms',
+      data: JSON.stringify({
+        result: {
+          message: "Hello, Dante!",
+          timestamp: "2025-01-15T10:30:00.000Z"
+        },
+        durationMs: 23
+      }, null, 2)
+    },
+    // AI Agent (OpenAI)
+    {
+      type: 'chat',
+      model: 'gpt-4o-mini',
+      prompt: 'What is the capital of France?',
+      response: 'The capital of France is Paris. Paris is not only the political capital but also the cultural, economic, and historical heart of France. It\'s home to iconic landmarks like the Eiffel Tower, the Louvre Museum, and Notre-Dame Cathedral.',
+      tokens: '67 tokens',
+      latency: '892ms'
+    },
+    // AI Agent (Anthropic)
+    {
+      type: 'chat',
+      model: 'claude-3-5-sonnet',
+      prompt: 'Explain quantum computing in simple terms',
+      response: 'Imagine a regular computer as a person who can only read one book at a time. A quantum computer is like someone who can read all the books in a library simultaneously! It uses "qubits" instead of regular bits, which can be both 0 and 1 at the same time (called superposition). This allows quantum computers to solve certain complex problems much faster than traditional computers.',
+      tokens: '89 tokens',
+      latency: '1,247ms'
+    },
+    // Image Generator (DALL-E)
+    {
+      type: 'image',
+      model: 'dall-e-3',
+      description: 'A futuristic city with flying cars at sunset',
+      preview: 'https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?w=400&h=300&fit=crop&auto=format'
+    },
+    // Web Scraper
+    {
+      type: 'json',
+      description: 'Extracted page data',
+      latency: '156ms',
+      data: JSON.stringify({
+        result: {
+          url: "https://example.com",
+          title: "Example Domain",
+          description: "This domain is for use in illustrative examples.",
+          linkCount: 1,
+          links: ["https://www.iana.org/domains/example"],
+          contentLength: 1256
+        },
+        durationMs: 156
+      }, null, 2)
+    },
+    // Fetch API
+    {
+      type: 'json',
+      description: 'GitHub Zen quote',
+      latency: '89ms',
+      data: JSON.stringify({
+        result: {
+          url: "https://api.github.com/zen",
+          data: "Responsive is better than fast.",
+          timestamp: "2025-01-15T10:30:00.000Z"
+        },
+        durationMs: 89
+      }, null, 2)
+    },
+    // Webhook
+    {
+      type: 'json',
+      description: 'Webhook processed',
+      latency: '12ms',
+      data: JSON.stringify({
+        result: {
+          received: true,
+          event: "user.created",
+          processedAt: "2025-01-15T10:30:00.000Z",
+          userAgent: "GitHub-Hookshot/abc123"
+        },
+        durationMs: 12
+      }, null, 2)
+    }
+  ]
+  
+  const pyOutputs = [
+    // Hello
+    {
+      type: 'json',
+      description: 'Simple greeting response',
+      latency: '45ms',
+      data: JSON.stringify({
+        result: {
+          message: "Hello, Dante!",
+          timestamp: "2025-01-15T10:30:00.000Z"
+        },
+        durationMs: 45
+      }, null, 2)
+    },
+    // AI Agent (OpenAI)
+    {
+      type: 'chat',
+      model: 'gpt-4o-mini',
+      prompt: 'What is the capital of France?',
+      response: 'The capital of France is Paris. Paris is not only the political capital but also the cultural, economic, and historical heart of France. It\'s home to iconic landmarks like the Eiffel Tower, the Louvre Museum, and Notre-Dame Cathedral.',
+      tokens: '67 tokens',
+      latency: '934ms'
+    },
+    // AI Agent (Anthropic)
+    {
+      type: 'chat',
+      model: 'claude-3-5-sonnet',
+      prompt: 'Explain quantum computing in simple terms',
+      response: 'Imagine a regular computer as a person who can only read one book at a time. A quantum computer is like someone who can read all the books in a library simultaneously! It uses "qubits" instead of regular bits, which can be both 0 and 1 at the same time (called superposition). This allows quantum computers to solve certain complex problems much faster than traditional computers.',
+      tokens: '89 tokens',
+      latency: '1,312ms'
+    },
+    // Image Generator
+    {
+      type: 'image',
+      model: 'dall-e-3',
+      description: 'A futuristic city with flying cars at sunset',
+      preview: 'https://images.unsplash.com/photo-1480714378408-67cf0d13bc1b?w=400&h=300&fit=crop&auto=format'
+    },
+    // Web Scraper
+    {
+      type: 'json',
+      description: 'Extracted page data with BeautifulSoup',
+      latency: '203ms',
+      data: JSON.stringify({
+        result: {
+          url: "https://example.com",
+          title: "Example Domain",
+          description: "This domain is for use in illustrative examples.",
+          headings: ["Example Domain"],
+          links: ["https://www.iana.org/domains/example"]
+        },
+        durationMs: 203
+      }, null, 2)
+    },
+    // Fetch API
+    {
+      type: 'json',
+      description: 'GitHub Zen quote',
+      latency: '112ms',
+      data: JSON.stringify({
+        result: {
+          url: "https://api.github.com/zen",
+          data: "Mind your words, they are important.",
+          timestamp: "2025-01-15T10:30:00.000Z"
+        },
+        durationMs: 112
+      }, null, 2)
+    },
+    // Webhook
+    {
+      type: 'json',
+      description: 'Webhook processed',
+      latency: '18ms',
+      data: JSON.stringify({
+        result: {
+          received: true,
+          event: "user.created",
+          processedAt: "2025-01-15T10:30:00.000Z"
+        },
+        durationMs: 18
+      }, null, 2)
+    }
+  ]
+  
+  return language.value === 'javascript' ? jsOutputs : pyOutputs
+})
+
+const currentExampleOutput = computed(() => {
+  if (selectedExampleIndex.value === null) return null
+  return exampleOutputs.value[selectedExampleIndex.value] || null
+})
+
 function loadExample(idx: string) {
-  if (!idx) return
-  const example = examples.value[parseInt(idx)]
+  if (!idx) {
+    selectedExampleIndex.value = null
+    return
+  }
+  const index = parseInt(idx)
+  const example = examples.value[index]
   if (example) {
-  code.value = example.code
-  requestBody.value = example.testInput
+    code.value = example.code
+    requestBody.value = example.testInput
+    selectedExampleIndex.value = index
   }
 }
 
