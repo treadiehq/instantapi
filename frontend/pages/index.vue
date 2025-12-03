@@ -47,38 +47,9 @@
             <div class="border bg-gray-500/5 border-gray-500/15 relative inner-container -mb-px -ml-px">
               <div class="border border-t-0 border-l-0 border-r-0 border-gray-500/10">
                 <div>
-                  <!-- Mode Tabs -->
-                  <div class="border-b border-gray-500/10">
-                    <div class="flex">
-                      <button
-                        @click="switchToSnippetMode"
-                        :class="[
-                          'px-6 py-3 text-sm font-medium transition-colors',
-                          mode === 'snippet'
-                            ? 'text-white border-b-2 border-blue-300'
-                            : 'text-gray-400 hover:text-white'
-                        ]"
-                      >
-                        Snippet
-                      </button>
-                      <button
-                        @click="switchToFrameworkMode"
-                        :class="[
-                          'px-6 py-3 text-sm font-medium transition-colors',
-                          mode === 'framework'
-                            ? 'text-white border-b-2 border-blue-300'
-                            : 'text-gray-400 hover:text-white'
-                        ]"
-                      >
-                        Framework
-                      </button>
-                    </div>
-                  </div>
-
-                  <!-- Configuration Panel (hidden for Framework mode) -->
-                  <div v-if="mode !== 'framework'" class="p-4 border-b border-gray-500/10">
-                    <!-- Example Buttons (for snippet mode) -->
-                    <div v-if="mode === 'snippet'">
+                  <!-- Example Selector -->
+                  <div class="p-4 border-b border-gray-500/10">
+                    <div>
                       <div class="relative">
                         <select
                           @change="loadExample(($event.target as HTMLSelectElement).value)"
@@ -99,8 +70,8 @@
                     </div>
                   </div>
 
-                  <!-- Code Editor or File Upload -->
-                  <div v-if="mode === 'snippet'" class="bg-black relative">
+                  <!-- Code Editor -->
+                  <div class="bg-black relative">
                     <!-- Fullscreen Toggle Button -->
                     <button
                       @click="isEditorFullscreen = !isEditorFullscreen"
@@ -134,77 +105,6 @@
                       ]">
                         {{ codePercentage }}% used
                       </span>
-                    </div>
-                  </div>
-
-                  <!-- Framework Mode -->
-                  <div v-else-if="mode === 'framework'" class="p-8 bg-black">
-                    <div class="max-w-2xl mx-auto">
-                      <div class="flex items-start space-x-3 mb-6">
-                        <svg class="w-8 h-8 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01" />
-                        </svg>
-                        <div>
-                          <h3 class="text-lg font-semibold text-white mb-2">Framework</h3>
-                          <p class="text-gray-400 text-sm leading-relaxed mb-4">
-                            Already have a backend running? (NestJS, Express, FastAPI, etc.) Expose any local route to the internet instantly with our CLI.
-                          </p>
-                        </div>
-                      </div>
-                      
-                      <div class="bg-gray-500/5 border border-gray-500/10 rounded-lg p-6">
-                        <div class="mb-4">
-                          <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Terminal</p>
-                          <div class="flex items-center justify-between bg-black rounded-lg p-3 font-mono text-sm">
-                            <code class="text-green-300">npx @instantapihq/cli expose http://localhost:3000/api/users/create</code>
-                            <button 
-                              @click="copyFrameworkCommand"
-                              class="ml-3 text-gray-400 hover:text-white transition-colors"
-                              title="Copy command"
-                            >
-                              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                              </svg>
-                            </button>
-                          </div>
-                        </div>
-                        
-                        <div class="bg-gray-500/10 border border-gray-500/10 rounded-lg p-4">
-                          <p class="text-sm text-gray-400 mb-2">
-                            <span class="font-semibold">Note:</span> Your local backend must be running and reachable. The CLI forwards requests from the public URL to your localhost.
-                          </p>
-                          <p class="text-xs text-gray-500">
-                            Backend running on a different port? Use <code class="text-gray-400 bg-gray-50/10 px-1 py-0.5 rounded">--backend http://localhost:PORT</code> or set <code class="text-gray-400 bg-gray-500/10 px-1 py-0.5 rounded">INSTANT_API_BACKEND_URL</code>
-                          </p>
-                        </div>
-                      </div>
-
-                      <!-- Active Tunnels -->
-                      <div v-if="tunnels.length > 0" class="border-t border-gray-500/10 pt-4">
-                        <h3 class="text-sm font-semibold text-gray-300 mb-3">Active Tunnels</h3>
-                        <div class="space-y-2">
-                          <div
-                            v-for="tunnel in tunnels"
-                            :key="tunnel.id"
-                            class="flex items-center justify-between p-3 bg-gray-500/5 rounded border border-gray-500/10"
-                          >
-                            <div class="flex-1 min-w-0">
-                              <p class="text-sm font-mono text-blue-300 truncate">
-                                /t/{{ tunnel.id }}
-                              </p>
-                              <p class="text-xs text-gray-500 truncate">
-                                → {{ tunnel.targetUrl }}
-                              </p>
-                            </div>
-                            <div class="shrink-0 ml-4">
-                              <span class="inline-flex items-center gap-1 text-xs text-green-400">
-                                <span class="w-2 h-2 bg-green-300 rounded-full animate-pulse"></span>
-                                Active
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
                     </div>
                   </div>
 
@@ -245,8 +145,8 @@
                     </div>
                   </div>
 
-                  <!-- Configuration and Create Button (hidden for Framework mode) -->
-                  <div v-if="mode !== 'framework'" class="flex justify-between items-end p-4 border-t border-gray-500/10">
+                  <!-- Configuration and Create Button -->
+                  <div class="flex justify-between items-end p-4 border-t border-gray-500/10">
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                       <!-- Language Select -->
                       <div class="relative">
@@ -1516,29 +1416,10 @@ def handler(input, headers):
   }
 })
 
-// Switch to snippet mode and clear file
-function switchToSnippetMode() {
-  mode.value = 'snippet'
-  selectedFile.value = null
-  if (fileInput.value) {
-    fileInput.value.value = ''
-  }
-}
-
 // Switch to file mode and clear code
 function switchToFileMode() {
   mode.value = 'file'
   code.value = ''
-}
-
-// Switch to framework mode
-function switchToFrameworkMode() {
-  mode.value = 'framework'
-  code.value = ''
-  selectedFile.value = null
-  if (fileInput.value) {
-    fileInput.value.value = ''
-  }
 }
 
 // Switch to function mode
@@ -1561,12 +1442,7 @@ function switchToStreamMode() {
   }
 }
 
-// Copy command helpers for Framework, Function, and Stream modes
-async function copyFrameworkCommand() {
-  const cmd = 'npx @instantapihq/cli expose http://localhost:3000/api/users/create'
-  await copyToClipboard(cmd)
-}
-
+// Copy command helpers
 async function copyInstallCommand() {
   const cmd = 'npm install @instantapihq/sdk'
   await copyToClipboard(cmd)
