@@ -1,20 +1,27 @@
 # Instant API
 
-Turn code into APIs instantly. Write JavaScript or Python, get a working API endpoint.
+**Run AI agents with an API.** Deploy any agent, function, or script as a secure, sandboxed API endpoint instantly.
 
 ## What is it?
 
-Create APIs in seconds without setting up servers, deploying code, or writing configuration files.
+The fastest way to turn your AI agents, functions, and scripts into APIs. No servers, no infrastructure, no DevOps.
 
-**Three ways to create APIs:**
+Paste your code → Get an API endpoint → Call it from anywhere.
 
-1. **Code Snippet** - Paste JS/Python code → Get instant API endpoint
-2. **Framework Mode (CLI)** - Expose your local dev server (like ngrok)
-3. **Function Mode (SDK)** - Write functions, get serverless APIs
+**Built for:**
+- **AI Agents** — Deploy LLM-powered agents with OpenAI, Anthropic, and more
+- **Functions** — Turn any code into a callable API
+- **Integrations** — Expose webhooks and automation workflows
+
+**Three deployment modes:**
+
+1. **Code Snippet** — Paste agent/function code → Get instant API endpoint
+2. **Framework Mode (CLI)** — Expose your local server to the internet (like ngrok)
+3. **Function Mode (SDK)** — Write functions, deploy as serverless APIs
 
 ## Live
 
-Try the product live at **https://instantapi.co**
+Try it now at **https://instantapi.co**
 
 ## Community & Support
 
@@ -62,6 +69,24 @@ function handler(input) {
 }
 ```
 
+**AI Agent Example (OpenAI):**
+```javascript
+async function handler(input) {
+  const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${input.apiKey}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      model: 'gpt-4o-mini',
+      messages: [{ role: 'user', content: input.prompt }]
+    })
+  });
+  return await response.json();
+}
+```
+
 **Python Example:**
 ```python
 def handler(input):
@@ -69,6 +94,19 @@ def handler(input):
         'message': f"Hello {input['name']}!",
         'sum': input['a'] + input['b']
     }
+```
+
+**Python AI Agent (with openai package):**
+```python
+from openai import OpenAI
+
+def handler(input):
+    client = OpenAI(api_key=input['apiKey'])
+    response = client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[{"role": "user", "content": input['prompt']}]
+    )
+    return {"response": response.choices[0].message.content}
 ```
 
 Click "Create API" → You get a unique endpoint like:
@@ -167,24 +205,28 @@ npx @instantapihq/cli expose greet
 ## Features
 
 **Supported Languages:**
-- JavaScript (Node.js)
-- Python 3
+- JavaScript (Node.js) with async/await support
+- Python 3.11
+
+**Pre-installed AI Packages:**
+- **Python:** `openai`, `anthropic`, `requests`, `httpx`, `aiohttp`, `pydantic`
+- **JavaScript:** `openai`, `@anthropic-ai/sdk`, `axios`, `node-fetch`
 
 **What you can do:**
-- Create APIs without signup
-- Secure code execution (isolated containers)
-- Handle JSON input/output
-- Return any data structure
-- Access request headers (webhook mode)
-- Streaming support (SSE/Server-Sent Events)
-- Expose local servers (ngrok-style tunnels)
-- Quick testing with built-in playground
+- 🤖 Deploy AI agents that call OpenAI, Anthropic, and other LLM APIs
+- 🔒 Secure sandboxed execution (isolated containers)
+- 🌐 Make outbound HTTP requests to any API
+- ⚡ Handle async operations (async/await fully supported)
+- 📨 Access request headers (webhook mode)
+- 📡 Streaming support (SSE/Server-Sent Events)
+- 🚀 Expose local servers (ngrok-style tunnels)
+- 🧪 Quick testing with built-in playground
 
 **Current Limits:**
 - Free tier: APIs active for 24 hours
 - Signed-in users: APIs active for up to 30 days
 - Max code size: 3MB
-- Execution timeout: 30 seconds
+- Execution timeout: 30 seconds (enough for most LLM calls)
 
 ## Local Development Setup
 

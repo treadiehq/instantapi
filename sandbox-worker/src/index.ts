@@ -220,21 +220,28 @@ async function executeJavaScript(
         ? `${JSON.stringify(input)}, ${JSON.stringify(headers || {})}` 
         : JSON.stringify(input);
       
+      // Wrap in async IIFE to support async handlers
       const wrappedCode = `
 const input = ${handlerArgs};
 
 ${code}
 
-// Auto-detect: use handler if defined, otherwise return last expression
-if (typeof handler === 'function') {
-  const result = handler(input);
-  console.log(JSON.stringify({ __result: result }));
-} else {
-  // Return the result variable if defined
-  if (typeof result !== 'undefined') {
-    console.log(JSON.stringify({ __result: result }));
+// Async IIFE to handle both sync and async handlers
+(async () => {
+  try {
+    if (typeof handler === 'function') {
+      // Await in case handler is async (works for sync too)
+      const result = await handler(input);
+      console.log(JSON.stringify({ __result: result }));
+    } else if (typeof result !== 'undefined') {
+      // Return the result variable if defined
+      console.log(JSON.stringify({ __result: result }));
+    }
+  } catch (e) {
+    console.error('Handler error:', e.message);
+    console.log(JSON.stringify({ __result: null, __error: e.message }));
   }
-}
+})();
 `;
 
       // Write the code to a file
@@ -245,6 +252,7 @@ if (typeof handler === 'function') {
 
       // Parse result from stdout
       let result = null;
+      let handlerError = null;
       const output = execResult.stdout || '';
       const lines = output.split('\n');
       
@@ -253,6 +261,9 @@ if (typeof handler === 'function') {
           try {
             const parsed = JSON.parse(line);
             result = parsed.__result;
+            if (parsed.__error) {
+              handlerError = parsed.__error;
+            }
           } catch {}
         } else if (line.trim()) {
           logs.push(line);
@@ -270,6 +281,15 @@ if (typeof handler === 'function') {
       if (execResult.exitCode !== 0) {
         return {
           error: { message: execResult.stderr || 'JavaScript execution failed with non-zero exit code' },
+          logs,
+          durationMs,
+        };
+      }
+
+      // Check for handler-level errors (caught inside the async IIFE)
+      if (handlerError) {
+        return {
+          error: { message: handlerError },
           logs,
           durationMs,
         };
