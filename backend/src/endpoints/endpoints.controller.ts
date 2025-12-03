@@ -131,7 +131,8 @@ export class EndpointsController {
       language: language as 'javascript' | 'python',
       name: body.name,
       description: body.description,
-      ttlHours: body.ttlHours ? parseInt(body.ttlHours, 10) : undefined,
+      ttlMinutes: body.ttlMinutes ? parseInt(body.ttlMinutes, 10) : undefined,
+      ttlHours: body.ttlHours ? parseInt(body.ttlHours, 10) : undefined, // Legacy support
       kind: body.kind || 'file',
     };
 

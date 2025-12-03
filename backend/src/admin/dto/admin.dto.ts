@@ -21,7 +21,8 @@ export class AdminEndpointDto {
   userEmail: string | null;
   createdAt: Date;
   expiresAt: Date;
-  ttlHours: number;
+  ttlMinutes: number;
+  ttlHours: number; // For backward compatibility
 }
 
 export class AdminEndpointsQueryDto {

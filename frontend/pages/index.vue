@@ -284,7 +284,7 @@
                   </div>
                   <div>
                     <span class="text-gray-400">TTL:</span>
-                    <span class="text-white ml-2">{{ createdEndpoint?.ttlHours }}h</span>
+                    <span class="text-white ml-2">{{ formatTtl(createdEndpoint?.ttlMinutes) }}</span>
                   </div>
                   <div>
                     <span class="text-gray-400">Expires:</span>
@@ -749,7 +749,7 @@ function showToast(message: string, type: 'success' | 'error' | 'info' = 'info',
 const mode = ref<'snippet' | 'file' | 'framework' | 'function' | 'stream'>('snippet')
 const language = ref<'javascript' | 'python'>('javascript')
 const code = ref('')
-const ttlHours = ref(1)
+const ttlMinutes = ref(60) // Default: 1 hour (public users fixed at 1h)
 const kind = ref<'snippet' | 'webhook'>('snippet')
 const endpointName = ref('')
 const endpointDescription = ref('')
@@ -781,6 +781,14 @@ function formatBytes(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
   return `${(bytes / (1024 * 1024)).toFixed(2)} MB`
+}
+
+// Format TTL helper
+function formatTtl(minutes: number | undefined): string {
+  if (!minutes) return '1h'
+  if (minutes < 60) return `${minutes}m`
+  if (minutes < 1440) return `${Math.round(minutes / 60)}h`
+  return `${Math.round(minutes / 1440)}d`
 }
 
 // Dashboard state
@@ -830,7 +838,7 @@ watch(language, (newLang, oldLang) => {
 
 // Auto-save draft functionality
 let draftSaveTimeout: NodeJS.Timeout | null = null
-watch([code, language, mode, kind, ttlHours, endpointName, endpointDescription], () => {
+watch([code, language, mode, kind, ttlMinutes, endpointName, endpointDescription], () => {
   if (draftSaveTimeout) {
     clearTimeout(draftSaveTimeout)
   }
@@ -842,7 +850,7 @@ watch([code, language, mode, kind, ttlHours, endpointName, endpointDescription],
         language: language.value,
         mode: mode.value,
         kind: kind.value,
-        ttlHours: ttlHours.value,
+        ttlMinutes: ttlMinutes.value,
         endpointName: endpointName.value,
         endpointDescription: endpointDescription.value,
         timestamp: new Date().toISOString()
@@ -1851,7 +1859,7 @@ async function createEndpoint() {
         code: code.value,
           name: endpointName.value || undefined,
           description: endpointDescription.value || undefined,
-          ttlHours: ttlHours.value,
+          ttlMinutes: ttlMinutes.value,
           kind: kind.value,
       }),
     })
@@ -1867,7 +1875,7 @@ async function createEndpoint() {
       formData.append('language', language.value)
       if (endpointName.value) formData.append('name', endpointName.value)
       if (endpointDescription.value) formData.append('description', endpointDescription.value)
-      formData.append('ttlHours', ttlHours.value.toString())
+      formData.append('ttlMinutes', ttlMinutes.value.toString())
       formData.append('kind', kind.value)
 
       response = await fetch(`${API_BASE}/api/endpoints/file`, {

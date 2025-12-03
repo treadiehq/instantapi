@@ -127,7 +127,8 @@ export class AdminService {
       userEmail: endpoint.organization?.users?.[0]?.email || null,
       createdAt: endpoint.createdAt,
       expiresAt: endpoint.expiresAt,
-      ttlHours: endpoint.ttlHours,
+      ttlMinutes: endpoint.ttlMinutes,
+      ttlHours: Math.round(endpoint.ttlMinutes / 60 * 100) / 100, // For backward compatibility
     }));
 
     const totalPages = Math.ceil(total / limit);

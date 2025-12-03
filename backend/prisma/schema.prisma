@@ -75,7 +75,7 @@ model Endpoint {
   kind           String         @default("snippet") // "snippet" | "file" | "webhook"
   name           String?        // optional friendly label
   description    String?        // optional description
-  ttlHours       Int            @default(24) // time-to-live in hours
+  ttlMinutes     Int            @default(60) // time-to-live in minutes (default: 1 hour)
   // Rate limiting
   rateLimit      Int            @default(100)  // max requests per window
   rateLimitWindow Int           @default(60)   // window size in seconds (default: 1 minute)

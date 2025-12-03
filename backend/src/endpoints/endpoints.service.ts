@@ -6,10 +6,21 @@ import { CreateEndpointDto, CreateFileEndpointDto, CreateEndpointResponseDto } f
 export class EndpointsService {
   constructor(private prisma: PrismaService) {}
 
+  // Helper to get TTL in minutes (supports both ttlMinutes and legacy ttlHours)
+  private getTtlMinutes(dto: { ttlMinutes?: number; ttlHours?: number }): number {
+    if (dto.ttlMinutes !== undefined) {
+      return dto.ttlMinutes;
+    }
+    if (dto.ttlHours !== undefined) {
+      return dto.ttlHours * 60; // Convert hours to minutes
+    }
+    return 60; // Default: 1 hour
+  }
+
   async createEndpoint(dto: CreateEndpointDto, organizationId: string | null): Promise<CreateEndpointResponseDto> {
     const now = new Date();
-    const ttlHours = dto.ttlHours ?? 24;
-    const expiresAt = new Date(now.getTime() + ttlHours * 60 * 60 * 1000);
+    const ttlMinutes = this.getTtlMinutes(dto);
+    const expiresAt = new Date(now.getTime() + ttlMinutes * 60 * 1000);
     const kind = dto.kind ?? 'snippet';
     const rateLimit = dto.rateLimit ?? 100;
     const rateLimitWindow = dto.rateLimitWindow ?? 60;
@@ -22,7 +33,7 @@ export class EndpointsService {
         kind,
         name: dto.name,
         description: dto.description,
-        ttlHours,
+        ttlMinutes,
         expiresAt,
         rateLimit,
         rateLimitWindow,
@@ -37,7 +48,8 @@ export class EndpointsService {
       language: endpoint.language,
       url: `${backendUrl}/run/${endpoint.id}`,
       expiresAt: expiresAt.toISOString(),
-      ttlHours,
+      ttlMinutes,
+      ttlHours: Math.round(ttlMinutes / 60 * 100) / 100, // For backward compatibility
       kind,
       name: endpoint.name,
       description: endpoint.description,
@@ -48,8 +60,8 @@ export class EndpointsService {
 
   async createFileEndpoint(code: string, dto: CreateFileEndpointDto, organizationId: string): Promise<CreateEndpointResponseDto> {
     const now = new Date();
-    const ttlHours = dto.ttlHours ?? 24;
-    const expiresAt = new Date(now.getTime() + ttlHours * 60 * 60 * 1000);
+    const ttlMinutes = this.getTtlMinutes(dto);
+    const expiresAt = new Date(now.getTime() + ttlMinutes * 60 * 1000);
     const kind = dto.kind ?? 'file';
 
     const endpoint = await this.prisma.endpoint.create({
@@ -60,7 +72,7 @@ export class EndpointsService {
         kind,
         name: dto.name,
         description: dto.description,
-        ttlHours,
+        ttlMinutes,
         expiresAt,
       },
     });
@@ -73,7 +85,8 @@ export class EndpointsService {
       language: endpoint.language,
       url: `${backendUrl}/run/${endpoint.id}`,
       expiresAt: expiresAt.toISOString(),
-      ttlHours,
+      ttlMinutes,
+      ttlHours: Math.round(ttlMinutes / 60 * 100) / 100, // For backward compatibility
       kind,
       name: endpoint.name,
       description: endpoint.description,
@@ -118,7 +131,7 @@ export class EndpointsService {
         description: true,
         language: true,
         kind: true,
-        ttlHours: true,
+        ttlMinutes: true,
         rateLimit: true,
         rateLimitWindow: true,
         createdAt: true,
@@ -131,6 +144,7 @@ export class EndpointsService {
 
     return endpoints.map(endpoint => ({
       ...endpoint,
+      ttlHours: Math.round(endpoint.ttlMinutes / 60 * 100) / 100, // For backward compatibility
       url: `${backendUrl}/run/${endpoint.id}`,
     }));
   }
@@ -170,4 +184,3 @@ export class EndpointsService {
     return result.count;
   }
 }
-

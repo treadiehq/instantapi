@@ -6,272 +6,272 @@
 
       <!-- Main Content -->
       <div class="py-12 px-4 sm:px-6 lg:px-6 antialiased">
-        <div class="max-w-7xl mx-auto">
-          <!-- Two Column Layout (authenticated dashboard) -->
+      <div class="max-w-7xl mx-auto">
+        <!-- Two Column Layout (authenticated dashboard) -->
           <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <!-- Main Card -->
+          <!-- Main Card -->
              <div class="lg:col-span-2">
               <div class="lg:col-span-1">
-                <div class="border bg-gray-500/5 border-gray-500/15 relative inner-container -mb-px -ml-px">
-                  <div class="border border-t-0 border-l-0 border-r-0 border-gray-500/10">
-                    <div>
-                      <!-- Mode Tabs -->
-                      <div class="border-b border-gray-500/10">
-                        <div class="flex">
-                          <button
-                            @click="switchToSnippetMode"
-                            :class="[
-                              'px-6 py-3 text-sm font-medium transition-colors',
-                              mode === 'snippet'
-                                ? 'text-white border-b-2 border-blue-300'
-                                : 'text-gray-400 hover:text-white'
-                            ]"
-                          >
-                            Snippet
-                          </button>
-                          <button
+            <div class="border bg-gray-500/5 border-gray-500/15 relative inner-container -mb-px -ml-px">
+              <div class="border border-t-0 border-l-0 border-r-0 border-gray-500/10">
+                <div>
+                  <!-- Mode Tabs -->
+                  <div class="border-b border-gray-500/10">
+                    <div class="flex">
+                      <button
+                        @click="switchToSnippetMode"
+                        :class="[
+                          'px-6 py-3 text-sm font-medium transition-colors',
+                          mode === 'snippet'
+                            ? 'text-white border-b-2 border-blue-300'
+                            : 'text-gray-400 hover:text-white'
+                        ]"
+                      >
+                        Snippet
+                      </button>
+                      <button
                             @click="switchToFunctionMode"
-                            :class="[
-                              'px-6 py-3 text-sm font-medium transition-colors',
+                        :class="[
+                          'px-6 py-3 text-sm font-medium transition-colors',
                               mode === 'function'
-                                ? 'text-white border-b-2 border-blue-300'
-                                : 'text-gray-400 hover:text-white'
-                            ]"
-                          >
+                            ? 'text-white border-b-2 border-blue-300'
+                            : 'text-gray-400 hover:text-white'
+                        ]"
+                      >
                             Function
-                          </button>
-                          <button
+                      </button>
+                      <button
                             @click="switchToFileMode"
-                            :class="[
-                              'px-6 py-3 text-sm font-medium transition-colors',
+                        :class="[
+                          'px-6 py-3 text-sm font-medium transition-colors',
                               mode === 'file'
-                                ? 'text-white border-b-2 border-blue-300'
-                                : 'text-gray-400 hover:text-white'
-                            ]"
-                          >
+                            ? 'text-white border-b-2 border-blue-300'
+                            : 'text-gray-400 hover:text-white'
+                        ]"
+                      >
                             File Upload
-                          </button>
-                          <button
+                      </button>
+                      <button
                             @click="switchToFrameworkMode"
-                            :class="[
-                              'px-6 py-3 text-sm font-medium transition-colors',
+                        :class="[
+                          'px-6 py-3 text-sm font-medium transition-colors',
                               mode === 'framework'
-                                ? 'text-white border-b-2 border-blue-300'
-                                : 'text-gray-400 hover:text-white'
-                            ]"
-                          >
+                            ? 'text-white border-b-2 border-blue-300'
+                            : 'text-gray-400 hover:text-white'
+                        ]"
+                      >
                             Framework
-                          </button>
-                          <button
-                            @click="switchToStreamMode"
-                            :class="[
-                              'px-6 py-3 text-sm font-medium transition-colors',
-                              mode === 'stream'
-                                ? 'text-white border-b-2 border-blue-300'
-                                : 'text-gray-400 hover:text-white'
-                            ]"
-                          >
-                            Stream
-                          </button>
-                        </div>
-                      </div>
+                      </button>
+                      <button
+                        @click="switchToStreamMode"
+                        :class="[
+                          'px-6 py-3 text-sm font-medium transition-colors',
+                          mode === 'stream'
+                            ? 'text-white border-b-2 border-blue-300'
+                            : 'text-gray-400 hover:text-white'
+                        ]"
+                      >
+                        Stream
+                      </button>
+                    </div>
+                  </div>
 
-                      <!-- Configuration Panel (hidden for Framework, Function, and Stream modes) -->
-                      <div v-if="mode !== 'framework' && mode !== 'function' && mode !== 'stream'" class="p-4 border-b border-gray-500/10">
-                        <!-- Optional Fields -->
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <!-- Name field -->
-                          <div>
-                            <input
-                              v-model="endpointName"
-                              :disabled="loading.create"
-                              type="text"
-                              placeholder="Enter a name for your API"
-                              class="block w-full rounded-lg bg-gray-500/5 py-2.5 px-4 text-sm font-medium text-white placeholder:text-gray-500 border border-gray-500/10 hover:bg-gray-500/10 focus:outline-none focus:ring-2 focus:ring-gray-500/10 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150"
-                            />
-                          </div>
-                          <!-- Example Buttons (for snippet mode) -->
-                          <div v-if="mode === 'snippet'" class="relative flex items-end">
-                            <select
-                              v-model="selectedExampleValue"
-                              @change="loadExample(($event.target as HTMLSelectElement).value)"
-                              :disabled="loading.create"
-                              class="block w-full appearance-none rounded-lg bg-gray-500/5 py-2.5 pl-4 pr-10 text-sm font-medium text-white border border-gray-500/10 hover:bg-gray-500/15 focus:outline-none focus:ring-2 focus:ring-gray-500/10 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150"
-                            >
-                              <option value="">Select an example...</option>
-                              <option v-for="(example, idx) in examples" :key="idx" :value="String(idx)">
-                            {{ example.name }}
-                          </option>
-                            </select>
-                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2 pt-0">
-                              <svg class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd" d="M10 3a.75.75 0 01.55.24l3.25 3.5a.75.75 0 11-1.1 1.02L10 4.852 7.3 7.76a.75.75 0 01-1.1-1.02l3.25-3.5A.75.75 0 0110 3zm-3.76 9.2a.75.75 0 011.06.04l2.7 2.908 2.7-2.908a.75.75 0 111.1 1.02l-3.25 3.5a.75.75 0 01-1.1 0l-3.25-3.5a.75.75 0 01.04-1.06z" clip-rule="evenodd" />
-                              </svg>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <!-- Code Editor or File Upload -->
-                      <div v-if="mode === 'snippet'" class="bg-black relative">
-                        <!-- Fullscreen Toggle Button -->
-                        <button
-                          @click="isEditorFullscreen = !isEditorFullscreen"
-                          class="absolute top-2 right-2 z-10 p-2 bg-gray-500/10 hover:bg-gray-500/20 text-gray-400 hover:text-white rounded transition-colors"
-                          :title="isEditorFullscreen ? 'Exit Fullscreen' : 'Fullscreen'"
-                        >
-                          <svg v-if="!isEditorFullscreen" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
-                          </svg>
-                          <svg v-else class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                          </svg>
-                        </button>
-                        <CodeEditor
-                          v-model="code"
-                          :language="language"
-                          :placeholder="placeholderCode"
+                  <!-- Configuration Panel (hidden for Framework, Function, and Stream modes) -->
+                  <div v-if="mode !== 'framework' && mode !== 'function' && mode !== 'stream'" class="p-4 border-b border-gray-500/10">
+                    <!-- Optional Fields -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <!-- Name field -->
+                      <div>
+                        <input
+                          v-model="endpointName"
                           :disabled="loading.create"
+                          type="text"
+                          placeholder="Enter a name for your API"
+                          class="block w-full rounded-lg bg-gray-500/5 py-2.5 px-4 text-sm font-medium text-white placeholder:text-gray-500 border border-gray-500/10 hover:bg-gray-500/10 focus:outline-none focus:ring-2 focus:ring-gray-500/10 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150"
                         />
-                        <!-- Character Count -->
-                        <div class="px-4 py-2 border-t border-gray-500/10 flex justify-between items-center text-xs">
-                          <span :class="[
-                            'font-medium',
-                            codeBytes > MAX_CODE_SIZE ? 'text-red-400' : codeBytes > MAX_CODE_SIZE * 0.9 ? 'text-amber-400' : 'text-gray-500'
-                          ]">
-                            {{ formatBytes(codeBytes) }} / {{ formatBytes(MAX_CODE_SIZE) }}
-                          </span>
-                          <span :class="[
-                            'text-xs',
-                            codeBytes > MAX_CODE_SIZE ? 'text-red-400' : codeBytes > MAX_CODE_SIZE * 0.9 ? 'text-amber-400' : 'text-gray-500'
-                          ]">
-                            {{ codePercentage }}% used
-                          </span>
+                      </div>
+                      <!-- Example Buttons (for snippet mode) -->
+                      <div v-if="mode === 'snippet'" class="relative flex items-end">
+                        <select
+                              v-model="selectedExampleValue"
+                          @change="loadExample(($event.target as HTMLSelectElement).value)"
+                          :disabled="loading.create"
+                          class="block w-full appearance-none rounded-lg bg-gray-500/5 py-2.5 pl-4 pr-10 text-sm font-medium text-white border border-gray-500/10 hover:bg-gray-500/15 focus:outline-none focus:ring-2 focus:ring-gray-500/10 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150"
+                        >
+                          <option value="">Select an example...</option>
+                              <option v-for="(example, idx) in examples" :key="idx" :value="String(idx)">
+                        {{ example.name }}
+                      </option>
+                        </select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2 pt-0">
+                          <svg class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 3a.75.75 0 01.55.24l3.25 3.5a.75.75 0 11-1.1 1.02L10 4.852 7.3 7.76a.75.75 0 01-1.1-1.02l3.25-3.5A.75.75 0 0110 3zm-3.76 9.2a.75.75 0 011.06.04l2.7 2.908 2.7-2.908a.75.75 0 111.1 1.02l-3.25 3.5a.75.75 0 01-1.1 0l-3.25-3.5a.75.75 0 01.04-1.06z" clip-rule="evenodd" />
+                          </svg>
                         </div>
                       </div>
+                    </div>
+                  </div>
 
-                      <!-- File Upload Mode -->
-                      <div v-else-if="mode === 'file'" class="p-8 bg-black">
-                        <div class="max-w-xl mx-auto">
-                          <label class="block">
-                            <div 
-                              @dragenter="handleDragEnter"
-                              @dragleave="handleDragLeave"
-                              @dragover="handleDragOver"
-                              @drop="handleDrop"
-                              :class="[
-                                'border-2 border-dashed rounded-lg p-8 text-center transition-all cursor-pointer',
-                                isDragging 
-                                  ? 'border-blue-400 bg-blue-500/10 scale-105' 
-                                  : 'border-gray-500/30 hover:border-gray-500/50'
-                              ]"
+                  <!-- Code Editor or File Upload -->
+                  <div v-if="mode === 'snippet'" class="bg-black relative">
+                    <!-- Fullscreen Toggle Button -->
+                    <button
+                      @click="isEditorFullscreen = !isEditorFullscreen"
+                      class="absolute top-2 right-2 z-10 p-2 bg-gray-500/10 hover:bg-gray-500/20 text-gray-400 hover:text-white rounded transition-colors"
+                      :title="isEditorFullscreen ? 'Exit Fullscreen' : 'Fullscreen'"
+                    >
+                      <svg v-if="!isEditorFullscreen" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4" />
+                      </svg>
+                      <svg v-else class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                    <CodeEditor
+                      v-model="code"
+                      :language="language"
+                      :placeholder="placeholderCode"
+                      :disabled="loading.create"
+                    />
+                    <!-- Character Count -->
+                    <div class="px-4 py-2 border-t border-gray-500/10 flex justify-between items-center text-xs">
+                      <span :class="[
+                        'font-medium',
+                        codeBytes > MAX_CODE_SIZE ? 'text-red-400' : codeBytes > MAX_CODE_SIZE * 0.9 ? 'text-amber-400' : 'text-gray-500'
+                      ]">
+                        {{ formatBytes(codeBytes) }} / {{ formatBytes(MAX_CODE_SIZE) }}
+                      </span>
+                      <span :class="[
+                        'text-xs',
+                        codeBytes > MAX_CODE_SIZE ? 'text-red-400' : codeBytes > MAX_CODE_SIZE * 0.9 ? 'text-amber-400' : 'text-gray-500'
+                      ]">
+                        {{ codePercentage }}% used
+                      </span>
+                    </div>
+                  </div>
+
+                  <!-- File Upload Mode -->
+                  <div v-else-if="mode === 'file'" class="p-8 bg-black">
+                    <div class="max-w-xl mx-auto">
+                      <label class="block">
+                        <div 
+                          @dragenter="handleDragEnter"
+                          @dragleave="handleDragLeave"
+                          @dragover="handleDragOver"
+                          @drop="handleDrop"
+                          :class="[
+                            'border-2 border-dashed rounded-lg p-8 text-center transition-all cursor-pointer',
+                            isDragging 
+                              ? 'border-blue-400 bg-blue-500/10 scale-105' 
+                              : 'border-gray-500/30 hover:border-gray-500/50'
+                          ]"
+                        >
+                          <input
+                            type="file"
+                            ref="fileInput"
+                            @change="handleFileSelect"
+                            accept=".js,.ts,.py"
+                            class="hidden"
+                            :disabled="loading.create"
+                          />
+                          <svg 
+                            :class="[
+                              'w-12 h-12 mx-auto mb-4 transition-colors',
+                              isDragging ? 'text-blue-400' : 'text-gray-400'
+                            ]" 
+                            fill="none" 
+                            stroke="currentColor" 
+                            viewBox="0 0 24 24"
+                          >
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                          </svg>
+                          <div v-if="selectedFile" class="mb-2">
+                            <p class="text-white font-medium">{{ selectedFile.name }}</p>
+                            <p class="text-xs text-gray-400">{{ formatFileSize(selectedFile.size) }}</p>
+                          </div>
+                          <p v-else :class="['mb-1', isDragging ? 'text-blue-400 font-medium' : 'text-gray-400']">
+                            {{ isDragging ? 'Drop file to upload' : 'Drop your file here or click to browse' }}
+                          </p>
+                          <p class="text-xs text-gray-500">Supports .js, .ts, .py (max 3MB)</p>
+                        </div>
+                      </label>
+                    </div>
+                  </div>
+
+                  <!-- Framework Mode -->
+                  <div v-else-if="mode === 'framework'" class="p-8 bg-black">
+                    <div class="max-w-2xl mx-auto">
+                      <div class="flex items-start space-x-3 mb-6">
+                        <svg class="w-8 h-8 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01" />
+                        </svg>
+                        <div>
+                          <h3 class="text-lg font-semibold text-white mb-2">Framework</h3>
+                          <p class="text-gray-400 text-sm leading-relaxed mb-4">
+                            Already have a backend running? (NestJS, Express, FastAPI, etc.) Expose any local route to the internet instantly with our CLI.
+                          </p>
+                        </div>
+                      </div>
+                      
+                      <div class="bg-gray-500/5 border border-gray-500/10 rounded-lg p-6">
+                        <div class="mb-4">
+                          <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Terminal</p>
+                          <div class="flex items-center justify-between bg-black rounded-lg p-3 font-mono text-sm">
+                            <code class="text-green-300">npx @instantapihq/cli expose http://localhost:3000/api/users/create</code>
+                            <button 
+                              @click="copyFrameworkCommand"
+                              class="ml-3 text-gray-400 hover:text-white transition-colors"
+                              title="Copy command"
                             >
-                              <input
-                                type="file"
-                                ref="fileInput"
-                                @change="handleFileSelect"
-                                accept=".js,.ts,.py"
-                                class="hidden"
-                                :disabled="loading.create"
-                              />
-                              <svg 
-                                :class="[
-                                  'w-12 h-12 mx-auto mb-4 transition-colors',
-                                  isDragging ? 'text-blue-400' : 'text-gray-400'
-                                ]" 
-                                fill="none" 
-                                stroke="currentColor" 
-                                viewBox="0 0 24 24"
-                              >
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
                               </svg>
-                              <div v-if="selectedFile" class="mb-2">
-                                <p class="text-white font-medium">{{ selectedFile.name }}</p>
-                                <p class="text-xs text-gray-400">{{ formatFileSize(selectedFile.size) }}</p>
-                              </div>
-                              <p v-else :class="['mb-1', isDragging ? 'text-blue-400 font-medium' : 'text-gray-400']">
-                                {{ isDragging ? 'Drop file to upload' : 'Drop your file here or click to browse' }}
-                              </p>
-                              <p class="text-xs text-gray-500">Supports .js, .ts, .py (max 3MB)</p>
-                            </div>
-                          </label>
+                            </button>
+                          </div>
+                        </div>
+                        
+                        <div class="bg-gray-500/10 border border-gray-500/10 rounded-lg p-4">
+                          <p class="text-sm text-gray-400 mb-2">
+                            <span class="font-semibold">Note:</span> Your local backend must be running and reachable. The CLI forwards requests from the public URL to your localhost.
+                          </p>
+                          <p class="text-xs text-gray-500">
+                            Backend running on a different port? Use <code class="text-gray-400 bg-gray-500/10 px-1 py-0.5 rounded">--backend http://localhost:PORT</code> or set <code class="text-gray-400 bg-gray-500/10 px-1 py-0.5 rounded">INSTANT_API_BACKEND_URL</code>
+                          </p>
                         </div>
                       </div>
 
-                      <!-- Framework Mode -->
-                      <div v-else-if="mode === 'framework'" class="p-8 bg-black">
-                        <div class="max-w-2xl mx-auto">
-                          <div class="flex items-start space-x-3 mb-6">
-                            <svg class="w-8 h-8 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01" />
-                            </svg>
-                            <div>
-                              <h3 class="text-lg font-semibold text-white mb-2">Framework</h3>
-                              <p class="text-gray-400 text-sm leading-relaxed mb-4">
-                                Already have a backend running? (NestJS, Express, FastAPI, etc.) Expose any local route to the internet instantly with our CLI.
+                      <!-- Active Tunnels -->
+                      <div v-if="tunnels.length > 0" class="border-t border-gray-500/10 pt-4">
+                        <h3 class="text-sm font-semibold text-gray-300 mb-3">Active Tunnels</h3>
+                        <div class="space-y-2">
+                          <div
+                            v-for="tunnel in tunnels"
+                            :key="tunnel.id"
+                            class="flex items-center justify-between p-3 bg-gray-500/5 rounded border border-gray-500/10"
+                          >
+                            <div class="flex-1 min-w-0">
+                              <p class="text-sm font-mono text-blue-300 truncate">
+                                /t/{{ tunnel.id }}
+                              </p>
+                              <p class="text-xs text-gray-500 truncate">
+                                → {{ tunnel.targetUrl }}
                               </p>
                             </div>
-                          </div>
-                          
-                          <div class="bg-gray-500/5 border border-gray-500/10 rounded-lg p-6">
-                            <div class="mb-4">
-                              <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Terminal</p>
-                              <div class="flex items-center justify-between bg-black rounded-lg p-3 font-mono text-sm">
-                                <code class="text-green-300">npx @instantapihq/cli expose http://localhost:3000/api/users/create</code>
-                                <button 
-                                  @click="copyFrameworkCommand"
-                                  class="ml-3 text-gray-400 hover:text-white transition-colors"
-                                  title="Copy command"
-                                >
-                                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                                  </svg>
-                                </button>
-                              </div>
-                            </div>
-                            
-                            <div class="bg-gray-500/10 border border-gray-500/10 rounded-lg p-4">
-                              <p class="text-sm text-gray-400 mb-2">
-                                <span class="font-semibold">Note:</span> Your local backend must be running and reachable. The CLI forwards requests from the public URL to your localhost.
-                              </p>
-                              <p class="text-xs text-gray-500">
-                                Backend running on a different port? Use <code class="text-gray-400 bg-gray-500/10 px-1 py-0.5 rounded">--backend http://localhost:PORT</code> or set <code class="text-gray-400 bg-gray-500/10 px-1 py-0.5 rounded">INSTANT_API_BACKEND_URL</code>
-                              </p>
-                            </div>
-                          </div>
-
-                          <!-- Active Tunnels -->
-                          <div v-if="tunnels.length > 0" class="border-t border-gray-500/10 pt-4">
-                            <h3 class="text-sm font-semibold text-gray-300 mb-3">Active Tunnels</h3>
-                            <div class="space-y-2">
-                              <div
-                                v-for="tunnel in tunnels"
-                                :key="tunnel.id"
-                                class="flex items-center justify-between p-3 bg-gray-500/5 rounded border border-gray-500/10"
-                              >
-                                <div class="flex-1 min-w-0">
-                                  <p class="text-sm font-mono text-blue-300 truncate">
-                                    /t/{{ tunnel.id }}
-                                  </p>
-                                  <p class="text-xs text-gray-500 truncate">
-                                    → {{ tunnel.targetUrl }}
-                                  </p>
-                                </div>
-                                <div class="shrink-0 ml-4">
-                                  <span class="inline-flex items-center gap-1 text-xs text-green-400">
-                                    <span class="w-2 h-2 bg-green-300 rounded-full animate-pulse"></span>
-                                    Active
-                                  </span>
-                                </div>
-                              </div>
+                            <div class="shrink-0 ml-4">
+                              <span class="inline-flex items-center gap-1 text-xs text-green-400">
+                                <span class="w-2 h-2 bg-green-300 rounded-full animate-pulse"></span>
+                                Active
+                              </span>
                             </div>
                           </div>
                         </div>
                       </div>
+                    </div>
+                  </div>
 
-                      <!-- Function Mode -->
-                      <div v-else-if="mode === 'function'" class="p-8 bg-black">
-                        <div class="max-w-2xl mx-auto">
+                  <!-- Function Mode -->
+                  <div v-else-if="mode === 'function'" class="p-8 bg-black">
+                    <div class="max-w-2xl mx-auto">
                           <!-- Tab selector for Server SDK vs Client SDK -->
                           <div class="flex space-x-2 mb-6 bg-gray-500/10 rounded-lg p-1">
                             <button
@@ -367,253 +367,257 @@
 
                           <!-- Server SDK Section -->
                           <div v-else>
-                            <div class="flex items-start space-x-3 mb-6">
-                              <svg class="w-8 h-8 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
-                              </svg>
-                              <div>
+                      <div class="flex items-start space-x-3 mb-6">
+                        <svg class="w-8 h-8 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                        </svg>
+                        <div>
                                 <h3 class="text-lg font-semibold text-white mb-2">Server SDK</h3>
-                                <p class="text-gray-400 text-sm leading-relaxed mb-4">
-                                  Expose single functions without setting up a full server.
-                                </p>
-                              </div>
-                            </div>
-                            
-                            <div class="space-y-4">
-                              <!-- Install SDK -->
-                              <div class="bg-gray-500/5 border border-gray-500/10 rounded-lg p-6">
-                                <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Install SDK</p>
-                                <div class="flex items-center justify-between bg-black rounded-lg p-3 font-mono text-sm">
-                                  <code class="text-green-300">npm install @instantapihq/sdk</code>
-                                  <button 
-                                    @click="copyInstallCommand"
-                                    class="ml-3 text-gray-400 hover:text-white transition-colors"
-                                    title="Copy command"
-                                  >
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                                    </svg>
-                                  </button>
-                                </div>
-                              </div>
-                              
-                              <!-- Create functions -->
-                              <div class="bg-gray-500/5 border border-gray-500/10 rounded-lg p-6">
-                                <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">functions.ts</p>
-                                <pre class="bg-black rounded-lg p-4 text-sm overflow-x-auto"><code class="text-gray-300"><span class="text-purple-300">import</span> { <span class="text-blue-300">expose</span> } <span class="text-purple-300">from</span> <span class="text-green-300">'@instantapihq/sdk'</span>;
-
-    <span class="text-blue-300">expose</span>(<span class="text-green-300">'hello'</span>, (<span class="text-orange-300">input</span>) => {
-      <span class="text-purple-300">return</span> {
-        message: <span class="text-green-300">`Hello \${<span class="text-orange-300">input</span>.name}!`</span>
-      };
-    });</code></pre>
-                              </div>
-                              
-                              <!-- Expose by function name -->
-                              <div class="bg-gray-500/5 border border-gray-500/10 rounded-lg p-6">
-                                <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Expose by function name</p>
-                                <div class="flex items-center justify-between bg-black rounded-lg p-3 font-mono text-sm">
-                                  <code class="text-green-300">npx @instantapihq/cli expose hello</code>
-                                  <button 
-                                    @click="copyExposeCommand"
-                                    class="ml-3 text-gray-400 hover:text-white transition-colors"
-                                    title="Copy command"
-                                  >
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                                    </svg>
-                                  </button>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
+                          <p class="text-gray-400 text-sm leading-relaxed mb-4">
+                            Expose single functions without setting up a full server.
+                          </p>
                         </div>
                       </div>
-
-                      <!-- Stream Mode -->
-                      <div v-else-if="mode === 'stream'" class="p-8 bg-black">
-                        <div class="max-w-2xl mx-auto">
-                          <div class="flex items-start space-x-3 mb-6">
-                            <svg class="w-8 h-8 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
-                            </svg>
-                            <div>
-                              <h3 class="text-lg font-semibold text-white mb-2">Streaming</h3>
-                              <p class="text-gray-400 text-sm leading-relaxed mb-4">
-                                Expose streaming endpoints (SSE, WebSockets) from your local server to the internet instantly.
-                              </p>
-                            </div>
-                          </div>
-                          
-                          <div class="space-y-4">
-                            <!-- Framework with Streaming -->
-                            <div class="bg-gray-500/5 border border-gray-500/10 rounded-lg p-6">
-                              <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Expose Streaming Endpoint</p>
-                              <div class="flex items-center justify-between bg-black rounded-lg p-3 font-mono text-sm mb-4">
-                                <code class="text-green-300">npx @instantapihq/cli expose http://localhost:3000/api/stream</code>
-                                <button 
-                                  @click="copyStreamCommand"
-                                  class="ml-3 text-gray-400 hover:text-white transition-colors"
-                                  title="Copy command"
-                                >
-                                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                                  </svg>
-                                </button>
-                              </div>
-                              <div class="bg-gray-500/10 border border-gray-500/10 rounded-lg p-4">
-                                <p class="text-sm text-gray-400 mb-2">
-                                  <span class="font-semibold">How it works:</span>
-                                </p>
-                                <ul class="text-sm text-gray-400 space-y-1 list-disc list-inside">
-                                  <li>Automatically detects SSE and WebSocket requests</li>
-                                  <li>Forwards streaming responses in real-time</li>
-                                  <li>Supports Server-Sent Events (text/event-stream)</li>
-                                  <li>Supports WebSocket upgrades</li>
-                                </ul>
-                              </div>
-                            </div>
-
-                            <!-- SSE Example -->
-                            <div class="bg-gray-500/5 border border-gray-500/10 rounded-lg p-6">
-                              <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Server-Sent Events Example (Express)</p>
-                              <pre class="bg-black rounded-lg p-4 text-sm overflow-x-auto"><code class="text-gray-300"><span class="text-purple-300">app</span>.<span class="text-blue-300">get</span>(<span class="text-green-300">'/api/stream'</span>, (<span class="text-orange-300">req</span>, <span class="text-orange-300">res</span>) => {
-      <span class="text-orange-300">res</span>.<span class="text-blue-300">setHeader</span>(<span class="text-green-300">'Content-Type'</span>, <span class="text-green-300">'text/event-stream'</span>);
-      <span class="text-orange-300">res</span>.<span class="text-blue-300">setHeader</span>(<span class="text-green-300">'Cache-Control'</span>, <span class="text-green-300">'no-cache'</span>);
-      <span class="text-orange-300">res</span>.<span class="text-blue-300">setHeader</span>(<span class="text-green-300">'Connection'</span>, <span class="text-green-300">'keep-alive'</span>);
-
-      <span class="text-purple-300">let</span> count = <span class="text-yellow-300">0</span>;
-      <span class="text-purple-300">const</span> interval = <span class="text-blue-300">setInterval</span>(() => {
-        <span class="text-orange-300">res</span>.<span class="text-blue-300">write</span>(<span class="text-green-300">`data: </span><span class="text-yellow-300">\${</span>JSON.<span class="text-blue-300">stringify</span>({ count: count++ })<span class="text-yellow-300">}</span><span class="text-green-300">\n\n`</span>);
-      }, <span class="text-yellow-300">1000</span>);
-
-      <span class="text-orange-300">req</span>.<span class="text-blue-300">on</span>(<span class="text-green-300">'close'</span>, () => {
-        <span class="text-blue-300">clearInterval</span>(interval);
-      });
-    });</code></pre>
-                            </div>
-
-                            <!-- Client Example -->
-                            <div class="bg-gray-500/5 border border-gray-500/10 rounded-lg p-6">
-                              <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Client Example</p>
-                              <pre class="bg-black rounded-lg p-4 text-sm overflow-x-auto"><code class="text-gray-300"><span class="text-purple-300">const</span> eventSource = <span class="text-purple-300">new</span> <span class="text-blue-300">EventSource</span>(<span class="text-green-300">'https://api.instantapi.dev/t/YOUR_TUNNEL_ID'</span>);
-
-    eventSource.<span class="text-blue-300">onmessage</span> = (<span class="text-orange-300">event</span>) => {
-      <span class="text-purple-300">const</span> data = JSON.<span class="text-blue-300">parse</span>(<span class="text-orange-300">event</span>.data);
-      console.<span class="text-blue-300">log</span>(<span class="text-green-300">'Received:'</span>, data);
-    };</code></pre>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      <!-- Error Display -->
-                      <div v-if="error.create" class="mx-4 mt-4">
-                        <div class="p-4 bg-red-500/10 border border-red-500/20 rounded-lg space-y-3">
-                          <div class="flex items-start justify-between gap-3">
-                            <div class="flex items-start gap-2 flex-1">
-                              <svg class="w-5 h-5 text-red-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                              </svg>
-                              <div class="flex-1">
-                                <p class="text-red-400 text-sm font-medium">{{ error.create }}</p>
-                                <div v-if="errorDetails.create" class="mt-2">
-                                  <button
-                                    @click="showErrorDetails = !showErrorDetails"
-                                    class="text-xs text-red-300 hover:text-red-200 flex items-center gap-1"
-                                  >
-                                    <svg class="w-3 h-3" :class="showErrorDetails ? 'rotate-90' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                                    </svg>
-                                    {{ showErrorDetails ? 'Hide' : 'Show' }} details
-                                  </button>
-                                  <pre v-if="showErrorDetails" class="mt-2 p-3 bg-black/30 rounded text-xs text-red-300 overflow-x-auto">{{ errorDetails.create }}</pre>
-                                </div>
-                              </div>
-                            </div>
-                            <button
-                              @click="retryCreateEndpoint"
-                              class="shrink-0 px-3 py-1.5 bg-red-500/20 hover:bg-red-500/30 text-red-300 hover:text-red-200 rounded text-xs font-medium transition-colors flex items-center gap-1.5"
+                      
+                      <div class="space-y-4">
+                        <!-- Install SDK -->
+                        <div class="bg-gray-500/5 border border-gray-500/10 rounded-lg p-6">
+                          <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Install SDK</p>
+                          <div class="flex items-center justify-between bg-black rounded-lg p-3 font-mono text-sm">
+                            <code class="text-green-300">npm install @instantapihq/sdk</code>
+                            <button 
+                              @click="copyInstallCommand"
+                              class="ml-3 text-gray-400 hover:text-white transition-colors"
+                              title="Copy command"
                             >
-                              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
                               </svg>
-                              Retry
                             </button>
                           </div>
                         </div>
+                        
+                        <!-- Create functions -->
+                        <div class="bg-gray-500/5 border border-gray-500/10 rounded-lg p-6">
+                          <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">functions.ts</p>
+                          <pre class="bg-black rounded-lg p-4 text-sm overflow-x-auto"><code class="text-gray-300"><span class="text-purple-300">import</span> { <span class="text-blue-300">expose</span> } <span class="text-purple-300">from</span> <span class="text-green-300">'@instantapihq/sdk'</span>;
+
+<span class="text-blue-300">expose</span>(<span class="text-green-300">'hello'</span>, (<span class="text-orange-300">input</span>) => {
+  <span class="text-purple-300">return</span> {
+    message: <span class="text-green-300">`Hello \${<span class="text-orange-300">input</span>.name}!`</span>
+  };
+});</code></pre>
+                        </div>
+                        
+                        <!-- Expose by function name -->
+                        <div class="bg-gray-500/5 border border-gray-500/10 rounded-lg p-6">
+                          <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Expose by function name</p>
+                          <div class="flex items-center justify-between bg-black rounded-lg p-3 font-mono text-sm">
+                            <code class="text-green-300">npx @instantapihq/cli expose hello</code>
+                            <button 
+                              @click="copyExposeCommand"
+                              class="ml-3 text-gray-400 hover:text-white transition-colors"
+                              title="Copy command"
+                            >
+                              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                              </svg>
+                            </button>
+                                </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Stream Mode -->
+                  <div v-else-if="mode === 'stream'" class="p-8 bg-black">
+                    <div class="max-w-2xl mx-auto">
+                      <div class="flex items-start space-x-3 mb-6">
+                        <svg class="w-8 h-8 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16V4m0 0L3 8m4-4l4 4m6 0v12m0 0l4-4m-4 4l-4-4" />
+                        </svg>
+                        <div>
+                          <h3 class="text-lg font-semibold text-white mb-2">Streaming</h3>
+                          <p class="text-gray-400 text-sm leading-relaxed mb-4">
+                            Expose streaming endpoints (SSE, WebSockets) from your local server to the internet instantly.
+                          </p>
+                        </div>
+                      </div>
+                      
+                      <div class="space-y-4">
+                        <!-- Framework with Streaming -->
+                        <div class="bg-gray-500/5 border border-gray-500/10 rounded-lg p-6">
+                          <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Expose Streaming Endpoint</p>
+                          <div class="flex items-center justify-between bg-black rounded-lg p-3 font-mono text-sm mb-4">
+                            <code class="text-green-300">npx @instantapihq/cli expose http://localhost:3000/api/stream</code>
+                            <button 
+                              @click="copyStreamCommand"
+                              class="ml-3 text-gray-400 hover:text-white transition-colors"
+                              title="Copy command"
+                            >
+                              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                              </svg>
+                            </button>
+                          </div>
+                          <div class="bg-gray-500/10 border border-gray-500/10 rounded-lg p-4">
+                            <p class="text-sm text-gray-400 mb-2">
+                              <span class="font-semibold">How it works:</span>
+                            </p>
+                            <ul class="text-sm text-gray-400 space-y-1 list-disc list-inside">
+                              <li>Automatically detects SSE and WebSocket requests</li>
+                              <li>Forwards streaming responses in real-time</li>
+                              <li>Supports Server-Sent Events (text/event-stream)</li>
+                              <li>Supports WebSocket upgrades</li>
+                            </ul>
+                          </div>
+                        </div>
+
+                        <!-- SSE Example -->
+                        <div class="bg-gray-500/5 border border-gray-500/10 rounded-lg p-6">
+                          <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Server-Sent Events Example (Express)</p>
+                          <pre class="bg-black rounded-lg p-4 text-sm overflow-x-auto"><code class="text-gray-300"><span class="text-purple-300">app</span>.<span class="text-blue-300">get</span>(<span class="text-green-300">'/api/stream'</span>, (<span class="text-orange-300">req</span>, <span class="text-orange-300">res</span>) => {
+  <span class="text-orange-300">res</span>.<span class="text-blue-300">setHeader</span>(<span class="text-green-300">'Content-Type'</span>, <span class="text-green-300">'text/event-stream'</span>);
+  <span class="text-orange-300">res</span>.<span class="text-blue-300">setHeader</span>(<span class="text-green-300">'Cache-Control'</span>, <span class="text-green-300">'no-cache'</span>);
+  <span class="text-orange-300">res</span>.<span class="text-blue-300">setHeader</span>(<span class="text-green-300">'Connection'</span>, <span class="text-green-300">'keep-alive'</span>);
+
+  <span class="text-purple-300">let</span> count = <span class="text-yellow-300">0</span>;
+  <span class="text-purple-300">const</span> interval = <span class="text-blue-300">setInterval</span>(() => {
+    <span class="text-orange-300">res</span>.<span class="text-blue-300">write</span>(<span class="text-green-300">`data: </span><span class="text-yellow-300">\${</span>JSON.<span class="text-blue-300">stringify</span>({ count: count++ })<span class="text-yellow-300">}</span><span class="text-green-300">\n\n`</span>);
+  }, <span class="text-yellow-300">1000</span>);
+
+  <span class="text-orange-300">req</span>.<span class="text-blue-300">on</span>(<span class="text-green-300">'close'</span>, () => {
+    <span class="text-blue-300">clearInterval</span>(interval);
+  });
+});</code></pre>
+                        </div>
+
+                        <!-- Client Example -->
+                        <div class="bg-gray-500/5 border border-gray-500/10 rounded-lg p-6">
+                          <p class="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Client Example</p>
+                          <pre class="bg-black rounded-lg p-4 text-sm overflow-x-auto"><code class="text-gray-300"><span class="text-purple-300">const</span> eventSource = <span class="text-purple-300">new</span> <span class="text-blue-300">EventSource</span>(<span class="text-green-300">'https://api.instantapi.dev/t/YOUR_TUNNEL_ID'</span>);
+
+eventSource.<span class="text-blue-300">onmessage</span> = (<span class="text-orange-300">event</span>) => {
+  <span class="text-purple-300">const</span> data = JSON.<span class="text-blue-300">parse</span>(<span class="text-orange-300">event</span>.data);
+  console.<span class="text-blue-300">log</span>(<span class="text-green-300">'Received:'</span>, data);
+};</code></pre>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Error Display -->
+                  <div v-if="error.create" class="mx-4 mt-4">
+                    <div class="p-4 bg-red-500/10 border border-red-500/20 rounded-lg space-y-3">
+                      <div class="flex items-start justify-between gap-3">
+                        <div class="flex items-start gap-2 flex-1">
+                          <svg class="w-5 h-5 text-red-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                          </svg>
+                          <div class="flex-1">
+                            <p class="text-red-400 text-sm font-medium">{{ error.create }}</p>
+                            <div v-if="errorDetails.create" class="mt-2">
+                              <button
+                                @click="showErrorDetails = !showErrorDetails"
+                                class="text-xs text-red-300 hover:text-red-200 flex items-center gap-1"
+                              >
+                                <svg class="w-3 h-3" :class="showErrorDetails ? 'rotate-90' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                                </svg>
+                                {{ showErrorDetails ? 'Hide' : 'Show' }} details
+                              </button>
+                              <pre v-if="showErrorDetails" class="mt-2 p-3 bg-black/30 rounded text-xs text-red-300 overflow-x-auto">{{ errorDetails.create }}</pre>
+                            </div>
+                          </div>
+                        </div>
+                        <button
+                          @click="retryCreateEndpoint"
+                          class="shrink-0 px-3 py-1.5 bg-red-500/20 hover:bg-red-500/30 text-red-300 hover:text-red-200 rounded text-xs font-medium transition-colors flex items-center gap-1.5"
+                        >
+                          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                          </svg>
+                          Retry
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Configuration and Create Button (hidden for Framework, Function, and Stream modes) -->
+                  <div v-if="mode !== 'framework' && mode !== 'function' && mode !== 'stream'" class="flex justify-between items-end p-4 border-t border-gray-500/10">
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
+                      <!-- Language Select -->
+                      <div class="relative">
+                        <label class="block text-xs font-semibold mb-2 text-gray-300">Language</label>
+                        <select
+                          v-model="language"
+                          :disabled="loading.create"
+                          class="block w-full appearance-none rounded-lg bg-gray-500/5 py-2.5 pl-4 pr-10 text-sm font-medium text-white border border-gray-500/10 hover:bg-gray-500/10 focus:outline-none focus:ring-2 focus:ring-gray-500/10 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150"
+                        >
+                          <option value="javascript">JavaScript</option>
+                          <option value="python">Python</option>
+                        </select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2 pt-6">
+                          <svg class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 3a.75.75 0 01.55.24l3.25 3.5a.75.75 0 11-1.1 1.02L10 4.852 7.3 7.76a.75.75 0 01-1.1-1.02l3.25-3.5A.75.75 0 0110 3zm-3.76 9.2a.75.75 0 011.06.04l2.7 2.908 2.7-2.908a.75.75 0 111.1 1.02l-3.25 3.5a.75.75 0 01-1.1 0l-3.25-3.5a.75.75 0 01.04-1.06z" clip-rule="evenodd" />
+                          </svg>
+                        </div>
                       </div>
 
-                      <!-- Configuration and Create Button (hidden for Framework, Function, and Stream modes) -->
-                      <div v-if="mode !== 'framework' && mode !== 'function' && mode !== 'stream'" class="flex justify-between items-end p-4 border-t border-gray-500/10">
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
-                          <!-- Language Select -->
-                          <div class="relative">
-                            <label class="block text-xs font-semibold mb-2 text-gray-300">Language</label>
-                            <select
-                              v-model="language"
-                              :disabled="loading.create"
-                              class="block w-full appearance-none rounded-lg bg-gray-500/5 py-2.5 pl-4 pr-10 text-sm font-medium text-white border border-gray-500/10 hover:bg-gray-500/10 focus:outline-none focus:ring-2 focus:ring-gray-500/10 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150"
-                            >
-                              <option value="javascript">JavaScript</option>
-                              <option value="python">Python</option>
-                            </select>
-                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2 pt-6">
-                              <svg class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd" d="M10 3a.75.75 0 01.55.24l3.25 3.5a.75.75 0 11-1.1 1.02L10 4.852 7.3 7.76a.75.75 0 01-1.1-1.02l3.25-3.5A.75.75 0 0110 3zm-3.76 9.2a.75.75 0 011.06.04l2.7 2.908 2.7-2.908a.75.75 0 111.1 1.02l-3.25 3.5a.75.75 0 01-1.1 0l-3.25-3.5a.75.75 0 01.04-1.06z" clip-rule="evenodd" />
-                              </svg>
-                            </div>
-                          </div>
+                      <!-- TTL Select -->
+                      <div class="relative">
+                        <label class="block text-xs font-semibold mb-2 text-gray-300">Expires In</label>
+                        <select
+                              v-model="ttlMinutes"
+                          :disabled="loading.create || !isAuthenticated"
+                          class="block w-full appearance-none rounded-lg bg-gray-500/5 py-2.5 pl-4 pr-10 text-sm font-medium text-white border border-gray-500/10 hover:bg-gray-500/10 focus:outline-none focus:ring-2 focus:ring-gray-500/10 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150"
+                        >
+                              <option :value="5">5 minutes</option>
+                              <option :value="15">15 minutes</option>
+                              <option :value="30">30 minutes</option>
+                              <option :value="60">1 hour</option>
+                              <option v-if="isAuthenticated" :value="360">6 hours</option>
+                              <option v-if="isAuthenticated" :value="1440">24 hours</option>
+                              <option v-if="isAuthenticated" :value="10080">7 days</option>
+                        </select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2 pt-6">
+                          <svg class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 3a.75.75 0 01.55.24l3.25 3.5a.75.75 0 11-1.1 1.02L10 4.852 7.3 7.76a.75.75 0 01-1.1-1.02l3.25-3.5A.75.75 0 0110 3zm-3.76 9.2a.75.75 0 011.06.04l2.7 2.908 2.7-2.908a.75.75 0 111.1 1.02l-3.25 3.5a.75.75 0 01-1.1 0l-3.25-3.5a.75.75 0 01.04-1.06z" clip-rule="evenodd" />
+                          </svg>
+                        </div>
+                      </div>
 
-                          <!-- TTL Select -->
-                          <div class="relative">
-                            <label class="block text-xs font-semibold mb-2 text-gray-300">Expires In</label>
-                            <select
-                              v-model="ttlHours"
-                              :disabled="loading.create || !isAuthenticated"
-                              class="block w-full appearance-none rounded-lg bg-gray-500/5 py-2.5 pl-4 pr-10 text-sm font-medium text-white border border-gray-500/10 hover:bg-gray-500/10 focus:outline-none focus:ring-2 focus:ring-gray-500/10 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150"
-                            >
-                              <option :value="1">1 hour</option>
-                              <option v-if="isAuthenticated" :value="24">24 hours</option>
-                              <option v-if="isAuthenticated" :value="168">7 days</option>
-                            </select>
-                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2 pt-6">
-                              <svg class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd" d="M10 3a.75.75 0 01.55.24l3.25 3.5a.75.75 0 11-1.1 1.02L10 4.852 7.3 7.76a.75.75 0 01-1.1-1.02l3.25-3.5A.75.75 0 0110 3zm-3.76 9.2a.75.75 0 011.06.04l2.7 2.908 2.7-2.908a.75.75 0 111.1 1.02l-3.25 3.5a.75.75 0 01-1.1 0l-3.25-3.5a.75.75 0 01.04-1.06z" clip-rule="evenodd" />
-                              </svg>
-                            </div>
-                          </div>
-
-                          <!-- Kind Select -->
-                          <div class="relative">
-                            <label class="block text-xs font-semibold mb-2 text-gray-300">
-                              Mode
-                              <!-- <span v-if="kind === 'webhook'" class="ml-2 text-xs px-2 py-0.5 bg-purple-500/20 text-purple-300 rounded">
-                                Webhook
-                              </span>
-                              <span v-else class="ml-2 text-xs px-2 py-0.5 bg-blue-500/20 text-blue-300 rounded">
-                                Standard
-                              </span> -->
-                            </label>
-                            <select
-                              v-model="kind"
-                              :disabled="loading.create"
-                              :class="[
-                                'block w-full appearance-none rounded-lg py-2.5 pl-4 pr-10 text-sm font-medium text-white border hover:bg-gray-500/10 focus:outline-none focus:ring-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150',
-                                kind === 'webhook' 
-                                  ? 'bg-gray-500/5 border-gray-500/10 focus:ring-blue-500/10' 
-                                  : 'bg-gray-500/5 border-gray-500/10 focus:ring-gray-500/10'
-                              ]"
-                            >
-                              <option value="snippet">Standard</option>
-                              <option value="webhook">Webhook</option>
-                            </select>
-                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2 pt-6">
-                              <svg class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd" d="M10 3a.75.75 0 01.55.24l3.25 3.5a.75.75 0 11-1.1 1.02L10 4.852 7.3 7.76a.75.75 0 01-1.1-1.02l3.25-3.5A.75.75 0 0110 3zm-3.76 9.2a.75.75 0 011.06.04l2.7 2.908 2.7-2.908a.75.75 0 111.1 1.02l-3.25 3.5a.75.75 0 01-1.1 0l-3.25-3.5a.75.75 0 01.04-1.06z" clip-rule="evenodd" />
-                              </svg>
-                            </div>
-                          </div>
+                      <!-- Kind Select -->
+                      <div class="relative">
+                        <label class="block text-xs font-semibold mb-2 text-gray-300">
+                          Mode
+                          <!-- <span v-if="kind === 'webhook'" class="ml-2 text-xs px-2 py-0.5 bg-purple-500/20 text-purple-300 rounded">
+                            Webhook
+                          </span>
+                          <span v-else class="ml-2 text-xs px-2 py-0.5 bg-blue-500/20 text-blue-300 rounded">
+                            Standard
+                          </span> -->
+                        </label>
+                        <select
+                          v-model="kind"
+                          :disabled="loading.create"
+                          :class="[
+                            'block w-full appearance-none rounded-lg py-2.5 pl-4 pr-10 text-sm font-medium text-white border hover:bg-gray-500/10 focus:outline-none focus:ring-2 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-150',
+                            kind === 'webhook' 
+                              ? 'bg-gray-500/5 border-gray-500/10 focus:ring-blue-500/10' 
+                              : 'bg-gray-500/5 border-gray-500/10 focus:ring-gray-500/10'
+                          ]"
+                        >
+                          <option value="snippet">Standard</option>
+                          <option value="webhook">Webhook</option>
+                        </select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2 pt-6">
+                          <svg class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 3a.75.75 0 01.55.24l3.25 3.5a.75.75 0 11-1.1 1.02L10 4.852 7.3 7.76a.75.75 0 01-1.1-1.02l3.25-3.5A.75.75 0 0110 3zm-3.76 9.2a.75.75 0 011.06.04l2.7 2.908 2.7-2.908a.75.75 0 111.1 1.02l-3.25 3.5a.75.75 0 01-1.1 0l-3.25-3.5a.75.75 0 01.04-1.06z" clip-rule="evenodd" />
+                          </svg>
+                        </div>
+                      </div>
 
                           <!-- Rate Limit Select -->
                           <div class="relative">
@@ -627,391 +631,391 @@
                               <option v-for="preset in rateLimitPresets" :key="preset.label" :value="preset.label">
                                 {{ preset.label }}
                               </option>
-                            </select>
-                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2 pt-6">
-                              <svg class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd" d="M10 3a.75.75 0 01.55.24l3.25 3.5a.75.75 0 11-1.1 1.02L10 4.852 7.3 7.76a.75.75 0 01-1.1-1.02l3.25-3.5A.75.75 0 0110 3zm-3.76 9.2a.75.75 0 011.06.04l2.7 2.908 2.7-2.908a.75.75 0 111.1 1.02l-3.25 3.5a.75.75 0 01-1.1 0l-3.25-3.5a.75.75 0 01.04-1.06z" clip-rule="evenodd" />
-                              </svg>
-                            </div>
-                          </div>
-                        </div>
-                        <!-- Create Button -->
-                        <button
-                          @click="createEndpoint"
-                          :disabled="loading.create || (!code.trim() && !selectedFile)"
-                          class="btn-primary w-auto ml-2 truncate h-10 text-sm py-2 font-semibold flex items-center gap-2 min-w-[140px] justify-center hover:shadow-lg hover:shadow-blue-500/20 transition-all duration-200"
-                          :title="(!code.trim() && !selectedFile) ? 'Please add some code first' : 'Create your API endpoint'"
-                        >
-                          <!-- Loading Spinner -->
-                          <svg v-if="loading.create" class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </select>
+                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-2 pt-6">
+                          <svg class="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 3a.75.75 0 01.55.24l3.25 3.5a.75.75 0 11-1.1 1.02L10 4.852 7.3 7.76a.75.75 0 01-1.1-1.02l3.25-3.5A.75.75 0 0110 3zm-3.76 9.2a.75.75 0 011.06.04l2.7 2.908 2.7-2.908a.75.75 0 111.1 1.02l-3.25 3.5a.75.75 0 01-1.1 0l-3.25-3.5a.75.75 0 01.04-1.06z" clip-rule="evenodd" />
                           </svg>
-                          <svg v-else class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                          </svg>
-                          <span v-if="loading.create">{{ loadingMessage }}</span>
-                          <span v-else>Create API</span>
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                  <span
-                    class="main-section bottom-l absolute w-[1px] h-[1px] bottom-[-1px] left-[-1px]"
-                  ></span
-                  ><span
-                    class="main-section bottom-l absolute w-px h-px -bottom-px -right-px"
-                  ></span
-                  ><span
-                    class="main-section bottom-l absolute w-px h-px -top-px -right-px"
-                  ></span
-                  ><span
-                    class="main-section bottom-l absolute w-px h-px -top-px -left-px"
-                  ></span>
-                </div>
-
-                <!-- Success Modal -->
-                <Teleport to="body">
-                  <Transition
-                    enter-active-class="transition-opacity duration-200"
-                    enter-from-class="opacity-0"
-                    enter-to-class="opacity-100"
-                    leave-active-class="transition-opacity duration-200"
-                    leave-from-class="opacity-100"
-                    leave-to-class="opacity-0"
-                  >
-                    <div v-if="endpointUrl" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" @click.self="closeModal">
-                      <Transition
-                        enter-active-class="transition-all duration-200"
-                        enter-from-class="opacity-0 scale-95"
-                        enter-to-class="opacity-100 scale-100"
-                        leave-active-class="transition-all duration-200"
-                        leave-from-class="opacity-100 scale-100"
-                        leave-to-class="opacity-0 scale-95"
-                      >
-                        <div v-if="endpointUrl" class="card bg-black! p-6 md:p-6 max-w-3xl w-full max-h-[90vh] overflow-y-auto border-gray-500/30 relative">
-                  <!-- Close Button -->
-                  <button
-                    @click="closeModal"
-                    class="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors"
-                    aria-label="Close"
-                  >
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  </button>
-
-                  <h2 class="text-2xl font-medium mb-8 text-white">
-                    Your API is live and ready to use
-                  </h2>
-
-                  <!-- Endpoint Info -->
-                  <div class="mb-6 p-4 bg-gray-500/10 rounded-lg border border-gray-500/20">
-                    <div class="grid grid-cols-2 gap-4 text-sm">
-                      <div>
-                        <span class="text-gray-400">Language:</span>
-                        <span class="text-white ml-2">{{ createdEndpoint?.language }}</span>
-                      </div>
-                      <div>
-                        <span class="text-gray-400">Mode:</span>
-                        <span class="text-white ml-2">{{ createdEndpoint?.kind }}</span>
-                      </div>
-                      <div>
-                        <span class="text-gray-400">TTL:</span>
-                        <span class="text-white ml-2">{{ createdEndpoint?.ttlHours }}h</span>
-                      </div>
-                      <div>
-                        <span class="text-gray-400">Expires:</span>
-                        <span class="text-white ml-2">{{ expiresAt }}</span>
-                      </div>
-                    </div>
-                    <div v-if="createdEndpoint?.name" class="mt-3 pt-3 border-t border-gray-500/20">
-                      <div class="text-sm">
-                        <span class="text-gray-400">Name:</span>
-                        <span class="text-white ml-2">{{ createdEndpoint.name }}</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <!-- Endpoint URL -->
-                  <div class="mb-6">
-                    <label class="block text-sm font-medium mb-2 text-gray-300">
-                      Your Endpoint URL
-                    </label>
-                    <div class="flex gap-2 items-start">
-                      <div 
-                        @click="copyToClipboard(endpointUrl, 'main-url')"
-                        class="code-block flex-1 break-all overflow-hidden text-blue-300 text-sm cursor-pointer hover:bg-blue-300/10 transition-colors rounded px-2 py-1 -mx-2 -my-1"
-                        title="Click to copy"
-                      >
-                        {{ endpointUrl }}
-                      </div>
-                      <button
-                        @click="copyToClipboard(endpointUrl, 'main-url-btn')"
-                        :class="[
-                          'px-2 py-2 shrink-0 transition-colors',
-                          isCopied('main-url') || isCopied('main-url-btn')
-                            ? 'bg-green-300/10 text-green-300'
-                            : 'btn-secondary'
-                        ]"
-                        :title="isCopied('main-url') || isCopied('main-url-btn') ? 'Copied!' : 'Copy URL'"
-                      >
-                        <svg v-if="!isCopied('main-url') && !isCopied('main-url-btn')" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184" />
-                        </svg>
-                        <svg v-else class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                        </svg>
-                      </button>
-                    </div>
-                    
-                    <!-- Quick Actions -->
-                    <div class="flex gap-2 mt-3">
-                      <button
-                        @click="checkEndpointHealth"
-                        :disabled="healthStatus === 'checking'"
-                        class="btn-secondary text-xs px-3 py-1.5 flex items-center gap-1.5"
-                        title="Check endpoint health"
-                      >
-                        <!-- Spinner for checking state -->
-                        <svg v-if="healthStatus === 'checking'" class="animate-spin h-3 w-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        <!-- Check circle for healthy state -->
-                        <svg v-else-if="healthStatus === 'healthy'" class="h-3 w-3 text-green-300" fill="currentColor" viewBox="0 0 20 20">
-                          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd" />
-                        </svg>
-                        <!-- X circle for error state -->
-                        <svg v-else-if="healthStatus === 'error'" class="h-3 w-3 text-red-400" fill="currentColor" viewBox="0 0 20 20">
-                          <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd" />
-                        </svg>
-                        <!-- Heart icon for default/ready state -->
-                        <svg v-else class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
-                        </svg>
-                        Health Check
-                      </button>
-                      <button
-                        @click="copyCurlCommand"
-                        class="btn-secondary text-xs px-3 py-1.5 flex items-center gap-1.5"
-                        title="Copy curl command"
-                      >
-                        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                        </svg>
-                        Copy curl
-                      </button>
-                      <!-- <button
-                        @click="toggleQRCode"
-                        class="btn-secondary text-xs px-3 py-1.5 flex items-center gap-1.5"
-                        title="Show QR code"
-                      >
-                        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 013.75 9.375v-4.5zM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 01-1.125-1.125v-4.5zM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0113.5 9.375v-4.5z" />
-                          <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 6.75h.75v.75h-.75v-.75zM6.75 16.5h.75v.75h-.75v-.75zM16.5 6.75h.75v.75h-.75v-.75zM13.5 13.5h.75v.75h-.75v-.75zM13.5 19.5h.75v.75h-.75v-.75zM19.5 13.5h.75v.75h-.75v-.75zM19.5 19.5h.75v.75h-.75v-.75zM16.5 16.5h.75v.75h-.75v-.75z" />
-                        </svg>
-                        QR Code
-                      </button> -->
-                    </div>
-                    
-                    <!-- QR Code Display -->
-                    <Transition
-                      enter-active-class="transition-all duration-200"
-                      enter-from-class="opacity-0 -translate-y-2"
-                      enter-to-class="opacity-100 translate-y-0"
-                      leave-active-class="transition-all duration-200"
-                      leave-from-class="opacity-100 translate-y-0"
-                      leave-to-class="opacity-0 -translate-y-2"
-                    >
-                      <div v-if="showQRCode" class="mt-4 p-4 bg-white rounded-lg flex flex-col items-center">
-                        <img :src="qrCodeUrl" alt="QR Code" class="w-48 h-48" />
-                        <p class="text-xs text-gray-600 mt-2">Scan to access endpoint</p>
-                      </div>
-                    </Transition>
-                  </div>
-
-                  <!-- Usage Examples -->
-                  <div class="mb-8 p-6 bg-gray-500/10 rounded-lg border border-gray-500/20">
-                    <h4 class="text-sm font-medium mb-4 text-white">How to call your API</h4>
-                    
-                    <!-- cURL Example -->
-                    <div class="mb-3">
-                      <div class="flex items-center justify-between mb-1">
-                        <span class="text-xs text-gray-400">cURL</span>
-                        <button
-                          @click="copyToClipboard(curlExample)"
-                          class="text-xs px-1.5 py-1.5 hover:bg-gray-500/15 text-white rounded transition-colors flex items-center gap-1.5"
-                        >
-                          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184" />
-                          </svg>
-                          Copy
-                        </button>
-                      </div>
-                      <pre class="code-block text-xs overflow-x-auto" v-html="highlightedCurl"></pre>
-                    </div>
-
-                    <!-- JavaScript Fetch Example -->
-                    <div class="mb-3">
-                      <div class="flex items-center justify-between mb-1">
-                        <span class="text-xs text-gray-400">JavaScript (fetch)</span>
-                        <button
-                          @click="copyToClipboard(fetchExample)"
-                          class="text-xs px-1.5 py-1.5 hover:bg-gray-500/15 text-white rounded transition-colors flex items-center gap-1.5"
-                        >
-                          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184" />
-                          </svg>
-                          Copy
-                        </button>
-                      </div>
-                      <pre class="code-block text-xs overflow-x-auto" v-html="highlightedFetch"></pre>
-                    </div>
-
-                    <!-- Python Requests Example -->
-                    <div>
-                      <div class="flex items-center justify-between mb-1">
-                        <span class="text-xs text-gray-400">Python (requests)</span>
-                        <button
-                          @click="copyToClipboard(pythonExample)"
-                          class="text-xs px-1.5 py-1.5 hover:bg-gray-500/15 text-white rounded transition-colors flex items-center gap-1.5"
-                        >
-                          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184" />
-                          </svg>
-                          Copy
-                        </button>
-                      </div>
-                      <pre class="code-block text-xs overflow-x-auto" v-html="highlightedPython"></pre>
-                    </div>
-                  </div>
-
-                  <!-- Test Request Section -->
-                  <div class="border-t border-gray-500/20 pt-8">
-                    <h3 class="text-lg font-medium mb-4 text-white">Test it now</h3>
-
-                    <!-- Request Body -->
-                    <div class="mb-4">
-                      <label class="block text-sm font-medium mb-2 text-gray-300">
-                        Request Body (JSON)
-                        <span v-if="!jsonValidationError" class="text-green-300 text-xs ml-2">✓ Valid</span>
-                      </label>
-                      <textarea
-                        v-model="requestBody"
-                        :class="[
-                          'input-field font-mono text-sm',
-                          jsonValidationError ? 'border-red-400/10 focus:ring-red-400/10' : ''
-                        ]"
-                        rows="6"
-                        :disabled="loading.test"
-                      ></textarea>
-                      <!-- JSON Validation Error -->
-                      <div v-if="jsonValidationError" class="mt-2 p-2 bg-yellow-300/10 border border-yellow-300/10 rounded text-yellow-300 text-xs flex items-start gap-2">
-                        <svg class="w-4 h-4 shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-                          <path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
-                        </svg>
-                        <span>{{ jsonValidationError }}</span>
-                      </div>
-                    </div>
-
-                    <!-- Error Display -->
-                    <div v-if="error.test" class="mb-4">
-                      <div class="p-4 bg-red-500/10 border border-red-500/20 rounded-lg space-y-3">
-                        <div class="flex items-start justify-between gap-3">
-                          <div class="flex items-start gap-2 flex-1">
-                            <svg class="w-5 h-5 text-red-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                            <div class="flex-1">
-                              <p class="text-red-400 text-sm font-medium">{{ error.test }}</p>
-                              <div v-if="errorDetails.test" class="mt-2">
-                                <button
-                                  @click="showTestErrorDetails = !showTestErrorDetails"
-                                  class="text-xs text-red-300 hover:text-red-200 flex items-center gap-1"
-                                >
-                                  <svg class="w-3 h-3" :class="showTestErrorDetails ? 'rotate-90' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                                  </svg>
-                                  {{ showTestErrorDetails ? 'Hide' : 'Show' }} details
-                                </button>
-                                <pre v-if="showTestErrorDetails" class="mt-2 p-3 bg-black/30 rounded text-xs text-red-300 overflow-x-auto">{{ errorDetails.test }}</pre>
-                              </div>
-                            </div>
-                          </div>
-                          <button
-                            @click="retryTestEndpoint"
-                            class="shrink-0 px-3 py-1.5 bg-red-500/20 hover:bg-red-500/30 text-red-300 hover:text-red-200 rounded text-xs font-medium transition-colors flex items-center gap-1.5"
-                          >
-                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                            </svg>
-                            Retry
-                          </button>
                         </div>
                       </div>
                     </div>
-
-                    <!-- Send Button -->
+                    <!-- Create Button -->
                     <button
-                      @click="testEndpoint"
-                      :disabled="loading.test"
-                      class="btn-primary w-full mb-6 flex items-center justify-center gap-2"
+                      @click="createEndpoint"
+                      :disabled="loading.create || (!code.trim() && !selectedFile)"
+                          class="btn-primary w-auto ml-2 truncate h-10 text-sm py-2 font-semibold flex items-center gap-2 min-w-[140px] justify-center hover:shadow-lg hover:shadow-blue-500/20 transition-all duration-200"
+                      :title="(!code.trim() && !selectedFile) ? 'Please add some code first' : 'Create your API endpoint'"
                     >
                       <!-- Loading Spinner -->
-                      <svg v-if="loading.test" class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <svg v-if="loading.create" class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                       </svg>
-                      <span v-if="loading.test">Sending...</span>
-                      <span v-else>Test endpoint</span>
+                      <svg v-else class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                      </svg>
+                      <span v-if="loading.create">{{ loadingMessage }}</span>
+                      <span v-else>Create API</span>
                     </button>
+                  </div>
+                </div>
+              </div>
+              <span
+                class="main-section bottom-l absolute w-[1px] h-[1px] bottom-[-1px] left-[-1px]"
+              ></span
+              ><span
+                class="main-section bottom-l absolute w-px h-px -bottom-px -right-px"
+              ></span
+              ><span
+                class="main-section bottom-l absolute w-px h-px -top-px -right-px"
+              ></span
+              ><span
+                class="main-section bottom-l absolute w-px h-px -top-px -left-px"
+              ></span>
+            </div>
 
-                    <!-- Response Display -->
-                    <div v-if="responseBody !== null || executionError" class="space-y-4">
-                      <!-- Error -->
-                      <div v-if="executionError">
-                        <label class="block text-sm font-medium mb-2 text-gray-300">
-                          Error
-                        </label>
-                        <div class="p-4 bg-red-400/10 border border-red-400/20 rounded text-red-400 text-sm">
-                          <div class="font-medium">{{ executionError.message }}</div>
-                          <div v-if="executionError.stack" class="mt-2 text-xs opacity-75 font-mono">{{ executionError.stack }}</div>
+            <!-- Success Modal -->
+            <Teleport to="body">
+              <Transition
+                enter-active-class="transition-opacity duration-200"
+                enter-from-class="opacity-0"
+                enter-to-class="opacity-100"
+                leave-active-class="transition-opacity duration-200"
+                leave-from-class="opacity-100"
+                leave-to-class="opacity-0"
+              >
+                <div v-if="endpointUrl" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm" @click.self="closeModal">
+                  <Transition
+                    enter-active-class="transition-all duration-200"
+                    enter-from-class="opacity-0 scale-95"
+                    enter-to-class="opacity-100 scale-100"
+                    leave-active-class="transition-all duration-200"
+                    leave-from-class="opacity-100 scale-100"
+                    leave-to-class="opacity-0 scale-95"
+                  >
+                    <div v-if="endpointUrl" class="card bg-black! p-6 md:p-6 max-w-3xl w-full max-h-[90vh] overflow-y-auto border-gray-500/30 relative">
+              <!-- Close Button -->
+              <button
+                @click="closeModal"
+                class="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors"
+                aria-label="Close"
+              >
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+
+              <h2 class="text-2xl font-medium mb-8 text-white">
+                Your API is live and ready to use
+              </h2>
+
+              <!-- Endpoint Info -->
+              <div class="mb-6 p-4 bg-gray-500/10 rounded-lg border border-gray-500/20">
+                <div class="grid grid-cols-2 gap-4 text-sm">
+                  <div>
+                    <span class="text-gray-400">Language:</span>
+                    <span class="text-white ml-2">{{ createdEndpoint?.language }}</span>
+                  </div>
+                  <div>
+                    <span class="text-gray-400">Mode:</span>
+                    <span class="text-white ml-2">{{ createdEndpoint?.kind }}</span>
+                  </div>
+                  <div>
+                    <span class="text-gray-400">TTL:</span>
+                    <span class="text-white ml-2">{{ formatTtl(createdEndpoint?.ttlMinutes) }}</span>
+                  </div>
+                  <div>
+                    <span class="text-gray-400">Expires:</span>
+                    <span class="text-white ml-2">{{ expiresAt }}</span>
+                  </div>
+                </div>
+                <div v-if="createdEndpoint?.name" class="mt-3 pt-3 border-t border-gray-500/20">
+                  <div class="text-sm">
+                    <span class="text-gray-400">Name:</span>
+                    <span class="text-white ml-2">{{ createdEndpoint.name }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Endpoint URL -->
+              <div class="mb-6">
+                <label class="block text-sm font-medium mb-2 text-gray-300">
+                  Your Endpoint URL
+                </label>
+                <div class="flex gap-2 items-start">
+                  <div 
+                    @click="copyToClipboard(endpointUrl, 'main-url')"
+                    class="code-block flex-1 break-all overflow-hidden text-blue-300 text-sm cursor-pointer hover:bg-blue-300/10 transition-colors rounded px-2 py-1 -mx-2 -my-1"
+                    title="Click to copy"
+                  >
+                    {{ endpointUrl }}
+                  </div>
+                  <button
+                    @click="copyToClipboard(endpointUrl, 'main-url-btn')"
+                    :class="[
+                      'px-2 py-2 shrink-0 transition-colors',
+                      isCopied('main-url') || isCopied('main-url-btn')
+                        ? 'bg-green-300/10 text-green-300'
+                        : 'btn-secondary'
+                    ]"
+                    :title="isCopied('main-url') || isCopied('main-url-btn') ? 'Copied!' : 'Copy URL'"
+                  >
+                    <svg v-if="!isCopied('main-url') && !isCopied('main-url-btn')" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184" />
+                    </svg>
+                    <svg v-else class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                  </button>
+                </div>
+                
+                <!-- Quick Actions -->
+                <div class="flex gap-2 mt-3">
+                  <button
+                    @click="checkEndpointHealth"
+                    :disabled="healthStatus === 'checking'"
+                    class="btn-secondary text-xs px-3 py-1.5 flex items-center gap-1.5"
+                    title="Check endpoint health"
+                  >
+                    <!-- Spinner for checking state -->
+                    <svg v-if="healthStatus === 'checking'" class="animate-spin h-3 w-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                      <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <!-- Check circle for healthy state -->
+                    <svg v-else-if="healthStatus === 'healthy'" class="h-3 w-3 text-green-300" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.857-9.809a.75.75 0 00-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 10-1.06 1.061l2.5 2.5a.75.75 0 001.137-.089l4-5.5z" clip-rule="evenodd" />
+                    </svg>
+                    <!-- X circle for error state -->
+                    <svg v-else-if="healthStatus === 'error'" class="h-3 w-3 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.28 7.22a.75.75 0 00-1.06 1.06L8.94 10l-1.72 1.72a.75.75 0 101.06 1.06L10 11.06l1.72 1.72a.75.75 0 101.06-1.06L11.06 10l1.72-1.72a.75.75 0 00-1.06-1.06L10 8.94 8.28 7.22z" clip-rule="evenodd" />
+                    </svg>
+                    <!-- Heart icon for default/ready state -->
+                    <svg v-else class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
+                    </svg>
+                    Health Check
+                  </button>
+                  <button
+                    @click="copyCurlCommand"
+                    class="btn-secondary text-xs px-3 py-1.5 flex items-center gap-1.5"
+                    title="Copy curl command"
+                  >
+                    <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                    </svg>
+                    Copy curl
+                  </button>
+                  <!-- <button
+                    @click="toggleQRCode"
+                    class="btn-secondary text-xs px-3 py-1.5 flex items-center gap-1.5"
+                    title="Show QR code"
+                  >
+                    <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 013.75 9.375v-4.5zM3.75 14.625c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5a1.125 1.125 0 01-1.125-1.125v-4.5zM13.5 4.875c0-.621.504-1.125 1.125-1.125h4.5c.621 0 1.125.504 1.125 1.125v4.5c0 .621-.504 1.125-1.125 1.125h-4.5A1.125 1.125 0 0113.5 9.375v-4.5z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M6.75 6.75h.75v.75h-.75v-.75zM6.75 16.5h.75v.75h-.75v-.75zM16.5 6.75h.75v.75h-.75v-.75zM13.5 13.5h.75v.75h-.75v-.75zM13.5 19.5h.75v.75h-.75v-.75zM19.5 13.5h.75v.75h-.75v-.75zM19.5 19.5h.75v.75h-.75v-.75zM16.5 16.5h.75v.75h-.75v-.75z" />
+                    </svg>
+                    QR Code
+                  </button> -->
+                </div>
+                
+                <!-- QR Code Display -->
+                <Transition
+                  enter-active-class="transition-all duration-200"
+                  enter-from-class="opacity-0 -translate-y-2"
+                  enter-to-class="opacity-100 translate-y-0"
+                  leave-active-class="transition-all duration-200"
+                  leave-from-class="opacity-100 translate-y-0"
+                  leave-to-class="opacity-0 -translate-y-2"
+                >
+                  <div v-if="showQRCode" class="mt-4 p-4 bg-white rounded-lg flex flex-col items-center">
+                    <img :src="qrCodeUrl" alt="QR Code" class="w-48 h-48" />
+                    <p class="text-xs text-gray-600 mt-2">Scan to access endpoint</p>
+                  </div>
+                </Transition>
+              </div>
+
+              <!-- Usage Examples -->
+              <div class="mb-8 p-6 bg-gray-500/10 rounded-lg border border-gray-500/20">
+                <h4 class="text-sm font-medium mb-4 text-white">How to call your API</h4>
+                
+                <!-- cURL Example -->
+                <div class="mb-3">
+                  <div class="flex items-center justify-between mb-1">
+                    <span class="text-xs text-gray-400">cURL</span>
+                    <button
+                      @click="copyToClipboard(curlExample)"
+                      class="text-xs px-1.5 py-1.5 hover:bg-gray-500/15 text-white rounded transition-colors flex items-center gap-1.5"
+                    >
+                      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184" />
+                      </svg>
+                      Copy
+                    </button>
+                  </div>
+                  <pre class="code-block text-xs overflow-x-auto" v-html="highlightedCurl"></pre>
+                </div>
+
+                <!-- JavaScript Fetch Example -->
+                <div class="mb-3">
+                  <div class="flex items-center justify-between mb-1">
+                    <span class="text-xs text-gray-400">JavaScript (fetch)</span>
+                    <button
+                      @click="copyToClipboard(fetchExample)"
+                      class="text-xs px-1.5 py-1.5 hover:bg-gray-500/15 text-white rounded transition-colors flex items-center gap-1.5"
+                    >
+                      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184" />
+                      </svg>
+                      Copy
+                    </button>
+                  </div>
+                  <pre class="code-block text-xs overflow-x-auto" v-html="highlightedFetch"></pre>
+                </div>
+
+                <!-- Python Requests Example -->
+                <div>
+                  <div class="flex items-center justify-between mb-1">
+                    <span class="text-xs text-gray-400">Python (requests)</span>
+                    <button
+                      @click="copyToClipboard(pythonExample)"
+                      class="text-xs px-1.5 py-1.5 hover:bg-gray-500/15 text-white rounded transition-colors flex items-center gap-1.5"
+                    >
+                      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.666 3.888A2.25 2.25 0 0013.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 01-.75.75H9a.75.75 0 01-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 01-2.25 2.25H6.75A2.25 2.25 0 014.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 011.927-.184" />
+                      </svg>
+                      Copy
+                    </button>
+                  </div>
+                  <pre class="code-block text-xs overflow-x-auto" v-html="highlightedPython"></pre>
+                </div>
+              </div>
+
+              <!-- Test Request Section -->
+              <div class="border-t border-gray-500/20 pt-8">
+                <h3 class="text-lg font-medium mb-4 text-white">Test it now</h3>
+
+                <!-- Request Body -->
+                <div class="mb-4">
+                  <label class="block text-sm font-medium mb-2 text-gray-300">
+                    Request Body (JSON)
+                    <span v-if="!jsonValidationError" class="text-green-300 text-xs ml-2">✓ Valid</span>
+                  </label>
+                  <textarea
+                    v-model="requestBody"
+                    :class="[
+                      'input-field font-mono text-sm',
+                      jsonValidationError ? 'border-red-400/10 focus:ring-red-400/10' : ''
+                    ]"
+                    rows="6"
+                    :disabled="loading.test"
+                  ></textarea>
+                  <!-- JSON Validation Error -->
+                  <div v-if="jsonValidationError" class="mt-2 p-2 bg-yellow-300/10 border border-yellow-300/10 rounded text-yellow-300 text-xs flex items-start gap-2">
+                    <svg class="w-4 h-4 shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M8.485 2.495c.673-1.167 2.357-1.167 3.03 0l6.28 10.875c.673 1.167-.17 2.625-1.516 2.625H3.72c-1.347 0-2.189-1.458-1.515-2.625L8.485 2.495zM10 5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
+                    </svg>
+                    <span>{{ jsonValidationError }}</span>
+                  </div>
+                </div>
+
+                <!-- Error Display -->
+                <div v-if="error.test" class="mb-4">
+                  <div class="p-4 bg-red-500/10 border border-red-500/20 rounded-lg space-y-3">
+                    <div class="flex items-start justify-between gap-3">
+                      <div class="flex items-start gap-2 flex-1">
+                        <svg class="w-5 h-5 text-red-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <div class="flex-1">
+                          <p class="text-red-400 text-sm font-medium">{{ error.test }}</p>
+                          <div v-if="errorDetails.test" class="mt-2">
+                            <button
+                              @click="showTestErrorDetails = !showTestErrorDetails"
+                              class="text-xs text-red-300 hover:text-red-200 flex items-center gap-1"
+                            >
+                              <svg class="w-3 h-3" :class="showTestErrorDetails ? 'rotate-90' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                              </svg>
+                              {{ showTestErrorDetails ? 'Hide' : 'Show' }} details
+                            </button>
+                            <pre v-if="showTestErrorDetails" class="mt-2 p-3 bg-black/30 rounded text-xs text-red-300 overflow-x-auto">{{ errorDetails.test }}</pre>
+                          </div>
                         </div>
                       </div>
-
-                      <!-- Result -->
-                      <div v-if="responseBody !== null && !executionError">
-                        <label class="block text-sm font-medium mb-2 text-gray-300">
-                          Response
-                          <span v-if="executionTime" class="text-gray-500 text-xs ml-2">
-                            ({{ executionTime }}ms)
-                          </span>
-                        </label>
-                        <pre class="code-block text-green-300">{{ formatJson(responseBody) }}</pre>
-                      </div>
-
-                      <!-- Logs -->
-                      <div v-if="responseBody !== null || executionError">
-                        <label class="block text-sm font-medium mb-2 text-gray-300">
-                          Logs
-                        </label>
-                        <div v-if="logs && logs.length > 0" class="code-block text-gray-400 max-h-64 overflow-y-auto">
-                          <div v-for="(log, index) in logs" :key="index">{{ log }}</div>
-                        </div>
-                        <div v-else class="p-4 bg-gray-500/5 border border-gray-500/10 rounded text-gray-500 text-sm text-center italic">
-                          No console logs produced
-                      </div>
+                      <button
+                        @click="retryTestEndpoint"
+                        class="shrink-0 px-3 py-1.5 bg-red-500/20 hover:bg-red-500/30 text-red-300 hover:text-red-200 rounded text-xs font-medium transition-colors flex items-center gap-1.5"
+                      >
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                        </svg>
+                        Retry
+                      </button>
                     </div>
                   </div>
+                </div>
+
+                <!-- Send Button -->
+                <button
+                  @click="testEndpoint"
+                  :disabled="loading.test"
+                  class="btn-primary w-full mb-6 flex items-center justify-center gap-2"
+                >
+                  <!-- Loading Spinner -->
+                  <svg v-if="loading.test" class="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  <span v-if="loading.test">Sending...</span>
+                  <span v-else>Test endpoint</span>
+                </button>
+
+                <!-- Response Display -->
+                <div v-if="responseBody !== null || executionError" class="space-y-4">
+                  <!-- Error -->
+                  <div v-if="executionError">
+                    <label class="block text-sm font-medium mb-2 text-gray-300">
+                      Error
+                    </label>
+                    <div class="p-4 bg-red-400/10 border border-red-400/20 rounded text-red-400 text-sm">
+                      <div class="font-medium">{{ executionError.message }}</div>
+                      <div v-if="executionError.stack" class="mt-2 text-xs opacity-75 font-mono">{{ executionError.stack }}</div>
+                    </div>
                   </div>
-                        </div>
-                      </Transition>
+
+                  <!-- Result -->
+                  <div v-if="responseBody !== null && !executionError">
+                    <label class="block text-sm font-medium mb-2 text-gray-300">
+                      Response
+                      <span v-if="executionTime" class="text-gray-500 text-xs ml-2">
+                        ({{ executionTime }}ms)
+                      </span>
+                    </label>
+                    <pre class="code-block text-green-300">{{ formatJson(responseBody) }}</pre>
+                  </div>
+
+                  <!-- Logs -->
+                  <div v-if="responseBody !== null || executionError">
+                    <label class="block text-sm font-medium mb-2 text-gray-300">
+                      Logs
+                    </label>
+                    <div v-if="logs && logs.length > 0" class="code-block text-gray-400 max-h-64 overflow-y-auto">
+                      <div v-for="(log, index) in logs" :key="index">{{ log }}</div>
+                    </div>
+                    <div v-else class="p-4 bg-gray-500/5 border border-gray-500/10 rounded text-gray-500 text-sm text-center italic">
+                      No console logs produced
+                  </div>
+                </div>
+              </div>
+              </div>
                     </div>
                   </Transition>
-                </Teleport>
-              </div>
-            
+                </div>
+              </Transition>
+            </Teleport>
+          </div>
+        
               <!-- Output Preview + My APIs (right column) -->
               <div v-if="isAuthenticated" class="lg:col-span-1">
                 <!-- Output Preview Panel -->
@@ -1086,129 +1090,129 @@
             </div>
             <!-- My APIs Section -->
             <div class="lg:sticky lg:top-6 lg:col-span-1" v-if="isAuthenticated">
-              <h2 class="text-lg font-bold text-white mb-4">My APIs</h2>
-              
-              <div v-if="loading.dashboard" class="text-center py-12">
-                <svg class="animate-spin h-8 w-8 text-blue-300 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                <p class="text-gray-300 mt-4 text-sm font-medium">Loading your APIs...</p>
-                <p class="text-gray-500 mt-1 text-xs">This will only take a moment</p>
-              </div>
+            <h2 class="text-lg font-bold text-white mb-4">My APIs</h2>
+            
+            <div v-if="loading.dashboard" class="text-center py-12">
+              <svg class="animate-spin h-8 w-8 text-blue-300 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              <p class="text-gray-300 mt-4 text-sm font-medium">Loading your APIs...</p>
+              <p class="text-gray-500 mt-1 text-xs">This will only take a moment</p>
+            </div>
 
-              <div v-else-if="!endpoints.length && !tunnels.length" class="border border-gray-500/15 rounded-lg p-10 text-center bg-gradient-to-br from-gray-500/5 to-transparent">
-                <div class="flex flex-col items-center space-y-5">
-                  <!-- Animated illustration -->
-                  <div class="relative">
-                    <svg class="w-16 h-16 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <div v-else-if="!endpoints.length && !tunnels.length" class="border border-gray-500/15 rounded-lg p-10 text-center bg-gradient-to-br from-gray-500/5 to-transparent">
+              <div class="flex flex-col items-center space-y-5">
+                <!-- Animated illustration -->
+                <div class="relative">
+                  <svg class="w-16 h-16 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                  </svg>
+                  <div class="absolute inset-0 animate-ping opacity-20">
+                    <svg class="w-16 h-16 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
                     </svg>
-                    <div class="absolute inset-0 animate-ping opacity-20">
-                      <svg class="w-16 h-16 text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
-                      </svg>
-                    </div>
-                  </div>
-                  <div class="space-y-2">
-                    <p class="text-white text-base font-semibold">No APIs yet</p>
-                    <p class="text-gray-400 text-sm max-w-xs">Create your first API endpoint in seconds. Choose from code snippets, file uploads, or framework tunnels.</p>
-                  </div>
-                  <div class="flex flex-col gap-2 w-full max-w-xs">
-                    <button 
-                      @click="switchToSnippetMode"
-                      class="btn-primary py-2.5 text-sm flex items-center justify-center gap-2 group"
-                      title="Create a new API endpoint"
-                    >
-                      <svg class="w-4 h-4 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-                      </svg>
-                      Create Your First API
-                    </button>
-                    <a href="https://github.com/treadiehq/instantapi#readme" target="_blank" rel="noopener" class="text-xs text-gray-400 hover:text-blue-300 transition-colors">
-                      View documentation →
-                    </a>
                   </div>
                 </div>
+                <div class="space-y-2">
+                  <p class="text-white text-base font-semibold">No APIs yet</p>
+                  <p class="text-gray-400 text-sm max-w-xs">Create your first API endpoint in seconds. Choose from code snippets, file uploads, or framework tunnels.</p>
+                </div>
+                <div class="flex flex-col gap-2 w-full max-w-xs">
+                  <button 
+                    @click="switchToSnippetMode"
+                    class="btn-primary py-2.5 text-sm flex items-center justify-center gap-2 group"
+                    title="Create a new API endpoint"
+                  >
+                    <svg class="w-4 h-4 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                    </svg>
+                    Create Your First API
+                  </button>
+                  <a href="https://github.com/treadiehq/instantapi#readme" target="_blank" rel="noopener" class="text-xs text-gray-400 hover:text-blue-300 transition-colors">
+                    View documentation →
+                  </a>
+                </div>
               </div>
+            </div>
 
-              <div v-else class="space-y-3 max-h-[calc(100vh-200px)] overflow-y-auto">
-                <!-- Endpoints Section -->
-                <div v-if="endpoints.length > 0">
-                  <div class="flex items-center justify-between mb-3">
-                    <h3 class="text-xs font-semibold text-gray-300 uppercase tracking-wide">Endpoints</h3>
-                    <span class="text-xs text-gray-500 bg-gray-500/10 px-2 py-0.5 rounded-full">{{ endpoints.length }}</span>
-                  </div>
-                  <div class="space-y-2.5">
-                    <div v-for="endpoint in paginatedEndpoints" :key="endpoint.id" class="group border border-gray-500/15 rounded-xl p-4 bg-gray-500/5 hover:bg-gray-500/10 hover:border-gray-500/25 transition-all duration-200 hover:shadow-lg hover:shadow-black/20">
-                      <div class="space-y-3">
-                        <!-- Header with language icon and status -->
-                        <div class="flex items-start justify-between gap-3">
-                          <div class="flex items-center gap-2.5 flex-1 min-w-0">
-                            <!-- Language Icon -->
-                            <div 
-                              class="shrink-0 w-8 h-8 rounded-lg flex items-center justify-center"
-                              :class="endpoint.language === 'javascript' ? 'bg-yellow-300/10' : 'bg-blue-300/10'"
-                              :title="endpoint.language"
-                            >
-                              <!-- JavaScript Icon -->
-                              <svg v-if="endpoint.language === 'javascript'" class="w-5 h-5 text-yellow-300" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M0 0h24v24H0V0zm22.034 18.276c-.175-1.095-.888-2.015-3.003-2.873-.736-.345-1.554-.585-1.797-1.14-.091-.33-.105-.51-.046-.705.15-.646.915-.84 1.515-.66.39.12.75.42.976.9 1.034-.676 1.034-.676 1.755-1.125-.27-.42-.404-.601-.586-.78-.63-.705-1.469-1.065-2.834-1.034l-.705.089c-.676.165-1.32.525-1.71 1.005-1.14 1.291-.811 3.541.569 4.471 1.365 1.02 3.361 1.244 3.616 2.205.24 1.17-.87 1.545-1.966 1.41-.811-.18-1.26-.586-1.755-1.336l-1.83 1.051c.21.48.45.689.81 1.109 1.74 1.756 6.09 1.666 6.871-1.004.029-.09.24-.705.074-1.65l.046.067zm-8.983-7.245h-2.248c0 1.938-.009 3.864-.009 5.805 0 1.232.063 2.363-.138 2.711-.33.689-1.18.601-1.566.48-.396-.196-.597-.466-.83-.855-.063-.105-.11-.196-.127-.196l-1.825 1.125c.305.63.75 1.172 1.324 1.517.855.51 2.004.675 3.207.405.783-.226 1.458-.691 1.811-1.411.51-.93.402-2.07.397-3.346.012-2.054 0-4.109 0-6.179l.004-.056z"/>
-                              </svg>
-                              <!-- Python Icon -->
-                              <svg v-else class="w-5 h-5 text-blue-300" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M14.25.18l.9.2.73.26.59.3.45.32.34.34.25.34.16.33.1.3.04.26.02.2-.01.13V8.5l-.05.63-.13.55-.21.46-.26.38-.3.31-.33.25-.35.19-.35.14-.33.1-.3.07-.26.04-.21.02H8.77l-.69.05-.59.14-.5.22-.41.27-.33.32-.27.35-.2.36-.15.37-.1.35-.07.32-.04.27-.02.21v3.06H3.17l-.21-.03-.28-.07-.32-.12-.35-.18-.36-.26-.36-.36-.35-.46-.32-.59-.28-.73-.21-.88-.14-1.05-.05-1.23.06-1.22.16-1.04.24-.87.32-.71.36-.57.4-.44.42-.33.42-.24.4-.16.36-.1.32-.05.24-.01h.16l.06.01h8.16v-.83H6.18l-.01-2.75-.02-.37.05-.34.11-.31.17-.28.25-.26.31-.23.38-.2.44-.18.51-.15.58-.12.64-.1.71-.06.77-.04.84-.02 1.27.05zm-6.3 1.98l-.23.33-.08.41.08.41.23.34.33.22.41.09.41-.09.33-.22.23-.34.08-.41-.08-.41-.23-.33-.33-.22-.41-.09-.41.09zm13.09 3.95l.28.06.32.12.35.18.36.27.36.35.35.47.32.59.28.73.21.88.14 1.04.05 1.23-.06 1.23-.16 1.04-.24.86-.32.71-.36.57-.4.45-.42.33-.42.24-.4.16-.36.09-.32.05-.24.02-.16-.01h-8.22v.82h5.84l.01 2.76.02.36-.05.34-.11.31-.17.29-.25.25-.31.24-.38.2-.44.17-.51.15-.58.13-.64.09-.71.07-.77.04-.84.01-1.27-.04-1.07-.14-.9-.2-.73-.25-.59-.3-.45-.33-.34-.34-.25-.34-.16-.33-.1-.3-.04-.25-.02-.2.01-.13v-5.34l.05-.64.13-.54.21-.46.26-.38.3-.32.33-.24.35-.2.35-.14.33-.1.3-.06.26-.04.21-.02.13-.01h5.84l.69-.05.59-.14.5-.21.41-.28.33-.32.27-.35.2-.36.15-.36.1-.35.07-.32.04-.28.02-.21V6.07h2.09l.14.01zm-6.47 14.25l-.23.33-.08.41.08.41.23.33.33.23.41.08.41-.08.33-.23.23-.33.08-.41-.08-.41-.23-.33-.33-.23-.41-.08-.41.08z"/>
-                              </svg>
+            <div v-else class="space-y-3 max-h-[calc(100vh-200px)] overflow-y-auto">
+              <!-- Endpoints Section -->
+              <div v-if="endpoints.length > 0">
+                <div class="flex items-center justify-between mb-3">
+                  <h3 class="text-xs font-semibold text-gray-300 uppercase tracking-wide">Endpoints</h3>
+                  <span class="text-xs text-gray-500 bg-gray-500/10 px-2 py-0.5 rounded-full">{{ endpoints.length }}</span>
+                </div>
+                <div class="space-y-2.5">
+                  <div v-for="endpoint in paginatedEndpoints" :key="endpoint.id" class="group border border-gray-500/15 rounded-xl p-4 bg-gray-500/5 hover:bg-gray-500/10 hover:border-gray-500/25 transition-all duration-200 hover:shadow-lg hover:shadow-black/20">
+                    <div class="space-y-3">
+                      <!-- Header with language icon and status -->
+                      <div class="flex items-start justify-between gap-3">
+                        <div class="flex items-center gap-2.5 flex-1 min-w-0">
+                          <!-- Language Icon -->
+                          <div 
+                            class="shrink-0 w-8 h-8 rounded-lg flex items-center justify-center"
+                            :class="endpoint.language === 'javascript' ? 'bg-yellow-300/10' : 'bg-blue-300/10'"
+                            :title="endpoint.language"
+                          >
+                            <!-- JavaScript Icon -->
+                            <svg v-if="endpoint.language === 'javascript'" class="w-5 h-5 text-yellow-300" viewBox="0 0 24 24" fill="currentColor">
+                              <path d="M0 0h24v24H0V0zm22.034 18.276c-.175-1.095-.888-2.015-3.003-2.873-.736-.345-1.554-.585-1.797-1.14-.091-.33-.105-.51-.046-.705.15-.646.915-.84 1.515-.66.39.12.75.42.976.9 1.034-.676 1.034-.676 1.755-1.125-.27-.42-.404-.601-.586-.78-.63-.705-1.469-1.065-2.834-1.034l-.705.089c-.676.165-1.32.525-1.71 1.005-1.14 1.291-.811 3.541.569 4.471 1.365 1.02 3.361 1.244 3.616 2.205.24 1.17-.87 1.545-1.966 1.41-.811-.18-1.26-.586-1.755-1.336l-1.83 1.051c.21.48.45.689.81 1.109 1.74 1.756 6.09 1.666 6.871-1.004.029-.09.24-.705.074-1.65l.046.067zm-8.983-7.245h-2.248c0 1.938-.009 3.864-.009 5.805 0 1.232.063 2.363-.138 2.711-.33.689-1.18.601-1.566.48-.396-.196-.597-.466-.83-.855-.063-.105-.11-.196-.127-.196l-1.825 1.125c.305.63.75 1.172 1.324 1.517.855.51 2.004.675 3.207.405.783-.226 1.458-.691 1.811-1.411.51-.93.402-2.07.397-3.346.012-2.054 0-4.109 0-6.179l.004-.056z"/>
+                            </svg>
+                            <!-- Python Icon -->
+                            <svg v-else class="w-5 h-5 text-blue-300" viewBox="0 0 24 24" fill="currentColor">
+                              <path d="M14.25.18l.9.2.73.26.59.3.45.32.34.34.25.34.16.33.1.3.04.26.02.2-.01.13V8.5l-.05.63-.13.55-.21.46-.26.38-.3.31-.33.25-.35.19-.35.14-.33.1-.3.07-.26.04-.21.02H8.77l-.69.05-.59.14-.5.22-.41.27-.33.32-.27.35-.2.36-.15.37-.1.35-.07.32-.04.27-.02.21v3.06H3.17l-.21-.03-.28-.07-.32-.12-.35-.18-.36-.26-.36-.36-.35-.46-.32-.59-.28-.73-.21-.88-.14-1.05-.05-1.23.06-1.22.16-1.04.24-.87.32-.71.36-.57.4-.44.42-.33.42-.24.4-.16.36-.1.32-.05.24-.01h.16l.06.01h8.16v-.83H6.18l-.01-2.75-.02-.37.05-.34.11-.31.17-.28.25-.26.31-.23.38-.2.44-.18.51-.15.58-.12.64-.1.71-.06.77-.04.84-.02 1.27.05zm-6.3 1.98l-.23.33-.08.41.08.41.23.34.33.22.41.09.41-.09.33-.22.23-.34.08-.41-.08-.41-.23-.33-.33-.22-.41-.09-.41.09zm13.09 3.95l.28.06.32.12.35.18.36.27.36.35.35.47.32.59.28.73.21.88.14 1.04.05 1.23-.06 1.23-.16 1.04-.24.86-.32.71-.36.57-.4.45-.42.33-.42.24-.4.16-.36.09-.32.05-.24.02-.16-.01h-8.22v.82h5.84l.01 2.76.02.36-.05.34-.11.31-.17.29-.25.25-.31.24-.38.2-.44.17-.51.15-.58.13-.64.09-.71.07-.77.04-.84.01-1.27-.04-1.07-.14-.9-.2-.73-.25-.59-.3-.45-.33-.34-.34-.25-.34-.16-.33-.1-.3-.04-.25-.02-.2.01-.13v-5.34l.05-.64.13-.54.21-.46.26-.38.3-.32.33-.24.35-.2.35-.14.33-.1.3-.06.26-.04.21-.02.13-.01h5.84l.69-.05.59-.14.5-.21.41-.28.33-.32.27-.35.2-.36.15-.36.1-.35.07-.32.04-.28.02-.21V6.07h2.09l.14.01zm-6.47 14.25l-.23.33-.08.41.08.41.23.33.33.23.41.08.41-.08.33-.23.23-.33.08-.41-.08-.41-.23-.33-.33-.23-.41-.08-.41.08z"/>
+                            </svg>
+                          </div>
+                          
+                          <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-2 mb-1">
+                              <span v-if="endpoint.name" class="text-sm font-semibold text-white truncate" :title="endpoint.name">{{ endpoint.name }}</span>
+                              <span v-else class="text-sm text-gray-400 truncate">Unnamed API</span>
                             </div>
-                            
-                            <div class="flex-1 min-w-0">
-                              <div class="flex items-center gap-2 mb-1">
-                                <span v-if="endpoint.name" class="text-sm font-semibold text-white truncate" :title="endpoint.name">{{ endpoint.name }}</span>
-                                <span v-else class="text-sm text-gray-400 truncate">Unnamed API</span>
-                              </div>
-                              <div class="flex items-center gap-1.5 flex-wrap">
-                                <span class="text-xs px-1.5 py-0.5 rounded-md font-medium" :class="endpoint.kind === 'webhook' ? 'bg-purple-400/10 text-purple-300' : 'bg-blue-300/10 text-blue-300'">{{ endpoint.kind }}</span>
+                            <div class="flex items-center gap-1.5 flex-wrap">
+                              <span class="text-xs px-1.5 py-0.5 rounded-md font-medium" :class="endpoint.kind === 'webhook' ? 'bg-purple-400/10 text-purple-300' : 'bg-blue-300/10 text-blue-300'">{{ endpoint.kind }}</span>
                                 <span v-if="endpoint.rateLimit" class="text-xs px-1.5 py-0.5 rounded-md font-medium bg-orange-400/10 text-orange-300" :title="`${endpoint.rateLimit} requests per ${endpoint.rateLimitWindow || 60}s`">
                                   {{ endpoint.rateLimit >= 999999 ? '∞' : endpoint.rateLimit }}/min
                                 </span>
-                                <span class="text-xs text-gray-500">•</span>
-                                <span class="text-xs text-gray-400">{{ formatDate(endpoint.createdAt) }}</span>
-                              </div>
+                              <span class="text-xs text-gray-500">•</span>
+                              <span class="text-xs text-gray-400">{{ formatDate(endpoint.createdAt) }}</span>
                             </div>
-                          </div>
-                          
-                          <!-- Status Indicator -->
-                          <div 
-                            class="shrink-0 flex items-center gap-1.5 text-xs px-2 py-1 rounded-full bg-green-300/10 text-green-300 border border-green-300/10"
-                            title="API is active and ready to receive requests"
-                          >
-                            <span class="w-1.5 h-1.5 rounded-full bg-green-300 animate-pulse"></span>
-                            <span class="font-medium">Active</span>
                           </div>
                         </div>
                         
-                        <p v-if="endpoint.description" class="text-xs text-gray-400 leading-relaxed line-clamp-2" :title="endpoint.description">{{ endpoint.description }}</p>
-                        
-                        <!-- Actions -->
-                        <div class="flex items-center gap-2 pt-1">
-                          <button 
-                            @click="copyToClipboard(endpoint.url, `endpoint-${endpoint.id}`)" 
-                            :class="[
-                              'flex-1 text-xs px-3 py-2 rounded-lg font-medium transition-all duration-200 flex items-center justify-center gap-1.5',
-                              isCopied(`endpoint-${endpoint.id}`)
-                                ? 'bg-green-300/20 text-green-300 border border-green-300/30'
-                                : 'bg-gray-500/10 text-gray-300 hover:bg-gray-500/20 border border-transparent'
-                            ]"
-                            :title="isCopied(`endpoint-${endpoint.id}`) ? 'URL copied!' : 'Copy API URL'"
-                          >
-                            <svg v-if="isCopied(`endpoint-${endpoint.id}`)" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
-                            </svg>
-                            <svg v-else class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                            </svg>
-                            {{ isCopied(`endpoint-${endpoint.id}`) ? 'Copied!' : 'Copy URL' }}
-                          </button>
+                        <!-- Status Indicator -->
+                        <div 
+                          class="shrink-0 flex items-center gap-1.5 text-xs px-2 py-1 rounded-full bg-green-300/10 text-green-300 border border-green-300/10"
+                          title="API is active and ready to receive requests"
+                        >
+                          <span class="w-1.5 h-1.5 rounded-full bg-green-300 animate-pulse"></span>
+                          <span class="font-medium">Active</span>
+                        </div>
+                      </div>
+                      
+                      <p v-if="endpoint.description" class="text-xs text-gray-400 leading-relaxed line-clamp-2" :title="endpoint.description">{{ endpoint.description }}</p>
+                      
+                      <!-- Actions -->
+                      <div class="flex items-center gap-2 pt-1">
+                        <button 
+                          @click="copyToClipboard(endpoint.url, `endpoint-${endpoint.id}`)" 
+                          :class="[
+                            'flex-1 text-xs px-3 py-2 rounded-lg font-medium transition-all duration-200 flex items-center justify-center gap-1.5',
+                            isCopied(`endpoint-${endpoint.id}`)
+                              ? 'bg-green-300/20 text-green-300 border border-green-300/30'
+                              : 'bg-gray-500/10 text-gray-300 hover:bg-gray-500/20 border border-transparent'
+                          ]"
+                          :title="isCopied(`endpoint-${endpoint.id}`) ? 'URL copied!' : 'Copy API URL'"
+                        >
+                          <svg v-if="isCopied(`endpoint-${endpoint.id}`)" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+                          </svg>
+                          <svg v-else class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                          </svg>
+                          {{ isCopied(`endpoint-${endpoint.id}`) ? 'Copied!' : 'Copy URL' }}
+                        </button>
                           <button 
                             @click="fetchEndpointStats(endpoint.id)"
                             class="shrink-0 text-xs px-3 py-2 rounded-lg font-medium bg-blue-400/10 text-blue-300 hover:bg-blue-400/20 border border-transparent transition-all duration-200 flex items-center gap-1.5"
@@ -1218,141 +1222,141 @@
                               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                             </svg>
                             Stats
-                          </button>
-                          <button 
-                            @click="confirmDeleteEndpoint(endpoint)" 
-                            :disabled="deletingEndpointId === endpoint.id"
-                            class="shrink-0 text-xs px-3 py-2 rounded-lg font-medium bg-red-400/10 text-red-400 hover:bg-red-400/20 border border-transparent hover:border-red-500/30 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5"
-                            title="Delete this API endpoint"
-                          >
-                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                            </svg>
-                            {{ deletingEndpointId === endpoint.id ? 'Deleting...' : 'Delete' }}
-                          </button>
-                        </div>
+                        </button>
+                        <button 
+                          @click="confirmDeleteEndpoint(endpoint)" 
+                          :disabled="deletingEndpointId === endpoint.id"
+                          class="shrink-0 text-xs px-3 py-2 rounded-lg font-medium bg-red-400/10 text-red-400 hover:bg-red-400/20 border border-transparent hover:border-red-500/30 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1.5"
+                          title="Delete this API endpoint"
+                        >
+                          <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                          {{ deletingEndpointId === endpoint.id ? 'Deleting...' : 'Delete' }}
+                        </button>
                       </div>
                     </div>
                   </div>
-                  <!-- Show More Button for Endpoints -->
-                  <button 
-                    v-if="hasMoreEndpoints"
-                    @click="endpointsPage++"
-                    class="mt-3 w-full text-xs py-2.5 px-3 rounded-lg bg-gray-500/10 hover:bg-gray-500/15 text-gray-300 hover:text-white transition-all duration-200 font-medium border border-gray-500/20 hover:border-gray-500/30 flex items-center justify-center gap-2"
-                    title="Load more endpoints"
-                  >
-                    <span>Show {{ endpoints.length - paginatedEndpoints.length }} more</span>
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </button>
                 </div>
+                <!-- Show More Button for Endpoints -->
+                <button 
+                  v-if="hasMoreEndpoints"
+                  @click="endpointsPage++"
+                  class="mt-3 w-full text-xs py-2.5 px-3 rounded-lg bg-gray-500/10 hover:bg-gray-500/15 text-gray-300 hover:text-white transition-all duration-200 font-medium border border-gray-500/20 hover:border-gray-500/30 flex items-center justify-center gap-2"
+                  title="Load more endpoints"
+                >
+                  <span>Show {{ endpoints.length - paginatedEndpoints.length }} more</span>
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+              </div>
 
-                <!-- Tunnels Section -->
-                <div v-if="tunnels.length > 0" class="mt-6">
-                  <div class="flex items-center justify-between mb-3">
-                    <h3 class="text-xs font-semibold text-gray-300 uppercase tracking-wide">Tunnels</h3>
-                    <span class="text-xs text-gray-500 bg-gray-500/10 px-2 py-0.5 rounded-full">{{ tunnels.length }}</span>
-                  </div>
-                  <div class="space-y-2.5">
-                    <div v-for="tunnel in paginatedTunnels" :key="tunnel.id" class="group border border-gray-500/15 rounded-xl p-4 bg-gray-500/5 hover:bg-gray-500/10 hover:border-gray-500/25 transition-all duration-200 hover:shadow-lg hover:shadow-black/20">
-                      <div class="space-y-3">
-                        <!-- Header -->
-                        <div class="flex items-start justify-between gap-3">
-                          <div class="flex items-center gap-2.5 flex-1 min-w-0">
-                            <!-- Tunnel Icon -->
-                            <div class="shrink-0 w-8 h-8 rounded-lg bg-green-400/10 flex items-center justify-center">
-                              <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                              </svg>
-                            </div>
-                            
-                            <div class="flex-1 min-w-0">
-                              <div class="flex items-center gap-2 mb-1">
-                                <span class="text-xs px-1.5 py-0.5 rounded-md font-medium bg-green-300/10 text-green-300">
-                                  {{ tunnel.targetUrl.includes('/fn/') ? 'function' : 'framework' }}
-                                </span>
-                                <span class="text-xs text-gray-500">•</span>
-                                <span class="text-xs text-gray-400">{{ formatDate(tunnel.lastSeenAt) }}</span>
-                              </div>
-                            </div>
+              <!-- Tunnels Section -->
+              <div v-if="tunnels.length > 0" class="mt-6">
+                <div class="flex items-center justify-between mb-3">
+                  <h3 class="text-xs font-semibold text-gray-300 uppercase tracking-wide">Tunnels</h3>
+                  <span class="text-xs text-gray-500 bg-gray-500/10 px-2 py-0.5 rounded-full">{{ tunnels.length }}</span>
+                </div>
+                <div class="space-y-2.5">
+                  <div v-for="tunnel in paginatedTunnels" :key="tunnel.id" class="group border border-gray-500/15 rounded-xl p-4 bg-gray-500/5 hover:bg-gray-500/10 hover:border-gray-500/25 transition-all duration-200 hover:shadow-lg hover:shadow-black/20">
+                    <div class="space-y-3">
+                      <!-- Header -->
+                      <div class="flex items-start justify-between gap-3">
+                        <div class="flex items-center gap-2.5 flex-1 min-w-0">
+                          <!-- Tunnel Icon -->
+                          <div class="shrink-0 w-8 h-8 rounded-lg bg-green-400/10 flex items-center justify-center">
+                            <svg class="w-5 h-5 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                            </svg>
                           </div>
                           
-                          <!-- Status Indicator -->
-                          <div 
-                            :class="[
-                              'shrink-0 flex items-center gap-1.5 text-xs px-2 py-1 rounded-full border',
-                              tunnel.isActive 
-                                ? 'bg-green-300/10 text-green-300 border-green-300/20' 
-                                : 'bg-red-400/10 text-red-400 border-red-400/20'
-                            ]"
-                            :title="tunnel.isActive ? 'Tunnel is active' : 'Tunnel is inactive'"
-                          >
-                            <span :class="['w-1.5 h-1.5 rounded-full', tunnel.isActive ? 'bg-green-300 animate-pulse' : 'bg-red-400']"></span>
-                            <span class="font-medium">{{ tunnel.isActive ? 'Active' : 'Inactive' }}</span>
+                          <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-2 mb-1">
+                              <span class="text-xs px-1.5 py-0.5 rounded-md font-medium bg-green-300/10 text-green-300">
+                                {{ tunnel.targetUrl.includes('/fn/') ? 'function' : 'framework' }}
+                              </span>
+                              <span class="text-xs text-gray-500">•</span>
+                              <span class="text-xs text-gray-400">{{ formatDate(tunnel.lastSeenAt) }}</span>
+                            </div>
                           </div>
                         </div>
                         
-                        <!-- Target URL -->
-                        <div class="flex items-center gap-2 text-xs">
-                          <svg class="w-3.5 h-3.5 text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                        <!-- Status Indicator -->
+                        <div 
+                          :class="[
+                            'shrink-0 flex items-center gap-1.5 text-xs px-2 py-1 rounded-full border',
+                            tunnel.isActive 
+                              ? 'bg-green-300/10 text-green-300 border-green-300/20' 
+                              : 'bg-red-400/10 text-red-400 border-red-400/20'
+                          ]"
+                          :title="tunnel.isActive ? 'Tunnel is active' : 'Tunnel is inactive'"
+                        >
+                          <span :class="['w-1.5 h-1.5 rounded-full', tunnel.isActive ? 'bg-green-300 animate-pulse' : 'bg-red-400']"></span>
+                          <span class="font-medium">{{ tunnel.isActive ? 'Active' : 'Inactive' }}</span>
+                        </div>
+                      </div>
+                      
+                      <!-- Target URL -->
+                      <div class="flex items-center gap-2 text-xs">
+                        <svg class="w-3.5 h-3.5 text-gray-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                        </svg>
+                        <span class="text-gray-400 font-mono truncate" :title="tunnel.targetUrl">{{ tunnel.targetUrl }}</span>
+                      </div>
+                      
+                      <!-- Actions -->
+                      <div class="pt-1 grid grid-cols-2 gap-2">
+                        <button 
+                          @click="copyToClipboard(`${API_BASE}/t/${tunnel.id}`, `tunnel-${tunnel.id}`)"
+                          :class="[
+                            'text-xs px-3 py-2 rounded-lg font-medium transition-all duration-200 flex items-center justify-center gap-1.5',
+                            isCopied(`tunnel-${tunnel.id}`)
+                              ? 'bg-green-300/10 text-green-300 border border-green-300/10'
+                              : 'bg-gray-500/10 text-gray-300 hover:bg-gray-500/20 border border-transparent'
+                          ]"
+                          :title="isCopied(`tunnel-${tunnel.id}`) ? 'URL copied!' : 'Copy tunnel URL'"
+                        >
+                          <svg v-if="isCopied(`tunnel-${tunnel.id}`)" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
                           </svg>
-                          <span class="text-gray-400 font-mono truncate" :title="tunnel.targetUrl">{{ tunnel.targetUrl }}</span>
-                        </div>
-                        
-                        <!-- Actions -->
-                        <div class="pt-1 grid grid-cols-2 gap-2">
-                          <button 
-                            @click="copyToClipboard(`${API_BASE}/t/${tunnel.id}`, `tunnel-${tunnel.id}`)"
-                            :class="[
-                              'text-xs px-3 py-2 rounded-lg font-medium transition-all duration-200 flex items-center justify-center gap-1.5',
-                              isCopied(`tunnel-${tunnel.id}`)
-                                ? 'bg-green-300/10 text-green-300 border border-green-300/10'
-                                : 'bg-gray-500/10 text-gray-300 hover:bg-gray-500/20 border border-transparent'
-                            ]"
-                            :title="isCopied(`tunnel-${tunnel.id}`) ? 'URL copied!' : 'Copy tunnel URL'"
-                          >
-                            <svg v-if="isCopied(`tunnel-${tunnel.id}`)" class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
-                            </svg>
-                            <svg v-else class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                            </svg>
-                            {{ isCopied(`tunnel-${tunnel.id}`) ? 'Copied!' : 'Copy URL' }}
-                          </button>
-                          <button 
-                            @click="viewTunnelAnalytics(tunnel.id)"
-                            class="text-xs px-3 py-2 rounded-lg font-medium transition-all duration-200 flex items-center justify-center gap-1.5 bg-blue-400/10 text-blue-300 hover:bg-blue-400/20 border border-transparent"
-                            title="View Analytics"
-                          >
-                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                            </svg>
-                            Analytics
-                          </button>
-                        </div>
+                          <svg v-else class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                          </svg>
+                          {{ isCopied(`tunnel-${tunnel.id}`) ? 'Copied!' : 'Copy URL' }}
+                        </button>
+                        <button 
+                          @click="viewTunnelAnalytics(tunnel.id)"
+                          class="text-xs px-3 py-2 rounded-lg font-medium transition-all duration-200 flex items-center justify-center gap-1.5 bg-blue-400/10 text-blue-300 hover:bg-blue-400/20 border border-transparent"
+                          title="View Analytics"
+                        >
+                          <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                          </svg>
+                          Analytics
+                        </button>
                       </div>
                     </div>
                   </div>
-                  <!-- Show More Button for Tunnels -->
-                  <button 
-                    v-if="hasMoreTunnels"
-                    @click="tunnelsPage++"
-                    class="mt-3 w-full text-xs py-2.5 px-3 rounded-lg bg-gray-500/10 hover:bg-gray-500/15 text-gray-300 hover:text-white transition-all duration-200 font-medium border border-gray-500/20 hover:border-gray-500/30 flex items-center justify-center gap-2"
-                    title="Load more tunnels"
-                  >
-                    <span>Show {{ tunnels.length - paginatedTunnels.length }} more</span>
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </button>
                 </div>
+                <!-- Show More Button for Tunnels -->
+                <button 
+                  v-if="hasMoreTunnels"
+                  @click="tunnelsPage++"
+                  class="mt-3 w-full text-xs py-2.5 px-3 rounded-lg bg-gray-500/10 hover:bg-gray-500/15 text-gray-300 hover:text-white transition-all duration-200 font-medium border border-gray-500/20 hover:border-gray-500/30 flex items-center justify-center gap-2"
+                  title="Load more tunnels"
+                >
+                  <span>Show {{ tunnels.length - paginatedTunnels.length }} more</span>
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
               </div>
             </div>
           </div>
         </div>
       </div>
+    </div>
     
     <!-- Toast Notifications -->
     <Toast ref="toastComponent" />
@@ -1633,7 +1637,7 @@ const mode = ref<'snippet' | 'file' | 'framework' | 'function' | 'stream'>('snip
 const functionSubMode = ref<'client' | 'server'>('client')
 const language = ref<'javascript' | 'python'>('javascript')
 const code = ref('')
-const ttlHours = ref(1)
+const ttlMinutes = ref(60) // Default: 1 hour
 const kind = ref<'snippet' | 'webhook'>('snippet')
 const rateLimit = ref(100) // requests per window
 const rateLimitWindow = ref(60) // window in seconds
@@ -1687,6 +1691,14 @@ function formatBytes(bytes: number): string {
   if (bytes < 1024) return `${bytes} B`
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`
   return `${(bytes / (1024 * 1024)).toFixed(2)} MB`
+}
+
+// Format TTL helper
+function formatTtl(minutes: number | undefined): string {
+  if (!minutes) return '1h'
+  if (minutes < 60) return `${minutes}m`
+  if (minutes < 1440) return `${Math.round(minutes / 60)}h`
+  return `${Math.round(minutes / 1440)}d`
 }
 
 // Dashboard state
@@ -1745,7 +1757,7 @@ watch(language, (newLang, oldLang) => {
 
 // Auto-save draft functionality
 let draftSaveTimeout: NodeJS.Timeout | null = null
-watch([code, language, mode, kind, ttlHours, endpointName, endpointDescription], () => {
+watch([code, language, mode, kind, ttlMinutes, endpointName, endpointDescription], () => {
   if (draftSaveTimeout) {
     clearTimeout(draftSaveTimeout)
   }
@@ -1757,7 +1769,7 @@ watch([code, language, mode, kind, ttlHours, endpointName, endpointDescription],
         language: language.value,
         mode: mode.value,
         kind: kind.value,
-        ttlHours: ttlHours.value,
+        ttlMinutes: ttlMinutes.value,
         endpointName: endpointName.value,
         endpointDescription: endpointDescription.value,
         timestamp: new Date().toISOString()
@@ -1956,8 +1968,8 @@ onMounted(() => {
         mode.value = draft.mode || 'snippet'
         kind.value = draft.kind || 'snippet'
         // Non-authenticated users can only use 1 hour TTL
-        const restoredTTL = draft.ttlHours || 1
-        ttlHours.value = isAuthenticated.value ? restoredTTL : 1
+        const restoredTTL = draft.ttlMinutes || 60
+        ttlMinutes.value = isAuthenticated.value ? restoredTTL : 60
         endpointName.value = draft.endpointName || ''
         endpointDescription.value = draft.endpointDescription || ''
         // Draft restored silently - no need to notify
@@ -2589,8 +2601,8 @@ function loadExample(idx: string) {
   const index = parseInt(idx)
   const example = examples.value[index]
   if (example) {
-    code.value = example.code
-    requestBody.value = example.testInput
+  code.value = example.code
+  requestBody.value = example.testInput
     selectedExampleIndex.value = index
   }
 }
@@ -2717,7 +2729,7 @@ async function createEndpoint() {
         code: code.value,
           name: endpointName.value || undefined,
           description: endpointDescription.value || undefined,
-          ttlHours: ttlHours.value,
+          ttlMinutes: ttlMinutes.value,
           kind: kind.value,
           rateLimit: rateLimit.value,
           rateLimitWindow: rateLimitWindow.value,
@@ -2735,7 +2747,7 @@ async function createEndpoint() {
       formData.append('language', language.value)
       if (endpointName.value) formData.append('name', endpointName.value)
       if (endpointDescription.value) formData.append('description', endpointDescription.value)
-      formData.append('ttlHours', ttlHours.value.toString())
+      formData.append('ttlMinutes', ttlMinutes.value.toString())
       formData.append('kind', kind.value)
 
       response = await fetch(`${API_BASE}/api/endpoints/file`, {
@@ -2982,8 +2994,8 @@ const { isAuthenticated } = useAuth();
 // Ensure non-authenticated users can only use 1 hour TTL and clear name/description
 watch(isAuthenticated, (authenticated) => {
   if (!authenticated) {
-    if (ttlHours.value > 1) {
-      ttlHours.value = 1
+    if (ttlMinutes.value > 60) {
+      ttlMinutes.value = 60
     }
     // Clear name and description for non-authenticated users
     endpointName.value = ''
