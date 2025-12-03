@@ -258,7 +258,7 @@ export class EndpointsController {
   }
 
   /**
-   * Get recent logs for an endpoint
+   * Get recent logs for an endpoint (summary)
    * GET /api/endpoints/:id/logs
    */
   @Get('api/endpoints/:id/logs')
@@ -270,6 +270,42 @@ export class EndpointsController {
       return { error: 'Endpoint not found' };
     }
     return this.statsService.getRecentLogs(id);
+  }
+
+  /**
+   * Get detailed logs with console output (for observability)
+   * GET /api/endpoints/:id/logs/detailed
+   */
+  @Get('api/endpoints/:id/logs/detailed')
+  @UseGuards(AuthGuard)
+  async getEndpointDetailedLogs(@Param('id') id: string, @Req() req: any) {
+    // Verify endpoint belongs to user's organization
+    const endpoint = await this.endpointsService.getEndpoint(id);
+    if (endpoint.organizationId !== req.user.organizationId) {
+      return { error: 'Endpoint not found' };
+    }
+    return this.statsService.getDetailedLogs(id);
+  }
+
+  /**
+   * Get a single log entry with full details
+   * GET /api/logs/:logId
+   */
+  @Get('api/logs/:logId')
+  @UseGuards(AuthGuard)
+  async getLogDetail(@Param('logId') logId: string, @Req() req: any) {
+    const log = await this.statsService.getLogDetail(logId);
+    if (!log) {
+      return { error: 'Log not found' };
+    }
+    // Verify the endpoint belongs to user's organization
+    if (log.Endpoint) {
+      const endpoint = await this.endpointsService.getEndpoint(log.Endpoint.id);
+      if (endpoint.organizationId !== req.user.organizationId) {
+        return { error: 'Log not found' };
+      }
+    }
+    return log;
   }
 
   /**

@@ -194,7 +194,7 @@ export class StatsService {
   }
 
   /**
-   * Get recent request logs for an endpoint
+   * Get recent request logs for an endpoint (summary view)
    */
   async getRecentLogs(endpointId: string, limit: number = 50): Promise<any[]> {
     return this.prisma.executionLog.findMany({
@@ -210,6 +210,60 @@ export class StatsService {
         statusCode: true,
         ipAddress: true,
         userAgent: true,
+      },
+    });
+  }
+
+  /**
+   * Get detailed log entry with full request/response and console output
+   * For the observability/trace viewer
+   */
+  async getLogDetail(logId: string): Promise<any> {
+    return this.prisma.executionLog.findUnique({
+      where: { id: logId },
+      select: {
+        id: true,
+        createdAt: true,
+        durationMs: true,
+        success: true,
+        error: true,
+        statusCode: true,
+        ipAddress: true,
+        userAgent: true,
+        requestBody: true,
+        responseBody: true,
+        consoleLogs: true,
+        Endpoint: {
+          select: {
+            id: true,
+            name: true,
+            language: true,
+          },
+        },
+      },
+    });
+  }
+
+  /**
+   * Get recent logs with full details (for log viewer)
+   */
+  async getDetailedLogs(endpointId: string, limit: number = 20): Promise<any[]> {
+    return this.prisma.executionLog.findMany({
+      where: { endpointId },
+      orderBy: { createdAt: 'desc' },
+      take: limit,
+      select: {
+        id: true,
+        createdAt: true,
+        durationMs: true,
+        success: true,
+        error: true,
+        statusCode: true,
+        ipAddress: true,
+        userAgent: true,
+        requestBody: true,
+        responseBody: true,
+        consoleLogs: true,
       },
     });
   }

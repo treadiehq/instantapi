@@ -1441,34 +1441,117 @@ eventSource.<span class="text-blue-300">onmessage</span> = (<span class="text-or
               </div>
             </div>
 
-            <!-- Recent Logs -->
+            <!-- Recent Logs with Console Output -->
             <div class="mb-4">
-              <h4 class="text-sm font-semibold text-white mb-3">Recent Requests</h4>
+              <h4 class="text-sm font-semibold text-white mb-3 flex items-center gap-2">
+                <svg class="w-4 h-4 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                Execution Logs
+                <span class="text-xs text-gray-500 font-normal">(click to expand)</span>
+              </h4>
               <div v-if="selectedEndpointLogs.length === 0" class="text-center py-8 text-gray-400">
+                <svg class="w-8 h-8 mx-auto mb-2 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
                 No requests yet
               </div>
-              <div v-else class="space-y-2 max-h-64 overflow-y-auto">
+              <div v-else class="space-y-2 max-h-96 overflow-y-auto">
                 <div 
                   v-for="log in selectedEndpointLogs.slice(0, 20)" 
                   :key="log.id"
-                  class="flex items-center justify-between p-3 bg-gray-500/5 rounded-lg border border-gray-500/10"
+                  class="bg-gray-500/5 rounded-lg border border-gray-500/10 overflow-hidden"
                 >
-                  <div class="flex items-center gap-3">
-                    <div 
-                      class="w-2 h-2 rounded-full"
-                      :class="log.success ? 'bg-green-400' : 'bg-red-400'"
-                    ></div>
-                    <div>
-                      <p class="text-xs text-white font-medium">
-                        {{ log.success ? 'Success' : 'Error' }}
-                        <span v-if="log.error" class="text-red-400 ml-2">{{ log.error }}</span>
-                      </p>
-                      <p class="text-xs text-gray-500">{{ new Date(log.createdAt).toLocaleString() }}</p>
+                  <!-- Log Header (clickable) -->
+                  <div 
+                    @click="toggleLogExpand(log.id)"
+                    class="flex items-center justify-between p-3 cursor-pointer hover:bg-gray-500/10 transition-colors"
+                  >
+                    <div class="flex items-center gap-3">
+                      <div 
+                        class="w-2 h-2 rounded-full flex-shrink-0"
+                        :class="log.success ? 'bg-green-400' : 'bg-red-400'"
+                      ></div>
+                      <div>
+                        <p class="text-xs text-white font-medium flex items-center gap-2">
+                          <span :class="log.success ? 'text-green-400' : 'text-red-400'">
+                            {{ log.statusCode || (log.success ? 200 : 500) }}
+                          </span>
+                          <span class="text-gray-400">•</span>
+                          <span class="font-mono">{{ log.durationMs }}ms</span>
+                          <span v-if="log.consoleLogs?.length" class="text-xs px-1.5 py-0.5 bg-blue-500/20 text-blue-300 rounded">
+                            {{ log.consoleLogs.length }} logs
+                          </span>
+                        </p>
+                        <p class="text-xs text-gray-500">{{ new Date(log.createdAt).toLocaleString() }}</p>
+                      </div>
+                    </div>
+                    <div class="flex items-center gap-2">
+                      <span v-if="log.error" class="text-xs text-red-400 max-w-32 truncate">{{ log.error }}</span>
+                      <svg 
+                        class="w-4 h-4 text-gray-500 transition-transform"
+                        :class="{ 'rotate-180': expandedLogIds.includes(log.id) }"
+                        fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                      >
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                      </svg>
                     </div>
                   </div>
-                  <div class="text-right">
-                    <p class="text-xs font-mono text-gray-300">{{ log.durationMs }}ms</p>
-                    <p v-if="log.statusCode" class="text-xs text-gray-500">{{ log.statusCode }}</p>
+                  
+                  <!-- Expanded Log Details -->
+                  <div 
+                    v-if="expandedLogIds.includes(log.id)"
+                    class="border-t border-gray-500/10 bg-black/20"
+                  >
+                    <!-- Console Output -->
+                    <div v-if="log.consoleLogs?.length" class="p-3 border-b border-gray-500/10">
+                      <p class="text-xs font-semibold text-gray-400 mb-2 flex items-center gap-1.5">
+                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        Console Output
+                      </p>
+                      <div class="bg-gray-900 rounded p-2 font-mono text-xs max-h-48 overflow-y-auto">
+                        <div 
+                          v-for="(line, idx) in log.consoleLogs" 
+                          :key="idx"
+                          class="py-0.5 text-gray-300 hover:bg-gray-800/50"
+                          :class="{
+                            'text-red-400': line.includes('❌') || line.toLowerCase().includes('error'),
+                            'text-yellow-400': line.includes('⚠️') || line.toLowerCase().includes('warn'),
+                            'text-green-400': line.includes('✅') || line.toLowerCase().includes('success'),
+                            'text-blue-400': line.includes('📤') || line.includes('📥'),
+                          }"
+                        >
+                          <span class="text-gray-600 mr-2 select-none">{{ idx + 1 }}</span>{{ line }}
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <!-- Request/Response -->
+                    <div class="grid grid-cols-2 gap-3 p-3">
+                      <div v-if="log.requestBody">
+                        <p class="text-xs font-semibold text-gray-400 mb-1">Request</p>
+                        <pre class="bg-gray-900 rounded p-2 font-mono text-xs text-gray-300 max-h-32 overflow-auto">{{ formatJson(log.requestBody) }}</pre>
+                      </div>
+                      <div v-if="log.responseBody">
+                        <p class="text-xs font-semibold text-gray-400 mb-1">Response</p>
+                        <pre class="bg-gray-900 rounded p-2 font-mono text-xs text-gray-300 max-h-32 overflow-auto">{{ formatJson(log.responseBody) }}</pre>
+                      </div>
+                    </div>
+                    
+                    <!-- Metadata -->
+                    <div class="px-3 pb-3 flex items-center gap-4 text-xs text-gray-500">
+                      <span v-if="log.ipAddress" class="flex items-center gap-1">
+                        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" />
+                        </svg>
+                        {{ log.ipAddress }}
+                      </span>
+                      <span v-if="log.userAgent" class="truncate max-w-xs" :title="log.userAgent">
+                        {{ log.userAgent?.split(' ')[0] || 'Unknown' }}
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1712,6 +1795,7 @@ const loadingMessage = ref('Creating your API...')
 const organizationStats = ref<any>(null)
 const selectedEndpointStats = ref<any>(null)
 const selectedEndpointLogs = ref<any[]>([])
+const expandedLogIds = ref<string[]>([]) // For expanding log details
 const showStatsModal = ref(false)
 const statsEndpointId = ref<string | null>(null)
 const deletingEndpointId = ref<string | null>(null)
@@ -1863,7 +1947,7 @@ async function fetchEndpointStats(endpointId: string) {
       fetch(`${API_BASE}/api/endpoints/${endpointId}/stats`, {
         headers: { 'Authorization': `Bearer ${token.value}` },
       }),
-      fetch(`${API_BASE}/api/endpoints/${endpointId}/logs`, {
+      fetch(`${API_BASE}/api/endpoints/${endpointId}/logs/detailed`, {
         headers: { 'Authorization': `Bearer ${token.value}` },
       }),
     ]);
@@ -1885,6 +1969,17 @@ function closeStatsModal() {
   statsEndpointId.value = null;
   selectedEndpointStats.value = null;
   selectedEndpointLogs.value = [];
+  expandedLogIds.value = [];
+}
+
+// Toggle log expansion
+function toggleLogExpand(logId: string) {
+  const idx = expandedLogIds.value.indexOf(logId);
+  if (idx === -1) {
+    expandedLogIds.value.push(logId);
+  } else {
+    expandedLogIds.value.splice(idx, 1);
+  }
 }
 
 // Get rate limit display for stats modal

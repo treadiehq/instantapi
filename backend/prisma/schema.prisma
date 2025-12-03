@@ -97,6 +97,7 @@ model ExecutionLog {
   error        String?  // short error summary
   requestBody  Json?
   responseBody Json?
+  consoleLogs  Json?    // Array of console.log outputs for observability
   // Additional metadata for analytics
   statusCode   Int?     @default(200)
   ipAddress    String?

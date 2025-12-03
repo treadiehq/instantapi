@@ -93,6 +93,7 @@ export class ExecutionService {
         { message: 'Rate limit exceeded' },
         input,
         null,
+        ['⚠️ Rate limit exceeded'],
         429,
         metadata?.ipAddress,
         metadata?.userAgent,
@@ -147,7 +148,7 @@ export class ExecutionService {
       }
 
 
-      // Log execution to database
+      // Log execution to database (including console logs for observability)
       await this.logExecution(
         endpoint.id,
         durationMs,
@@ -155,6 +156,7 @@ export class ExecutionService {
         sandboxResult.error,
         input,
         sandboxResult.result,
+        sandboxResult.logs || [],
         sandboxResult.error ? 500 : 200,
         metadata?.ipAddress,
         metadata?.userAgent,
@@ -178,6 +180,7 @@ export class ExecutionService {
         { message: error.message },
         input,
         null,
+        [`❌ Execution failed: ${error.message}`],
         500,
         metadata?.ipAddress,
         metadata?.userAgent,
@@ -208,6 +211,7 @@ export class ExecutionService {
     error: any,
     requestBody: any,
     responseBody: any,
+    consoleLogs: string[] = [],
     statusCode: number = 200,
     ipAddress?: string,
     userAgent?: string,
@@ -222,6 +226,11 @@ export class ExecutionService {
         return obj;
       };
 
+      // Truncate console logs if too many
+      const truncatedLogs = consoleLogs.length > 100 
+        ? [...consoleLogs.slice(0, 100), `... and ${consoleLogs.length - 100} more lines`]
+        : consoleLogs;
+
       await this.prisma.executionLog.create({
         data: {
           endpointId,
@@ -230,6 +239,7 @@ export class ExecutionService {
           error: error ? (typeof error === 'string' ? error : error.message) : null,
           requestBody: requestBody ? truncateJson(requestBody) : null,
           responseBody: responseBody ? truncateJson(responseBody) : null,
+          consoleLogs: truncatedLogs.length > 0 ? truncatedLogs : null,
           statusCode,
           ipAddress,
           userAgent,
