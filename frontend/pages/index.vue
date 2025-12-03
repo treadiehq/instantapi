@@ -38,146 +38,6 @@
           </p>
         </div>
         
-        <!-- Tab Selector -->
-        <div class="flex gap-1 mb-6">
-          <button
-            @click="landingTab = 'playground'"
-            :class="[
-              'px-5 py-2.5 rounded-lg text-sm font-medium transition-all duration-200',
-              landingTab === 'playground'
-                ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30'
-                : 'bg-gray-500/10 text-gray-400 border border-transparent hover:bg-gray-500/15 hover:text-gray-300'
-            ]"
-          >
-            <span class="flex items-center gap-2">
-              <span class="w-2 h-2 rounded-full" :class="landingTab === 'playground' ? 'bg-green-400 animate-pulse' : 'bg-gray-500'"></span>
-              Playground
-            </span>
-          </button>
-          <button
-            @click="landingTab = 'snippet'"
-            :class="[
-              'px-5 py-2.5 rounded-lg text-sm font-medium transition-all duration-200',
-              landingTab === 'snippet'
-                ? 'bg-blue-500/20 text-blue-300 border border-blue-500/30'
-                : 'bg-gray-500/10 text-gray-400 border border-transparent hover:bg-gray-500/15 hover:text-gray-300'
-            ]"
-          >
-            <span class="flex items-center gap-2">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
-              </svg>
-              Snippet
-            </span>
-          </button>
-        </div>
-
-        <!-- Playground Tab Content -->
-        <div v-if="landingTab === 'playground'" class="mb-20">
-          <div class="border bg-gray-500/5 border-gray-500/15 rounded-lg overflow-hidden">
-            <!-- Playground Header -->
-            <div class="p-4 border-b border-gray-500/10 flex items-center justify-between">
-              <div class="flex items-center gap-2">
-                <span class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
-                <span class="text-sm font-medium text-white">Live Playground</span>
-              </div>
-              <div class="flex gap-2">
-                <span class="px-3 py-1 text-xs font-medium bg-blue-500/20 text-blue-300 rounded-full">Free</span>
-                <span class="px-3 py-1 text-xs font-medium bg-gray-500/20 text-gray-400 rounded-full">Pro ✨</span>
-              </div>
-            </div>
-
-            <!-- Rate Limits Display -->
-            <div class="p-6 border-b border-gray-500/10">
-              <div class="text-xs text-gray-500 uppercase tracking-wider mb-4 text-center">Free Tier Limits</div>
-              <div class="space-y-3">
-                <div class="flex items-center justify-between">
-                  <span class="text-sm text-gray-300 font-mono">GPT-4o:</span>
-                  <div class="flex items-center gap-3 flex-1 mx-4">
-                    <div class="flex-1 h-1.5 bg-gray-700 rounded-full overflow-hidden">
-                      <div class="h-full bg-gradient-to-r from-blue-500 to-blue-400 rounded-full" style="width: 30%"></div>
-                    </div>
-                  </div>
-                  <span class="text-sm text-gray-400">5/day</span>
-                </div>
-                <div class="flex items-center justify-between">
-                  <span class="text-sm text-gray-300 font-mono">Claude:</span>
-                  <div class="flex items-center gap-3 flex-1 mx-4">
-                    <div class="flex-1 h-1.5 bg-gray-700 rounded-full overflow-hidden">
-                      <div class="h-full bg-gradient-to-r from-purple-500 to-purple-400 rounded-full" style="width: 50%"></div>
-                    </div>
-                  </div>
-                  <span class="text-sm text-gray-400">10/day</span>
-                </div>
-                <div class="flex items-center justify-between">
-                  <span class="text-sm text-gray-300 font-mono">Gemini:</span>
-                  <div class="flex items-center gap-3 flex-1 mx-4">
-                    <div class="flex-1 h-1.5 bg-gray-700 rounded-full overflow-hidden">
-                      <div class="h-full bg-gradient-to-r from-emerald-500 to-emerald-400 rounded-full" style="width: 85%"></div>
-                    </div>
-                  </div>
-                  <span class="text-sm text-emerald-400">Unlimited</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- Response Area -->
-            <div class="p-6 border-b border-gray-500/10">
-              <div class="flex items-center gap-2 mb-3">
-                <span class="text-xs text-gray-500">response</span>
-                <span class="text-xs text-gray-600">·</span>
-                <span class="text-xs text-gray-400">{{ playgroundModel }}</span>
-              </div>
-              <div class="bg-gray-900/50 rounded-lg p-6 min-h-[120px] flex items-center justify-center">
-                <p v-if="!playgroundResponse" class="text-gray-500 text-sm">
-                  Select a model above and click "Send Request" →
-                </p>
-                <p v-else class="text-gray-300 text-sm whitespace-pre-wrap">{{ playgroundResponse }}</p>
-              </div>
-            </div>
-
-            <!-- Send Button -->
-            <div class="p-6">
-              <button
-                @click="landingTab = 'snippet'"
-                class="w-full py-3 px-6 bg-white hover:bg-gray-100 text-black font-medium rounded-lg transition-colors flex items-center justify-center gap-2"
-              >
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                </svg>
-                Try with Snippet →
-              </button>
-              <p class="text-center text-xs text-gray-500 mt-3">
-                Create your own AI agent API in seconds
-              </p>
-            </div>
-          </div>
-
-          <!-- Integration Code Preview -->
-          <div class="mt-8">
-            <p class="text-center text-sm text-gray-400 mb-4">Integration is just 3 lines of code</p>
-            <div class="border bg-gray-500/5 border-gray-500/15 rounded-lg overflow-hidden">
-              <div class="flex border-b border-gray-500/10">
-                <button class="px-4 py-2 text-sm font-medium text-blue-300 border-b-2 border-blue-400">Node</button>
-                <button class="px-4 py-2 text-sm font-medium text-gray-500 hover:text-gray-300">cURL</button>
-              </div>
-              <div class="p-4 bg-black">
-                <pre class="text-sm"><code><span class="text-purple-400">import</span> <span class="text-blue-300">InstantAPI</span> <span class="text-purple-400">from</span> <span class="text-green-400">'@instantapihq/client'</span>
-
-<span class="text-purple-400">const</span> <span class="text-blue-300">api</span> = <span class="text-purple-400">new</span> <span class="text-yellow-300">InstantAPI</span>({
-  <span class="text-blue-300">apiKey</span>: <span class="text-green-400">'your-api-key'</span>,
-})
-
-<span class="text-purple-400">const</span> { <span class="text-blue-300">result</span> } = <span class="text-purple-400">await</span> <span class="text-blue-300">api</span>.<span class="text-yellow-300">run</span>(<span class="text-green-400">'agent-id'</span>, {
-  <span class="text-blue-300">prompt</span>: <span class="text-green-400">'Hello, AI!'</span>
-})</code></pre>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Snippet Tab Content -->
-        <div v-if="landingTab === 'snippet'">
         <!-- Split Screen Layout -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-0">
           <!-- Main Card -->
@@ -704,7 +564,6 @@
             </div>
           </div>
         </div>
-        </div>
       </div>
     </div>
 
@@ -885,15 +744,6 @@ function showToast(message: string, type: 'success' | 'error' | 'info' = 'info',
     toastComponent.value.show(message, type, duration)
   }
 }
-
-// Landing page tab state
-const landingTab = ref<'playground' | 'snippet'>('playground')
-
-// Playground state
-const playgroundPrompt = ref('')
-const playgroundResponse = ref('')
-const playgroundLoading = ref(false)
-const playgroundModel = ref('gpt-4o')
 
 // Form state
 const mode = ref<'snippet' | 'file' | 'framework' | 'function' | 'stream'>('snippet')
