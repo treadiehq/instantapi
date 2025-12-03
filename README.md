@@ -116,13 +116,28 @@ https://your-api.com/run/abc123xyz
 
 ### 2. Call Your API
 
+**Basic example:**
 ```bash
-curl -X POST https://your-api.com/run/abc123xyz \
+curl -X POST https://api.instantapi.co/run/YOUR_ENDPOINT_ID \
   -H "Content-Type: application/json" \
-  -d '{"name": "World", "a": 5, "b": 3}'
+  -d '{"name": "World"}'
+```
+
+**Call an AI agent:**
+```bash
+curl -X POST https://api.instantapi.co/run/YOUR_ENDPOINT_ID \
+  -H "Content-Type: application/json" \
+  -d '{"apiKey": "sk-your-openai-key", "prompt": "What is AI?"}'
 
 # Response:
-# {"message": "Hello World!", "sum": 8}
+# {"result": {"response": "AI is..."}, "durationMs": 1234}
+```
+
+**Or use the SDK:**
+```typescript
+import InstantAPI from '@instantapihq/client';
+const api = new InstantAPI();
+const { result } = await api.run('YOUR_ENDPOINT_ID', { prompt: 'Hello!' });
 ```
 
 ### 3. Framework Mode (Expose Local Server)
