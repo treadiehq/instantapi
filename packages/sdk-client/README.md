@@ -196,5 +196,5 @@ console.log(result.links);
 
 ## License
 
-MIT
+See [FSL-1.1-MIT](LICENSE) for full details.
 

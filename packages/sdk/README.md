@@ -1,6 +1,8 @@
 # @instantapihq/sdk
 
-Write functions, get APIs. No servers, no deploy, no boilerplate.
+**Server SDK** — Write functions, expose them as APIs. No servers, no deploy, no boilerplate.
+
+> **Note:** This is the **Server SDK** for exposing local functions. Looking to **call** deployed agents? Use [@instantapihq/client](https://www.npmjs.com/package/@instantapihq/client) instead.
 
 ## Install
 

@@ -29,6 +29,17 @@
                         Snippet
                       </button>
                       <button
+                        @click="switchToFunctionMode"
+                        :class="[
+                          'px-6 py-3 text-sm font-medium transition-colors',
+                          mode === 'function'
+                            ? 'text-white border-b-2 border-blue-300'
+                            : 'text-gray-400 hover:text-white'
+                        ]"
+                      >
+                        Function
+                      </button>
+                      <button
                         @click="switchToFileMode"
                         :class="[
                           'px-6 py-3 text-sm font-medium transition-colors',
@@ -49,17 +60,6 @@
                         ]"
                       >
                         Framework
-                      </button>
-                      <button
-                        @click="switchToFunctionMode"
-                        :class="[
-                          'px-6 py-3 text-sm font-medium transition-colors',
-                          mode === 'function'
-                            ? 'text-white border-b-2 border-blue-300'
-                            : 'text-gray-400 hover:text-white'
-                        ]"
-                      >
-                        Function
                       </button>
                       <button
                         @click="switchToStreamMode"

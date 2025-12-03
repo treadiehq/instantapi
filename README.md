@@ -167,7 +167,7 @@ curl -N http://localhost:3001/t/abc123
 > npx @instantapihq/cli expose http://localhost:3000/api
 > ```
 
-### 4. Function Mode (SDK)
+### 4. Function Mode (Server SDK)
 
 Write functions and expose them as APIs:
 
@@ -184,6 +184,27 @@ node app.ts
 
 // Terminal 2: Expose to internet
 npx @instantapihq/cli expose greet
+```
+
+### 5. Client SDK (Call Deployed Agents)
+
+Call any deployed agent programmatically:
+
+```bash
+npm install @instantapihq/client
+```
+
+```typescript
+import InstantAPI from '@instantapihq/client';
+
+const api = new InstantAPI({ apiKey: 'ik_your_key' });
+
+// Run any deployed agent with one line
+const { result } = await api.run('agent-id', { 
+  prompt: 'What is AI?' 
+});
+
+console.log(result.response);
 ```
 
 ## Authentication
