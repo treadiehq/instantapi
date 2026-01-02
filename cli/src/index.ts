@@ -221,10 +221,12 @@ async function exposeRoute(targetUrl: string, backendUrl: string) {
 
             // Stream chunks to backend (include secretToken for authentication)
             localResponse.data.on('data', async (chunk: Buffer) => {
+              // Capture sequence number before async operation to avoid race condition
+              const seq = sequence++;
               try {
                 await axios.post(`${backendUrl}/api/tunnels/${id}/stream`, {
                   requestId,
-                  sequence: sequence++,
+                  sequence: seq,
                   chunk: chunk.toString(),
                   secretToken,
                 }, { headers: authHeaders });
@@ -234,23 +236,31 @@ async function exposeRoute(targetUrl: string, backendUrl: string) {
             });
 
             localResponse.data.on('end', async () => {
-              // Send EOF signal
-              await axios.post(`${backendUrl}/api/tunnels/${id}/stream`, {
-                requestId,
-                eof: true,
-                secretToken,
-              }, { headers: authHeaders });
-              console.log(chalk.gray(`  └─`), chalk.green('Stream completed'));
+              // Send EOF signal (wrapped in try-catch to handle promise rejection)
+              try {
+                await axios.post(`${backendUrl}/api/tunnels/${id}/stream`, {
+                  requestId,
+                  eof: true,
+                  secretToken,
+                }, { headers: authHeaders });
+                console.log(chalk.gray(`  └─`), chalk.green('Stream completed'));
+              } catch (endError) {
+                console.log(chalk.gray(`  └─`), chalk.red('Failed to signal stream end'));
+              }
             });
 
             localResponse.data.on('error', async (streamError: any) => {
               console.log(chalk.gray(`  └─`), chalk.red('✗'), chalk.red(streamError.message));
-              // Mark as failed
-              await axios.post(`${backendUrl}/api/tunnels/${id}/stream`, {
-                requestId,
-                eof: true,
-                secretToken,
-              }, { headers: authHeaders });
+              // Mark as failed (wrapped in try-catch to handle promise rejection)
+              try {
+                await axios.post(`${backendUrl}/api/tunnels/${id}/stream`, {
+                  requestId,
+                  eof: true,
+                  secretToken,
+                }, { headers: authHeaders });
+              } catch (cleanupError) {
+                console.log(chalk.gray(`  └─`), chalk.red('Failed to signal stream error'));
+              }
             });
           } catch (localError: any) {
             const errorMessage =

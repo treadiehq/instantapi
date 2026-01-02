@@ -1,6 +1,6 @@
 {
   "name": "@instantapihq/cli",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "CLI for Instant API - expose local routes to the internet",
   "main": "dist/index.js",
   "bin": {
