@@ -4,6 +4,7 @@ export class RegisterTunnelDto {
   @IsUrl({
     protocols: ['http', 'https'],
     require_protocol: true,
+    require_tld: false, // Allow localhost URLs (no TLD required for local development)
   }, {
     message: 'targetUrl must be a valid URL with http:// or https:// protocol',
   })
@@ -17,6 +18,7 @@ export class RegisterTunnelResponseDto {
   id: string;
   publicUrl: string;
   targetUrl: string;
+  secretToken: string; // Secret token for authenticating tunnel operations (required for unauthenticated users)
   createdAt: string;
 }
 
@@ -24,6 +26,10 @@ export class PollTunnelDto {
   @IsOptional()
   @IsNumber()
   maxWaitMs?: number;
+
+  @IsOptional()
+  @IsString()
+  secretToken?: string; // Required for unauthenticated users
 }
 
 export class PollTunnelResponseDto {
@@ -48,6 +54,10 @@ export class RespondTunnelDto {
 
   @IsOptional()
   body?: any;
+
+  @IsOptional()
+  @IsString()
+  secretToken?: string; // Required for unauthenticated users
 }
 
 export class StreamChunkDto {
@@ -64,6 +74,10 @@ export class StreamChunkDto {
 
   @IsOptional()
   eof?: boolean;
+
+  @IsOptional()
+  @IsString()
+  secretToken?: string; // Required for unauthenticated users
 }
 
 export class TunnelListItemDto {

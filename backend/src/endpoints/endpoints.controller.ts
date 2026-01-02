@@ -10,6 +10,8 @@ import {
   UseInterceptors,
   UploadedFile,
   BadRequestException,
+  NotFoundException,
+  ForbiddenException,
   UseGuards,
   Req,
 } from '@nestjs/common';
@@ -56,15 +58,11 @@ export class EndpointsController {
   ) {
     // Basic validation
     if (!createEndpointDto.code || !createEndpointDto.language) {
-      return {
-        error: 'Missing required fields: code and language',
-      };
+      throw new BadRequestException('Missing required fields: code and language');
     }
 
     if (!['javascript', 'python'].includes(createEndpointDto.language)) {
-      return {
-        error: 'Invalid language. Must be "javascript" or "python"',
-      };
+      throw new BadRequestException('Invalid language. Must be "javascript" or "python"');
     }
 
     const organizationId = req.user?.organizationId || null;
@@ -237,7 +235,7 @@ export class EndpointsController {
     // Verify endpoint belongs to user's organization
     const endpoint = await this.endpointsService.getEndpoint(id);
     if (endpoint.organizationId !== req.user.organizationId) {
-      return { error: 'Endpoint not found' };
+      throw new NotFoundException('Endpoint not found');
     }
     return this.statsService.getEndpointStats(id);
   }
@@ -252,7 +250,7 @@ export class EndpointsController {
     // Verify endpoint belongs to user's organization
     const endpoint = await this.endpointsService.getEndpoint(id);
     if (endpoint.organizationId !== req.user.organizationId) {
-      return { error: 'Endpoint not found' };
+      throw new NotFoundException('Endpoint not found');
     }
     return this.statsService.getEndpointCallHistory(id);
   }
@@ -267,7 +265,7 @@ export class EndpointsController {
     // Verify endpoint belongs to user's organization
     const endpoint = await this.endpointsService.getEndpoint(id);
     if (endpoint.organizationId !== req.user.organizationId) {
-      return { error: 'Endpoint not found' };
+      throw new NotFoundException('Endpoint not found');
     }
     return this.statsService.getRecentLogs(id);
   }
@@ -282,7 +280,7 @@ export class EndpointsController {
     // Verify endpoint belongs to user's organization
     const endpoint = await this.endpointsService.getEndpoint(id);
     if (endpoint.organizationId !== req.user.organizationId) {
-      return { error: 'Endpoint not found' };
+      throw new NotFoundException('Endpoint not found');
     }
     return this.statsService.getDetailedLogs(id);
   }
@@ -296,13 +294,13 @@ export class EndpointsController {
   async getLogDetail(@Param('logId') logId: string, @Req() req: any) {
     const log = await this.statsService.getLogDetail(logId);
     if (!log) {
-      return { error: 'Log not found' };
+      throw new NotFoundException('Log not found');
     }
     // Verify the endpoint belongs to user's organization
     if (log.Endpoint) {
       const endpoint = await this.endpointsService.getEndpoint(log.Endpoint.id);
       if (endpoint.organizationId !== req.user.organizationId) {
-        return { error: 'Log not found' };
+        throw new NotFoundException('Log not found');
       }
     }
     return log;

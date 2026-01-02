@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException, ForbiddenException, PayloadTooLargeException } from '@nestjs/common';
 import { PrismaService } from '../prisma.service';
+import { randomBytes } from 'crypto';
 import {
   RegisterTunnelDto,
   RegisterTunnelResponseDto,
@@ -19,6 +20,36 @@ const MAX_BODY_STORAGE_SIZE = 10_000; // 10KB - store only small bodies in DB
 @Injectable()
 export class TunnelsService {
   constructor(private prisma: PrismaService) {}
+
+  /**
+   * Generate a cryptographically secure secret token for tunnel authentication
+   */
+  private generateSecretToken(): string {
+    return randomBytes(32).toString('hex');
+  }
+
+  /**
+   * Validate tunnel ownership. For authenticated users, checks organizationId.
+   * For unauthenticated users, requires a valid secretToken.
+   */
+  private validateTunnelOwnership(
+    tunnel: { organizationId: string | null; secretToken: string },
+    organizationId: string | null,
+    secretToken?: string,
+  ): boolean {
+    // For authenticated users, check organization ID
+    if (organizationId !== null) {
+      return tunnel.organizationId === organizationId;
+    }
+    
+    // For unauthenticated users, require and validate secret token
+    if (!secretToken) {
+      return false;
+    }
+    
+    // Validate the secret token matches
+    return tunnel.secretToken === secretToken;
+  }
 
   async register(dto: RegisterTunnelDto, organizationId: string | null): Promise<RegisterTunnelResponseDto> {
     // Security: Limit active tunnels per organization
@@ -40,9 +71,13 @@ export class TunnelsService {
       );
     }
 
+    // Generate a secret token for tunnel authentication
+    const secretToken = this.generateSecretToken();
+
     const tunnel = await this.prisma.tunnel.create({
       data: {
         organizationId,
+        secretToken,
         targetUrl: dto.targetUrl,
         isActive: true,
       },
@@ -55,6 +90,7 @@ export class TunnelsService {
       id: tunnel.id,
       publicUrl,
       targetUrl: tunnel.targetUrl,
+      secretToken: tunnel.secretToken, // Return secret token for CLI to use in subsequent requests
       createdAt: tunnel.createdAt.toISOString(),
     };
   }
@@ -63,13 +99,14 @@ export class TunnelsService {
     tunnelId: string,
     maxWaitMs: number = 25000,
     organizationId: string | null,
+    secretToken?: string,
   ): Promise<PollTunnelResponseDto> {
     // Validate tunnel exists, is active, and belongs to org
     const tunnel = await this.prisma.tunnel.findUnique({
       where: { id: tunnelId },
     });
 
-    if (!tunnel || tunnel.organizationId !== organizationId) {
+    if (!tunnel || !this.validateTunnelOwnership(tunnel, organizationId, secretToken)) {
       throw new NotFoundException('Tunnel not found');
     }
 
@@ -125,13 +162,13 @@ export class TunnelsService {
     };
   }
 
-  async respond(tunnelId: string, dto: RespondTunnelDto, organizationId: string | null): Promise<void> {
+  async respond(tunnelId: string, dto: RespondTunnelDto, organizationId: string | null, secretToken?: string): Promise<void> {
     // Validate tunnel belongs to org
     const tunnel = await this.prisma.tunnel.findUnique({
       where: { id: tunnelId },
     });
 
-    if (!tunnel || tunnel.organizationId !== organizationId) {
+    if (!tunnel || !this.validateTunnelOwnership(tunnel, organizationId, secretToken)) {
       throw new NotFoundException('Tunnel not found');
     }
 
@@ -282,6 +319,7 @@ export class TunnelsService {
     sequence: number,
     chunk: string,
     organizationId: string | null,
+    secretToken?: string,
   ): Promise<void> {
     // Validate request belongs to org's tunnel
     const request = await this.prisma.tunnelRequest.findUnique({
@@ -289,7 +327,7 @@ export class TunnelsService {
       include: { Tunnel: true },
     });
 
-    if (!request || request.Tunnel.organizationId !== organizationId) {
+    if (!request || !this.validateTunnelOwnership(request.Tunnel, organizationId, secretToken)) {
       throw new NotFoundException('Request not found');
     }
 
@@ -316,14 +354,14 @@ export class TunnelsService {
     });
   }
 
-  async markStreamComplete(requestId: string, organizationId: string | null): Promise<void> {
+  async markStreamComplete(requestId: string, organizationId: string | null, secretToken?: string): Promise<void> {
     // Validate request belongs to org's tunnel
     const request = await this.prisma.tunnelRequest.findUnique({
       where: { id: requestId },
       include: { Tunnel: true },
     });
 
-    if (!request || request.Tunnel.organizationId !== organizationId) {
+    if (!request || !this.validateTunnelOwnership(request.Tunnel, organizationId, secretToken)) {
       throw new NotFoundException('Request not found');
     }
 
@@ -421,13 +459,13 @@ export class TunnelsService {
     }));
   }
 
-  async deactivateTunnel(tunnelId: string, organizationId: string): Promise<void> {
+  async deactivateTunnel(tunnelId: string, organizationId: string | null, secretToken?: string): Promise<void> {
     // Validate tunnel belongs to org
     const tunnel = await this.prisma.tunnel.findUnique({
       where: { id: tunnelId },
     });
 
-    if (!tunnel || tunnel.organizationId !== organizationId) {
+    if (!tunnel || !this.validateTunnelOwnership(tunnel, organizationId, secretToken)) {
       throw new NotFoundException('Tunnel not found');
     }
 
@@ -438,13 +476,13 @@ export class TunnelsService {
 
   }
 
-  async getTunnelAnalytics(tunnelId: string, organizationId: string) {
+  async getTunnelAnalytics(tunnelId: string, organizationId: string | null, secretToken?: string) {
     // Validate tunnel belongs to org
     const tunnel = await this.prisma.tunnel.findUnique({
       where: { id: tunnelId },
     });
 
-    if (!tunnel || tunnel.organizationId !== organizationId) {
+    if (!tunnel || !this.validateTunnelOwnership(tunnel, organizationId, secretToken)) {
       throw new NotFoundException('Tunnel not found');
     }
 
@@ -513,19 +551,20 @@ export class TunnelsService {
 
   async getTunnelRequestLogs(
     tunnelId: string,
-    organizationId: string,
+    organizationId: string | null,
     options: {
       limit?: number;
       offset?: number;
       status?: string;
     } = {},
+    secretToken?: string,
   ) {
     // Validate tunnel belongs to org
     const tunnel = await this.prisma.tunnel.findUnique({
       where: { id: tunnelId },
     });
 
-    if (!tunnel || tunnel.organizationId !== organizationId) {
+    if (!tunnel || !this.validateTunnelOwnership(tunnel, organizationId, secretToken)) {
       throw new NotFoundException('Tunnel not found');
     }
 

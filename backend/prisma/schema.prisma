@@ -113,6 +113,7 @@ model ExecutionLog {
 model Tunnel {
   id             String          @id @default(cuid())
   organizationId String?
+  secretToken    String          @unique // Secret token for tunnel authentication (required for unauthenticated tunnels)
   targetUrl      String          // e.g. "http://localhost:3000/users/create"
   createdAt      DateTime        @default(now())
   lastSeenAt     DateTime        @default(now())
@@ -123,6 +124,7 @@ model Tunnel {
   @@index([isActive])
   @@index([lastSeenAt])
   @@index([organizationId])
+  @@index([secretToken])
   // Compound indexes for common query patterns
   @@index([organizationId, isActive]) // List active tunnels by org
   @@index([isActive, lastSeenAt])     // Cleanup job for abandoned tunnels

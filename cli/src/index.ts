@@ -12,6 +12,7 @@ interface RegisterResponse {
   id: string;
   publicUrl: string;
   targetUrl: string;
+  secretToken: string;
   createdAt: string;
 }
 
@@ -150,7 +151,7 @@ async function exposeRoute(targetUrl: string, backendUrl: string) {
       { headers: authHeaders },
     );
 
-    const { id, publicUrl } = registerResponse.data;
+    const { id, publicUrl, secretToken } = registerResponse.data;
 
     console.log(chalk.green('✓ Tunnel registered successfully!\n'));
     console.log(chalk.bold('Public URL:'), chalk.cyan(publicUrl));
@@ -181,10 +182,10 @@ async function exposeRoute(targetUrl: string, backendUrl: string) {
 
     while (!isShuttingDown) {
       try {
-        // Poll for new requests
+        // Poll for new requests (include secretToken for authentication)
         const pollResponse = await axios.post<PollResponse>(
           `${backendUrl}/api/tunnels/${id}/poll`,
-          { maxWaitMs: 25000 },
+          { maxWaitMs: 25000, secretToken },
           { timeout: 30000, headers: authHeaders },
         );
 
@@ -218,13 +219,14 @@ async function exposeRoute(targetUrl: string, backendUrl: string) {
 
             let sequence = 0;
 
-            // Stream chunks to backend
+            // Stream chunks to backend (include secretToken for authentication)
             localResponse.data.on('data', async (chunk: Buffer) => {
               try {
                 await axios.post(`${backendUrl}/api/tunnels/${id}/stream`, {
                   requestId,
                   sequence: sequence++,
                   chunk: chunk.toString(),
+                  secretToken,
                 }, { headers: authHeaders });
               } catch (streamError) {
                 console.log(chalk.gray(`  └─`), chalk.red('Stream error'), chalk.red(streamError));
@@ -236,6 +238,7 @@ async function exposeRoute(targetUrl: string, backendUrl: string) {
               await axios.post(`${backendUrl}/api/tunnels/${id}/stream`, {
                 requestId,
                 eof: true,
+                secretToken,
               }, { headers: authHeaders });
               console.log(chalk.gray(`  └─`), chalk.green('Stream completed'));
             });
@@ -246,6 +249,7 @@ async function exposeRoute(targetUrl: string, backendUrl: string) {
               await axios.post(`${backendUrl}/api/tunnels/${id}/stream`, {
                 requestId,
                 eof: true,
+                secretToken,
               }, { headers: authHeaders });
             });
           } catch (localError: any) {
@@ -256,11 +260,12 @@ async function exposeRoute(targetUrl: string, backendUrl: string) {
 
             console.log(chalk.gray(`  └─`), chalk.red('✗'), chalk.red(errorMessage));
 
-            // Mark as failed
+            // Mark as failed (include secretToken for authentication)
             await axios.post(`${backendUrl}/api/tunnels/${id}/stream`, {
               requestId,
               eof: true,
-            });
+              secretToken,
+            }, { headers: authHeaders });
           }
         } else {
           // Standard request-response
@@ -274,12 +279,13 @@ async function exposeRoute(targetUrl: string, backendUrl: string) {
               timeout: 25000,
             });
 
-            // Send response back to backend
+            // Send response back to backend (include secretToken for authentication)
             await axios.post(`${backendUrl}/api/tunnels/${id}/respond`, {
               requestId,
               statusCode: localResponse.status,
               headers: localResponse.headers,
               body: localResponse.data,
+              secretToken,
             }, { headers: authHeaders });
 
             const statusColor =
@@ -303,7 +309,7 @@ async function exposeRoute(targetUrl: string, backendUrl: string) {
 
             console.log(chalk.gray(`  └─`), chalk.red('✗'), chalk.red(errorMessage));
 
-            // Send error response back
+            // Send error response back (include secretToken for authentication)
             await axios.post(`${backendUrl}/api/tunnels/${id}/respond`, {
               requestId,
               statusCode: 502,
@@ -312,6 +318,7 @@ async function exposeRoute(targetUrl: string, backendUrl: string) {
                 error: 'Bad Gateway',
                 message: errorMessage,
               },
+              secretToken,
             }, { headers: authHeaders });
           }
         }

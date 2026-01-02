@@ -216,13 +216,9 @@ async function executeJavaScript(
       const sandbox = getSandbox(env.Sandbox, sessionId);
 
       // Wrap user code to call handler with input and headers (for webhook mode)
-      const handlerArgs = mode === 'webhook' 
-        ? `${JSON.stringify(input)}, ${JSON.stringify(headers || {})}` 
-        : JSON.stringify(input);
-      
-      // Wrap in async IIFE to support async handlers
       const wrappedCode = `
-const input = ${handlerArgs};
+const input = ${JSON.stringify(input)};
+${mode === 'webhook' ? `const headers = ${JSON.stringify(headers || {})};` : ''}
 
 ${code}
 
@@ -231,7 +227,7 @@ ${code}
   try {
     if (typeof handler === 'function') {
       // Await in case handler is async (works for sync too)
-      const result = await handler(input);
+      const result = await handler(${mode === 'webhook' ? 'input, headers' : 'input'});
       console.log(JSON.stringify({ __result: result }));
     } else if (typeof result !== 'undefined') {
       // Return the result variable if defined

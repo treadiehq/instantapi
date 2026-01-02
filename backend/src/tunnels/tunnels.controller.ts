@@ -41,7 +41,7 @@ export class TunnelsController {
   ) {
     const maxWaitMs = dto.maxWaitMs || 25000;
     const organizationId = req.user?.organizationId || null;
-    return this.tunnelsService.poll(tunnelId, maxWaitMs, organizationId);
+    return this.tunnelsService.poll(tunnelId, maxWaitMs, organizationId, dto.secretToken);
   }
 
   @Post('api/tunnels/:id/respond')
@@ -51,7 +51,7 @@ export class TunnelsController {
     @Req() req: any,
   ) {
     const organizationId = req.user?.organizationId || null;
-    await this.tunnelsService.respond(tunnelId, dto, organizationId);
+    await this.tunnelsService.respond(tunnelId, dto, organizationId, dto.secretToken);
     return { success: true };
   }
 
@@ -103,7 +103,7 @@ export class TunnelsController {
     const organizationId = req.user?.organizationId || null;
     if (dto.eof) {
       // Mark stream as complete
-      await this.tunnelsService.markStreamComplete(dto.requestId, organizationId);
+      await this.tunnelsService.markStreamComplete(dto.requestId, organizationId, dto.secretToken);
     } else if (dto.chunk !== undefined && dto.sequence !== undefined) {
       // Add stream chunk
       await this.tunnelsService.addStreamChunk(
@@ -111,6 +111,7 @@ export class TunnelsController {
         dto.sequence,
         dto.chunk,
         organizationId,
+        dto.secretToken,
       );
     }
     return { success: true };

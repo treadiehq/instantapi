@@ -3,11 +3,11 @@ import { ConfigModule } from '@nestjs/config';
 import { APP_GUARD } from '@nestjs/core';
 import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
 import { ScheduleModule } from '@nestjs/schedule';
+import { DatabaseModule } from './database/database.module';
 import { EndpointsModule } from './endpoints/endpoints.module';
 import { TunnelsModule } from './tunnels/tunnels.module';
 import { AuthModule } from './auth/auth.module';
 import { AdminModule } from './admin/admin.module';
-import { PrismaService } from './prisma.service';
 import { DatabaseMaintenanceService } from './database-maintenance.service';
 
 @Module({
@@ -33,13 +33,13 @@ import { DatabaseMaintenanceService } from './database-maintenance.service';
         limit: 1000,  // Max 1000 requests per hour
       },
     ]),
+    DatabaseModule, // Global module - provides PrismaService singleton
     AuthModule,
     EndpointsModule,
     TunnelsModule,
     AdminModule,
   ],
   providers: [
-    PrismaService,
     DatabaseMaintenanceService,
     {
       provide: APP_GUARD,

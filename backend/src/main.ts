@@ -12,10 +12,14 @@ async function bootstrap() {
   // Security: Global request timeout (30 seconds)
   app.use((req: any, res: any, next: any) => {
     req.setTimeout(30000, () => {
-      res.status(408).json({ error: 'Request timeout' });
+      if (!res.headersSent) {
+        res.status(408).json({ error: 'Request timeout' });
+      }
     });
     res.setTimeout(30000, () => {
-      res.status(504).json({ error: 'Response timeout' });
+      if (!res.headersSent) {
+        res.status(504).json({ error: 'Response timeout' });
+      }
     });
     next();
   });

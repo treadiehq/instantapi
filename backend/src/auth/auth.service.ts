@@ -73,14 +73,17 @@ export class AuthService {
       throw new ConflictException('An account with this email already exists. Please login instead.');
     }
 
+    // Normalize organization name for consistent comparison and storage
+    const normalizedOrgName = dto.organizationName.toLowerCase().trim();
+
     // Check if organization name is reserved
-    if (this.isReservedOrgName(dto.organizationName)) {
+    if (this.isReservedOrgName(normalizedOrgName)) {
       throw new BadRequestException('This organization name is reserved and cannot be used. Please choose a different name.');
     }
 
-    // Check if organization name already exists
+    // Check if organization name already exists (case-insensitive)
     const existingOrg = await this.prisma.organization.findFirst({
-      where: { name: dto.organizationName },
+      where: { name: normalizedOrgName },
     });
 
     if (existingOrg) {
@@ -88,7 +91,7 @@ export class AuthService {
     }
 
     // Generate signup magic link (account will be created on verification)
-    await this.generateSignupMagicLink(dto.email, dto.organizationName);
+    await this.generateSignupMagicLink(dto.email, normalizedOrgName);
 
     return {
       message: 'Check your email for a magic link to complete your signup.',
@@ -159,23 +162,26 @@ export class AuthService {
         throw new ConflictException('An account with this email was created while you were verifying');
       }
 
+      // Normalize organization name (should already be normalized from signup, but ensure consistency)
+      const normalizedOrgName = magicLink.organizationName.toLowerCase().trim();
+
       // Check if organization name is reserved
-      if (this.isReservedOrgName(magicLink.organizationName)) {
+      if (this.isReservedOrgName(normalizedOrgName)) {
         throw new BadRequestException('This organization name is reserved and cannot be used');
       }
 
       const existingOrg = await this.prisma.organization.findFirst({
-        where: { name: magicLink.organizationName },
+        where: { name: normalizedOrgName },
       });
 
       if (existingOrg) {
         throw new ConflictException('This organization name was taken while you were verifying');
       }
 
-      // Create organization
+      // Create organization with normalized name
       const org = await this.prisma.organization.create({
         data: {
-          name: magicLink.organizationName,
+          name: normalizedOrgName,
         },
       });
 
