@@ -19,14 +19,14 @@ export default defineNuxtConfig({
         { charset: 'utf-8' },
         { name: 'viewport', content: 'width=device-width, initial-scale=1' },
         { name: 'description', content: 'The fastest way to turn your AI agents, functions, code, and scripts into APIs. No servers, no infrastructure, no DevOps.' },
-        { property: 'og:image', content: 'https://instantapi.co/img/instantapi.png' },
+        { property: 'og:image', content: 'https://instantapi.co/instantapi.png' },
         { property: 'og:title', content: 'Instant API - Run AI agents with an API' },
           { property: 'og:type', content: 'website' },
         { property: 'og:description', content: 'The fastest way to turn your AI agents, functions, code, and scripts into APIs. No servers, no infrastructure, no DevOps.' },
           { name: 'twitter:card', content: 'summary_large_image' },
         { name: 'twitter:title', content: 'Instant API - Run AI agents with an API' },
         { name: 'twitter:description', content: 'The fastest way to turn your AI agents, functions, code, and scripts into APIs. No servers, no infrastructure, no DevOps.' },
-        { name: 'twitter:image', content: 'https://instantapi.co/img/instantapi.png' },
+        { name: 'twitter:image', content: 'https://instantapi.co/instantapi.png' },
       ],
       link: [
         { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' }
